@@ -30,7 +30,7 @@ export default function MonoimeresPage() {
   return (
     <>
       <PageHero
-        photo="https://images.unsplash.com/photo-1533760881669-80db4d7b341a?w=2000&q=85"
+        photo="https://picsum.photos/seed/psatha-hero/2000/1200"
         photoAlt="Ελληνική παραλία"
         breadcrumbs={[{ label: 'Αρχική', to: '/' }, { label: 'Εκδρομές' }, { label: 'Μονοήμερες' }]}
         eyebrow="2026"

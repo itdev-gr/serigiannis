@@ -7,7 +7,7 @@ export const cruises: Cruise[] = [
     title: 'Σαλαμίνα · Αίγινα · Αγκίστρι',
     routeTag: 'Σαρωνικός',
     islands: ['Σαλαμίνα', 'Αίγινα', 'Αγκίστρι'],
-    photo: 'https://images.unsplash.com/photo-1602942506283-06c9fa4b7f47?w=1600&q=80',
+    photo: 'https://picsum.photos/seed/saronic/1600/1200',
     photoAlt: 'Ελληνικό νησί στον Σαρωνικό',
     priceFrom: 20,
     duration: 'Μονοήμερη',

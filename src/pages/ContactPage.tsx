@@ -52,7 +52,7 @@ export default function ContactPage() {
   return (
     <>
       <PageHero
-        photo="https://images.unsplash.com/photo-1598969906520-b5bea34a9db4?w=2000&q=85"
+        photo="https://picsum.photos/seed/acropolis/2000/1200"
         photoAlt="Θέα της Ακρόπολης"
         breadcrumbs={[{ label: 'Αρχική', to: '/' }, { label: 'Επικοινωνία' }]}
         eyebrow="Είμαστε εδώ για εσάς"

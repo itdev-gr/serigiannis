@@ -23,10 +23,13 @@ export function RevealOnScroll({ children, selector = '[data-reveal]', stagger =
 
     gsap.set(targets, { opacity: 0, y });
     ScrollTrigger.batch(Array.from(targets), {
-      start: 'top 85%',
+      start: 'top bottom-=40',
       onEnter: (batch) => gsap.to(batch, { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', stagger, overwrite: true }),
       once: true,
     });
+    // Force ScrollTrigger to recalculate positions once the layout has settled
+    // (accounts for images loading after mount + async fonts).
+    requestAnimationFrame(() => ScrollTrigger.refresh());
   }, scopeRef, [reduced]);
 
   return <div ref={scopeRef} className={className}>{children}</div>;
