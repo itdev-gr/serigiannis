@@ -5,6 +5,7 @@ import KroyazieresPage from './pages/KroyazieresPage';
 import RentalsPage from './pages/RentalsPage';
 import ContactPage from './pages/ContactPage';
 import { Navbar } from '@/components/layout/Navbar';
+import { Footer } from '@/components/layout/Footer';
 
 export default function App() {
   return (
@@ -18,6 +19,7 @@ export default function App() {
         <Route path="/pullman-rentals" element={<RentalsPage />} />
         <Route path="/epikoinonia" element={<ContactPage />} />
       </Routes>
+      <Footer />
     </>
   );
 }
