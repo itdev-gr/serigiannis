@@ -1,32 +1,39 @@
-# React + TypeScript + Vite
+# Sergiani Travel — Website Redesign Template
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Production-quality React template presenting a redesign of https://sergianitravel.gr, built for client review.
 
-Currently, two official plugins are available:
+## Design System
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+"Aegean Editorial" — full spec in `docs/superpowers/specs/2026-07-01-serigiani-redesign-design.md`.
 
-## React Compiler
+Palette: Aegean Deep (#1B3A5C) · Terracotta (#C96A47) · Ivory Sand (#F7F2EB).
+Type: Playfair Display + Inter.
+Motion: GSAP with ScrollTrigger, respecting `prefers-reduced-motion`.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Pages
 
-## Expanding the Oxlint configuration
+- `/` — Home
+- `/monoimeres` — Day Trips listing
+- `/kroyazieres` — Cruises listing
+- `/pullman-rentals` — Bus Rentals
+- `/epikoinonia` — Contact
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+## Running locally
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Then open http://localhost:5173.
+
+## Tech stack
+
+React 19, TypeScript, Vite, Tailwind CSS, GSAP, React Router, React Hook Form, Zod, Lucide React.
+
+## Scripts
+
+- `npm run dev` — start dev server
+- `npm run build` — build for production
+- `npm run preview` — preview production build
+- `npm run test:run` — run vitest suite
