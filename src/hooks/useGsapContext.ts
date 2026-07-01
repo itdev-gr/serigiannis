@@ -8,7 +8,7 @@ import { gsap } from 'gsap';
  */
 export function useGsapContext(
   setup: (ctx: gsap.Context) => void,
-  scopeRef: RefObject<HTMLElement>,
+  scopeRef: RefObject<HTMLElement | null>,
   deps: unknown[] = []
 ) {
   const ctxRef = useRef<gsap.Context | null>(null);

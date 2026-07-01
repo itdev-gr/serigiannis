@@ -6,19 +6,22 @@ import RentalsPage from './pages/RentalsPage';
 import ContactPage from './pages/ContactPage';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
+import { PageTransition } from '@/components/layout/PageTransition';
 
 export default function App() {
   return (
     <>
       <a href="#main" className="skip-link">Μετάβαση στο περιεχόμενο</a>
       <Navbar />
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/monoimeres" element={<MonoimeresPage />} />
-        <Route path="/kroyazieres" element={<KroyazieresPage />} />
-        <Route path="/pullman-rentals" element={<RentalsPage />} />
-        <Route path="/epikoinonia" element={<ContactPage />} />
-      </Routes>
+      <PageTransition>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/monoimeres" element={<MonoimeresPage />} />
+          <Route path="/kroyazieres" element={<KroyazieresPage />} />
+          <Route path="/pullman-rentals" element={<RentalsPage />} />
+          <Route path="/epikoinonia" element={<ContactPage />} />
+        </Routes>
+      </PageTransition>
       <Footer />
     </>
   );
