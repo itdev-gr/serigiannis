@@ -1,0 +1,43 @@
+import type { Cruise } from '@/types';
+
+export const cruises: Cruise[] = [
+  {
+    id: 'c1',
+    slug: 'salamina-aigina-agkistri',
+    title: 'Σαλαμίνα · Αίγινα · Αγκίστρι',
+    routeTag: 'Σαρωνικός',
+    islands: ['Σαλαμίνα', 'Αίγινα', 'Αγκίστρι'],
+    photo: 'https://images.unsplash.com/photo-1602942506283-06c9fa4b7f47?w=1600&q=80',
+    photoAlt: 'Ελληνικό νησί στον Σαρωνικό',
+    priceFrom: 20,
+    duration: 'Μονοήμερη',
+    dates: 'Κάθε Κυριακή · Ιούλιος–Αύγουστος',
+    description: 'Τρία νησιά, μία μέρα, μια κρουαζιέρα με μπάνιο, φαγητό και ξενάγηση.',
+  },
+  {
+    id: 'c2',
+    slug: 'kolymvisis-agkistri-metopi-aigina',
+    title: 'Κρουαζιέρα Κολύμβησης',
+    routeTag: 'Αργοσαρωνικός',
+    islands: ['Αγκίστρι', 'Μετώπη', 'Αίγινα'],
+    photo: 'https://images.unsplash.com/photo-1548574505-5e239809ee19?w=1600&q=80',
+    photoAlt: 'Κρυστάλλινα νερά ελληνικού νησιού',
+    priceFrom: 55,
+    duration: 'Ημερήσια',
+    dates: 'Καθημερινά · Ιούνιος–Σεπτέμβριος',
+    description: 'Μια μέρα αφιερωμένη στη θάλασσα — τρία σημεία, πολλές βουτιές.',
+  },
+  {
+    id: 'c3',
+    slug: 'ydra-poros-aigina',
+    title: 'Ύδρα · Πόρος · Αίγινα',
+    routeTag: 'Αργοσαρωνικός',
+    islands: ['Ύδρα', 'Πόρος', 'Αίγινα'],
+    photo: 'https://images.unsplash.com/photo-1523592121529-f6dde35f079e?w=1600&q=80',
+    photoAlt: 'Λιμάνι Ύδρας από ψηλά',
+    priceFrom: 55,
+    duration: 'One-day cruise',
+    dates: 'Καθημερινά',
+    description: 'Τα τρία στολίδια του Αργοσαρωνικού με γεύμα και μουσική στο πλοίο.',
+  },
+];
