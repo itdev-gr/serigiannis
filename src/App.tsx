@@ -4,11 +4,13 @@ import MonoimeresPage from './pages/MonoimeresPage';
 import KroyazieresPage from './pages/KroyazieresPage';
 import RentalsPage from './pages/RentalsPage';
 import ContactPage from './pages/ContactPage';
+import { Navbar } from '@/components/layout/Navbar';
 
 export default function App() {
   return (
     <>
       <a href="#main" className="skip-link">Μετάβαση στο περιεχόμενο</a>
+      <Navbar />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/monoimeres" element={<MonoimeresPage />} />
