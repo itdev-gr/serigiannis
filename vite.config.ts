@@ -10,6 +10,7 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  // @ts-expect-error — vitest config extension, typed via triple-slash reference above
   test: {
     globals: true,
     environment: 'jsdom',
