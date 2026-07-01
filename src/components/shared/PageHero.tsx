@@ -18,7 +18,7 @@ type Props = {
   heightClass?: string; // e.g. 'h-[60vh]'
 };
 
-export function PageHero({ photo, photoAlt, eyebrow, title, subtitle, breadcrumbs, heightClass = 'h-[60vh] min-h-[420px]' }: Props) {
+export function PageHero({ photo, photoAlt, eyebrow, title, subtitle, breadcrumbs, heightClass = 'h-[62vh] min-h-[540px]' }: Props) {
   const scopeRef = useRef<HTMLElement>(null);
   const reduced = useReducedMotion();
 
@@ -40,7 +40,7 @@ export function PageHero({ photo, photoAlt, eyebrow, title, subtitle, breadcrumb
         className="absolute inset-0 h-full w-full object-cover"
       />
       <div className="absolute inset-0 bg-gradient-to-b from-deep-ink/50 via-deep-ink/40 to-deep-ink/80" />
-      <div className="container relative flex h-full flex-col justify-end pb-16 pt-32 text-surface">
+      <div className="container relative flex h-full flex-col justify-end pb-14 pt-28 text-surface">
         {breadcrumbs && (
           <nav aria-label="breadcrumb" className="mb-5 flex items-center gap-1.5 text-[12px] font-medium uppercase tracking-[0.14em] text-surface/70">
             {breadcrumbs.map((c, i) => (
@@ -52,8 +52,8 @@ export function PageHero({ photo, photoAlt, eyebrow, title, subtitle, breadcrumb
           </nav>
         )}
         {eyebrow && <p data-hero-eyebrow className="mb-3 font-sans text-[13px] font-semibold uppercase tracking-[0.18em] text-cta">{eyebrow}</p>}
-        <h1 data-hero-title className="max-w-4xl font-display text-display-hero text-balance">{title}</h1>
-        {subtitle && <p data-hero-subtitle className="mt-5 max-w-2xl text-[19px] leading-relaxed text-surface/85">{subtitle}</p>}
+        <h1 data-hero-title className="max-w-4xl font-display text-5xl font-bold leading-[1.05] text-balance text-surface md:text-6xl xl:text-7xl">{title}</h1>
+        {subtitle && <p data-hero-subtitle className="mt-5 max-w-2xl text-[17px] leading-relaxed text-surface/85 md:text-[19px]">{subtitle}</p>}
       </div>
     </section>
   );

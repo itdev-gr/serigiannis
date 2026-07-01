@@ -17,7 +17,6 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
-  const isHome = location.pathname === '/';
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60);
@@ -26,9 +25,14 @@ export function Navbar() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  useEffect(() => { setMobileOpen(false); }, [location.pathname]);
+  useEffect(() => {
+    setMobileOpen(false);
+    setScrolled(window.scrollY > 60);
+  }, [location.pathname]);
 
-  const dark = isHome && !scrolled;
+  // Every page has a full-bleed dark hero on top, so use dark nav styling
+  // (transparent + white text) at scroll=0 across the whole site.
+  const dark = !scrolled;
 
   return (
     <>
