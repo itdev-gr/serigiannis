@@ -27,9 +27,11 @@ create trigger leads_touch before update on public.leads
   for each row execute function public.touch_updated_at();
 
 alter table public.leads enable row level security;
--- Public may submit a lead; the app pins status='new' server-side.
+-- Public may submit a lead, but only as a fresh enquiry: the RLS itself pins
+-- status='new' and forbids admin_notes, so a client can't POST a forged
+-- "booked" lead or attacker-controlled notes straight to /rest/v1/leads.
 create policy leads_public_insert on public.leads for insert to anon, authenticated
-  with check (true);
+  with check (status = 'new' and admin_notes is null);
 create policy leads_admin_read   on public.leads for select to authenticated using (public.is_admin());
 create policy leads_admin_update on public.leads for update to authenticated using (public.is_admin()) with check (public.is_admin());
 create policy leads_admin_delete on public.leads for delete to authenticated using (public.is_admin());
