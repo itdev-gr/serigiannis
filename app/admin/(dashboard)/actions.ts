@@ -125,7 +125,7 @@ export async function upsertTour(formData: FormData) {
   }
 
   revalidatePublic();
-  redirect('/admin');
+  redirect('/admin/tours');
 }
 
 export async function setLeadStatus(id: string, status: string) {
@@ -148,4 +148,26 @@ export async function deleteLead(id: string) {
   await sb.from('leads').delete().eq('id', id);
   revalidatePath('/admin/requests');
   redirect('/admin/requests');
+}
+
+export async function upsertCategory(formData: FormData) {
+  const sb = await createServerClient();
+  const id = (formData.get('id') as string) || null;
+  const payload = {
+    name_el: String(formData.get('name_el') || '').trim(),
+    slug: String(formData.get('slug') || '').trim(),
+    sort_order: Number(formData.get('sort_order') || 0),
+  };
+  if (!payload.name_el || !payload.slug) return;
+  if (id) await sb.from('categories').update(payload).eq('id', id);
+  else await sb.from('categories').insert(payload);
+  revalidatePublic();
+  revalidatePath('/admin/categories');
+}
+
+export async function deleteCategory(id: string) {
+  const sb = await createServerClient();
+  await sb.from('categories').delete().eq('id', id);
+  revalidatePublic();
+  revalidatePath('/admin/categories');
 }
