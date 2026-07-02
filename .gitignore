@@ -31,3 +31,8 @@ next-env.d.ts
 *.njsproj
 *.sln
 *.sw?
+
+# Local browser-automation / verification artifacts
+.playwright-mcp/
+/home1-full.jpeg
+/hero-slideshow.jpeg
