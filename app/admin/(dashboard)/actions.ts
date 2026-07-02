@@ -127,3 +127,25 @@ export async function upsertTour(formData: FormData) {
   revalidatePublic();
   redirect('/admin');
 }
+
+export async function setLeadStatus(id: string, status: string) {
+  const sb = await createServerClient();
+  await sb.from('leads').update({ status }).eq('id', id);
+  revalidatePath('/admin');
+  revalidatePath('/admin/requests');
+  revalidatePath('/admin/bookings');
+  revalidatePath(`/admin/requests/${id}`);
+}
+
+export async function saveLeadNotes(id: string, notes: string) {
+  const sb = await createServerClient();
+  await sb.from('leads').update({ admin_notes: notes }).eq('id', id);
+  revalidatePath(`/admin/requests/${id}`);
+}
+
+export async function deleteLead(id: string) {
+  const sb = await createServerClient();
+  await sb.from('leads').delete().eq('id', id);
+  revalidatePath('/admin/requests');
+  redirect('/admin/requests');
+}
