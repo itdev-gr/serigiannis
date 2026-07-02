@@ -19,7 +19,7 @@ export function TourCard({ tour }: { tour: Tour }) {
         </div>
         {primaryCat && (
           <div className="absolute left-4 top-4">
-            <span className="inline-flex items-center rounded-full bg-surface/95 px-3 py-1.5 font-sans text-[11px] font-semibold uppercase tracking-[0.12em] text-primary shadow-sm backdrop-blur">
+            <span className="glass inline-flex items-center rounded-full px-3 py-1.5 font-sans text-[11px] font-semibold uppercase tracking-[0.12em] text-primary shadow-sm">
               {primaryCat.name_el}
             </span>
           </div>

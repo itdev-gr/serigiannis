@@ -57,7 +57,7 @@ export function ToursExplorer({
 
   return (
     <div>
-      <div className="sticky top-20 z-20 -mx-4 mb-10 flex flex-col gap-3 border-y border-border bg-background/95 px-4 py-4 backdrop-blur lg:flex-row lg:items-center lg:justify-between">
+      <div className="glass sticky top-20 z-20 -mx-4 mb-10 flex flex-col gap-3 border-y border-border px-4 py-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex items-center gap-3 overflow-x-auto scrollbar-hide">
           <SlidersHorizontal className="h-4 w-4 shrink-0 text-muted" strokeWidth={1.75} />
           {!lockedCategory && (

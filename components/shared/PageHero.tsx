@@ -30,16 +30,21 @@ export function PageHero({ photo, photoAlt = '', eyebrow, title, subtitle, bread
       .from('[data-hero-eyebrow]', { y: 20, opacity: 0, duration: 0.5 }, '-=1.0')
       .from('[data-hero-title]', { y: 30, opacity: 0, duration: 0.7 }, '-=0.75')
       .from('[data-hero-subtitle]', { y: 20, opacity: 0, duration: 0.55 }, '-=0.5');
+    gsap.to('[data-hero-image]', {
+      yPercent: 8,
+      ease: 'none',
+      scrollTrigger: { trigger: scopeRef.current!, start: 'top top', end: 'bottom top', scrub: true },
+    });
   }, scopeRef, []);
 
   return (
     <section ref={scopeRef} className={`relative w-full overflow-hidden ${heightClass}`}>
       {photo ? (
-        <div data-hero-image className="absolute inset-0">
+        <div data-hero-image className="absolute inset-x-0 -top-[8%] h-[116%]">
           <Image src={photo} alt={photoAlt} fill priority sizes="100vw" className="object-cover" />
         </div>
       ) : (
-        <div data-hero-image className="absolute inset-0 bg-gradient-to-br from-primary via-primary to-deep-ink" />
+        <div data-hero-image className="absolute inset-0 bg-mesh-blue" />
       )}
       <div className="absolute inset-0 bg-gradient-to-b from-deep-ink/50 via-deep-ink/40 to-deep-ink/80" />
       <div className="container relative flex h-full flex-col justify-end pb-14 pt-28 text-surface">

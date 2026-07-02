@@ -112,7 +112,7 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
                   <li className="flex items-center gap-3"><MapPin className="h-5 w-5 shrink-0 text-primary/60" strokeWidth={1.75} /><span>{tour.meeting_point}</span></li>
                 )}
               </ul>
-              <Button asChild size="lg" className="mt-8 w-full">
+              <Button asChild variant="accent" size="lg" className="mt-8 w-full">
                 <Link href="/epikoinonia">Κλείστε Θέση</Link>
               </Button>
               <a href="tel:+302105712451" className="mt-3 flex items-center justify-center gap-2 font-sans text-[14px] font-semibold text-primary hover:text-cta">
