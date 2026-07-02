@@ -47,25 +47,56 @@ The existing `components/home/{HomeHero,CategoryStrip,EditorialFeature,StorySect
 
 ---
 
-## Task 0: Reconcile content from the site crawl
+## Task 0: Content reconciled from the site crawl — DONE (verbatim strings below)
 
-**Purpose:** Fold the live-site crawl of https://sergianitravel.gr/ into `components/home/content.ts` so hero/about/process/promo copy and footer legal (e.g. ΜΗΤΕ number) reflect the real site. Until the crawl output is available, the concrete Greek copy written in `content.ts` (Task 2) stands as the source of truth; this task swaps in any verbatim strings the crawl produced.
+**Status:** The full crawl of https://sergianitravel.gr/ completed. The real Greek
+copy is already baked into `content.ts` (Task 2 Step 5) and the testimonials/settings
+updates (Steps below). No re-crawl needed.
+
+**Crawl-confirmed facts used in this plan:**
+- Real hero subhead, per-category section blurbs, the 4 "Γιατί να μας Εμπιστευτείτε"
+  trust points, and the real About paragraph — all in `content.ts`.
+- Contact: Π. Μελά 45, Περιστέρι 121 31 (Μετρό Αγίου Αντωνίου); phones 210 571 2451,
+  210 821 2452, mobile 24ωρο 6976 811 825; info@sergianitravel.gr; socials FB
+  `/sergiani.travelgr/`, IG `@sergiani_travel`, YT `@sergianitravel`. These match
+  `data/seed/tours.ts` `seedSettings` already — no change needed.
+- Real testimonials (update `data/site.ts` — Step 1 below).
+
+**Unresolved conflicts (decisions folded in; see the plan handoff note):**
+- **Opening hours differ on the live site:** contact page says Δευ–Παρ 9:30–19:30 /
+  Σάβ 10:00–14:00, while footer & about say 09:00–17:00 / Σάβ 09:00–14:00. This plan
+  keeps the **footer/settings version (09:00–17:00, Σάβ 09:00–14:00)** already in
+  `seedSettings` and `Footer.tsx`. Change later if the owner confirms otherwise.
+- **Founding year:** 1995 everywhere except the bus page (1993). Plan uses **1995**.
+- **ΜΗΤΕ/ΓΕΜΗ/ΑΦΜ:** not present anywhere on the live site. No legal number is added;
+  footer legal line stays «© 2026 Sergiani Travel. Με επιφύλαξη παντός δικαιώματος.»
+- **Homepage stat values** are JS counters (not in HTML). Plan keeps the existing
+  `data/site.ts` values (30+, 500+, 10.000+, 50+), consistent with «από το 1995 / πάνω
+  από 30 χρόνια / χιλιάδες ταξιδιώτες».
 
 **Files:**
-- Modify: `components/home/content.ts` (after Task 2 creates it)
+- Modify: `data/site.ts` (testimonials → real quotes)
 
-- [ ] **Step 1:** Read the crawl inventory (agent output from the writing session, or re-run a crawl of https://sergianitravel.gr/). Extract: hero headline/subhead, the company "about" paragraph, any stated stats (years, travelers), the exact contact block, and the ΜΗΤΕ/ΓΕΜΗ registration number if present.
-- [ ] **Step 2:** Replace the corresponding fields in `components/home/content.ts` with the verbatim Greek strings. Where the crawl did not yield a value, keep the existing concrete copy (do not introduce placeholders).
-- [ ] **Step 3:** If a ΜΗΤΕ number was found, add it to `components/layout/Footer.tsx` legal line.
-- [ ] **Step 4:** Run `npm run test:run` (Expected: PASS) and `npm run build` (Expected: success).
-- [ ] **Step 5:** Commit.
+- [ ] **Step 1: Replace `testimonials` in `data/site.ts`** with the real ★★★★★ reviews from the site:
 
-```bash
-git add components/home/content.ts components/layout/Footer.tsx
-git commit -m "content: reconcile home copy + legal from sergianitravel.gr crawl"
+```ts
+export const testimonials: Testimonial[] = [
+  { id: 'q1', name: 'Μαρία Κ.', city: 'Αθήνα', quote: 'Εξαιρετική οργάνωση και φιλικό προσωπικό! Η μονοήμερη στα Μετέωρα ήταν αξέχαστη. Θα ξαναπάμε σίγουρα!' },
+  { id: 'q2', name: 'Γιώργος Π.', city: 'Περιστέρι', quote: 'Πολυήμερη εκδρομή στην Καππαδοκία, τέλεια! Τιμές λογικές, ξενοδοχεία πολύ καλά, ο συνοδός άψογος.' },
+  { id: 'q3', name: 'Ελένη Μ.', city: 'Ομόνοια', quote: 'Καθημερινά θαλάσσια μπάνια στην Ψάθα — πολύ βολικό για εμάς τους Αθηναίους. Καθαρή θάλασσα, σωστό πρόγραμμα!' },
+];
 ```
 
-> Execution note: this task is content-only and non-blocking. Do it first if the crawl output is ready; otherwise implement Tasks 1–11 and return to it before final verification.
+- [ ] **Step 2:** Run `npm run test:run` (Expected: PASS) and `npm run build` (Expected: success).
+- [ ] **Step 3:** Commit.
+
+```bash
+git add data/site.ts
+git commit -m "content: real testimonials from sergianitravel.gr crawl"
+```
+
+> Execution note: this task is content-only. The rest of the crawl copy is already in
+> `content.ts` (Task 2), so Tasks 1–13 can run in order.
 
 ---
 
@@ -164,16 +195,17 @@ Expected: PASS (3 tests).
 
 ```ts
 // Static Greek copy for the Home 1 homepage. Tour/category/contact data comes from
-// the DB layer; this file holds editorial copy only. Refined from the site crawl (Task 0).
+// the DB layer; this file holds editorial copy only. Strings are the real copy from
+// sergianitravel.gr (crawl, Task 0), trimmed for a big-hero layout.
 
 export const homeContent = {
   hero: {
-    eyebrow: 'Από το 1995 · Ταξιδιωτικό Γραφείο Περιστέρι',
-    titleTop: 'Κάθε ταξίδι,',
-    titleEmph: 'μια περιπέτεια',
+    eyebrow: 'Ταξιδιωτικό Γραφείο Περιστέρι · Από το 1995',
+    titleTop: 'Εκδρομές από Αθήνα,',
+    titleEmph: 'κάθε εβδομάδα',
     subtitle:
-      'Μονοήμερες, πολυήμερες εκδρομές και κρουαζιέρες από την Αθήνα. Άνετα πούλμαν, έμπειροι συνοδοί, ξεκάθαρες τιμές.',
-    bookedNote: '10.000+ ταξιδιώτες μάς εμπιστεύτηκαν',
+      'Μονοήμερες & πολυήμερες εκδρομές, θαλάσσια μπάνια, κρουαζιέρες και ενοικιάσεις πούλμαν — αποδράσεις από την Αθήνα για όλη την Ελλάδα.',
+    bookedNote: 'Χιλιάδες ταξιδιώτες μάς εμπιστεύτηκαν',
     searchLabel: 'Βρείτε την εκδρομή σας',
     searchCta: 'Αναζήτηση',
     allOption: 'Όλες οι εκδρομές',
@@ -185,10 +217,17 @@ export const homeContent = {
   },
   about: {
     eyebrow: 'Ποιοι είμαστε',
-    title: 'Τριάντα χρόνια δημιουργούμε αναμνήσεις',
-    body: 'Είμαστε ένα ταξιδιωτικό γραφείο στο Περιστέρι που πιστεύει ότι κάθε εκδρομή είναι μια ιστορία. Οργανώνουμε ταξίδια σε όλη την Ελλάδα με σεβασμό στον χρόνο και τη διάθεσή σας — από την αρχή ως το τέλος.',
+    title: 'Ταξιδιωτικό γραφείο στο Περιστέρι, από το 1995',
+    body: 'Τρεις δεκαετίες μετά, είμαστε ένα από τα πιο αξιόπιστα ταξιδιωτικά γραφεία της Αθήνας. Έχουμε ταξιδέψει χιλιάδες ταξιδιώτες, οικογένειες, σχολεία και επιχειρήσεις σε όλη την Ελλάδα και το εξωτερικό — με αξιοπιστία, ασφάλεια και μεράκι.',
     cta: 'Ελάτε να γνωριστούμε',
     ctaHref: '/epikoinonia',
+    // Real "Γιατί να μας Εμπιστευτείτε" trust points from the homepage.
+    trust: [
+      { title: 'Εμπειρία από το 1995', text: 'Πάνω από 30 χρόνια οργανώνουμε αξέχαστες εκδρομές με αξιοπιστία και επαγγελματισμό.' },
+      { title: 'Ασφάλεια & Αξιοπιστία', text: 'Πλήρης ταξιδιωτική ασφάλεια, άρτια οργάνωση και έμπειροι συνοδοί σε κάθε εκδρομή.' },
+      { title: 'Μεγάλη Ποικιλία', text: 'Μονοήμερες, πολυήμερες, κρουαζιέρες, θαλάσσια μπάνια και ενοικιάσεις πούλμαν.' },
+      { title: 'Προσιτές Τιμές', text: 'Εξαιρετική σχέση ποιότητας-τιμής, με δυνατότητα κατάθεσης και πληρωμής με κάρτα.' },
+    ],
   },
   listing: {
     eyebrow: 'Ξεχωριστές Επιλογές',
@@ -198,9 +237,9 @@ export const homeContent = {
     actionHref: '/ekdromes',
   },
   promo: {
-    eyebrow: 'Ενοικίαση Πούλμαν',
+    eyebrow: 'Ενοικιάσεις Πούλμαν & Μίνι Βαν',
     title: 'Ιδιωτικές μεταφορές για την ομάδα σας',
-    body: 'Σχολικές εκδρομές, γάμοι, εταιρικές μετακινήσεις — σύγχρονα πούλμαν κάθε μεγέθους με έμπειρους οδηγούς.',
+    body: 'Σχολικές εκδρομές, εκδηλώσεις, εταιρικές & VIP μετακινήσεις — σύγχρονος στόλος οχημάτων κάθε μεγέθους (minivan, minibus, πούλμαν) με έμπειρους Έλληνες οδηγούς.',
     cta: 'Ζητήστε προσφορά',
     ctaHref: '/enoikiaseis-poylman',
   },
@@ -209,13 +248,13 @@ export const homeContent = {
     title: 'Τρία βήματα για την επόμενη απόδρασή σας',
     steps: [
       { n: '01', title: 'Επιλέξτε εκδρομή', text: 'Δείτε τους προορισμούς και τις ημερομηνίες αναχώρησης.' },
-      { n: '02', title: 'Κλείστε θέση', text: 'Καλέστε μας ή στείλτε μήνυμα — απαντάμε την ίδια μέρα.' },
+      { n: '02', title: 'Κλείστε θέση', text: 'Κράτηση online με κάρτα, στο γραφείο ή με κατάθεση — απαντάμε την ίδια μέρα.' },
       { n: '03', title: 'Ταξιδέψτε', text: 'Ανεβείτε στο πούλμαν και αφήστε τα υπόλοιπα σε εμάς.' },
     ],
   },
   testimonials: {
-    eyebrow: 'Οι Ταξιδιώτες Μας',
-    title: 'Τι λένε όσοι ταξίδεψαν μαζί μας',
+    eyebrow: 'Τι Λένε οι Πελάτες μας',
+    title: 'Ταξιδιώτες που μας εμπιστεύτηκαν',
   },
   news: {
     eyebrow: 'Επόμενες Αναχωρήσεις',
@@ -474,11 +513,13 @@ git commit -m "feat: Home1Destinations category cards"
 import { Home1About } from '@/components/home/Home1About';
 
 describe('Home1About', () => {
-  it('renders the about heading and the four stats labels', () => {
+  it('renders the about heading, the four stats labels, and the trust points', () => {
     render(<Home1About />);
-    expect(screen.getByRole('heading', { name: /αναμνήσεις/ })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /Περιστέρι/ })).toBeInTheDocument();
     expect(screen.getByText('Χρόνια Εμπειρίας')).toBeInTheDocument();
     expect(screen.getByText('Προορισμοί')).toBeInTheDocument();
+    expect(screen.getByText('Εμπειρία από το 1995')).toBeInTheDocument();
+    expect(screen.getByText('Προσιτές Τιμές')).toBeInTheDocument();
   });
 });
 ```
@@ -489,6 +530,7 @@ describe('Home1About', () => {
 
 ```tsx
 import Link from 'next/link';
+import { ShieldCheck } from 'lucide-react';
 import { stats } from '@/data/site';
 import { StatCounter } from '@/components/shared/StatCounter';
 import { Button } from '@/components/ui/Button';
@@ -509,8 +551,21 @@ export function Home1About() {
             </Button>
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-10 md:col-span-7 md:gap-14">
-          {stats.map((stat) => <StatCounter key={stat.id} stat={stat} />)}
+        <div className="md:col-span-7">
+          <div className="grid grid-cols-2 gap-10 md:gap-14">
+            {stats.map((stat) => <StatCounter key={stat.id} stat={stat} />)}
+          </div>
+          <ul className="mt-14 grid gap-6 sm:grid-cols-2">
+            {c.trust.map((item) => (
+              <li key={item.title} className="flex gap-4">
+                <ShieldCheck className="mt-1 h-6 w-6 shrink-0 text-gold" strokeWidth={1.5} aria-hidden="true" />
+                <div>
+                  <h3 className="font-display text-[19px] font-semibold text-surface">{item.title}</h3>
+                  <p className="mt-1 text-[15px] leading-relaxed text-surface/70">{item.text}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </section>
