@@ -106,10 +106,23 @@ export function Footer() {
       </div>
       <div className="border-t border-surface/10">
         <div className="container flex flex-col items-center justify-between gap-3 py-6 text-[13px] text-surface/60 md:flex-row">
-          <div>© 2026 Sergiani Travel. All rights reserved.</div>
-          <div className="flex gap-6">
-            <Link href="/oroi" className="hover:text-surface">Όροι Συμμετοχής</Link>
-            <Link href="/oroi" className="hover:text-surface">Πολιτική Απορρήτου</Link>
+          <div>© 2026 Sergiani Travel. Με επιφύλαξη παντός δικαιώματος.</div>
+          <div className="flex flex-col items-center gap-3 sm:flex-row sm:gap-6">
+            <div className="flex gap-6">
+              <Link href="/oroi" className="hover:text-surface">Όροι Συμμετοχής</Link>
+              <Link href="/oroi" className="hover:text-surface">Πολιτική Απορρήτου</Link>
+            </div>
+            <span>
+              Powered by{' '}
+              <a
+                href="https://www.itdev.gr/"
+                target="_blank"
+                rel="noopener"
+                className="font-semibold text-surface hover:text-cta"
+              >
+                ITDEV
+              </a>
+            </span>
           </div>
         </div>
       </div>
