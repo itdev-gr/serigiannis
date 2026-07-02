@@ -52,7 +52,7 @@ export function EditorialFeature() {
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-6">
             <Button asChild>
-              <Link href="/tour/ydra">Δείτε τη Διαδρομή</Link>
+              <Link href="/ekdromes">Δείτε τις Εκδρομές</Link>
             </Button>
             <div className="font-display text-lg italic text-muted">από <span className="text-2xl font-bold not-italic text-cta">25€</span></div>
           </div>
