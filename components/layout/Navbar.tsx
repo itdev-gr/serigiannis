@@ -69,9 +69,9 @@ export function Navbar() {
                   href={to}
                   aria-current={active ? 'page' : undefined}
                   className={cn(
-                    'rounded-full px-4 py-2 font-sans text-[13px] font-medium uppercase tracking-[0.1em] transition-all',
-                    dark ? 'text-surface/85 hover:bg-surface/10 hover:text-surface' : 'text-primary hover:bg-primary/5',
-                    active && (dark ? 'bg-surface/15 text-surface' : 'bg-primary/10 text-primary')
+                    'px-3 py-2 font-sans text-[13px] font-medium uppercase tracking-[0.1em] transition-colors',
+                    dark ? 'text-surface/85 hover:text-surface' : 'text-primary hover:text-cta',
+                    active && (dark ? 'text-surface underline underline-offset-8 decoration-cta decoration-2' : 'text-cta underline underline-offset-8 decoration-2')
                   )}
                 >
                   {label}
