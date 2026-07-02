@@ -16,6 +16,7 @@ const STATIC_ROUTES = [
   '/epikoinonia',
   '/istoriko-ekdromon',
   '/oroi',
+  '/politiki-aporritou',
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

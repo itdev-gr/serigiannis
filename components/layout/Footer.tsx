@@ -111,7 +111,7 @@ export async function Footer() {
           <div className="flex flex-col items-center gap-3 sm:flex-row sm:gap-6">
             <div className="flex gap-6">
               <Link href="/oroi" className="hover:text-surface">Όροι Συμμετοχής</Link>
-              <Link href="/oroi" className="hover:text-surface">Πολιτική Απορρήτου</Link>
+              <Link href="/politiki-aporritou" className="hover:text-surface">Πολιτική Απορρήτου</Link>
             </div>
             <span>
               Powered by{' '}

@@ -7,6 +7,7 @@ import { TourCard } from '@/components/trips/TourCard';
 import { Button } from '@/components/ui/Button';
 import { getTourBySlug, getTours, getPublishedSlugs } from '@/lib/queries/tours';
 import { coverImage, imageUrl } from '@/lib/images';
+import { SITE_URL } from '@/lib/seo';
 
 export const revalidate = 3600;
 
@@ -44,20 +45,42 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
     .filter((t) => t.slug !== tour.slug && t.categories?.some((c) => primaryCat && c.slug === primaryCat.slug))
     .slice(0, 3);
 
+  const coverUrl = imageUrl(cover);
+  const tourUrl = `${SITE_URL}/tour/${tour.slug}`;
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'TouristTrip',
     name: tour.title,
     description: tour.summary ?? undefined,
+    url: tourUrl,
+    ...(coverUrl ? { image: [coverUrl] } : {}),
     ...(tour.price_from != null
-      ? { offers: { '@type': 'Offer', price: tour.price_from, priceCurrency: tour.currency } }
+      ? {
+          offers: {
+            '@type': 'Offer',
+            price: tour.price_from,
+            priceCurrency: tour.currency,
+            availability: 'https://schema.org/InStock',
+            url: tourUrl,
+          },
+        }
       : {}),
-    provider: { '@type': 'TravelAgency', name: 'Sergiani Travel' },
+    provider: { '@type': 'TravelAgency', name: 'Sergiani Travel', url: SITE_URL },
+  };
+  const breadcrumbLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Αρχική', item: SITE_URL },
+      { '@type': 'ListItem', position: 2, name: 'Εκδρομές', item: `${SITE_URL}/ekdromes` },
+      { '@type': 'ListItem', position: 3, name: tour.title, item: tourUrl },
+    ],
   };
 
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
       <PageHero
         photo={imageUrl(cover) ?? undefined}
         photoAlt={cover?.alt_el ?? tour.title}
