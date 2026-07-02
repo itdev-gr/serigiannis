@@ -1,0 +1,28 @@
+import type { MetadataRoute } from 'next';
+import { getPublishedSlugs } from '@/lib/queries/tours';
+import { SITE_URL } from '@/lib/seo';
+
+const STATIC_ROUTES = [
+  '',
+  '/ekdromes',
+  '/ekdromes/monoimeres',
+  '/ekdromes/polyimeres',
+  '/ekdromes/thalassia-mpania',
+  '/ekdromes/kroyazieres',
+  '/ekdromes/pezopories',
+  '/ekdromes/eksoterikou',
+  '/kroyazieres',
+  '/enoikiaseis-poylman',
+  '/epikoinonia',
+  '/istoriko-ekdromon',
+  '/oroi',
+];
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const slugs = await getPublishedSlugs();
+  const now = new Date();
+  return [
+    ...STATIC_ROUTES.map((r) => ({ url: `${SITE_URL}${r}`, lastModified: now })),
+    ...slugs.map((s) => ({ url: `${SITE_URL}/tour/${s}`, lastModified: now })),
+  ];
+}

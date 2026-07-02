@@ -23,6 +23,8 @@ const TOURS = [
   { slug: 'akr-sounio', title: 'Ακρωτήριο Σούνιο', cat: 'monoimeres', price: 20, duration: '4–5 ώρες', dates: 'Καθημερινά', desc: 'Το ηλιοβασίλεμα στον Ναό του Ποσειδώνα.', photo: 'https://images.unsplash.com/photo-1503152394-c571994fd383?w=1600&q=80', alt: 'Ναός του Ποσειδώνα στο Σούνιο' },
   { slug: 'pilio', title: 'Πήλιο', cat: 'polyimeres', price: 180, duration: '2 ημέρες', dates: '1–2/8/2026', desc: 'Το βουνό των Κενταύρων, τα χωριά και οι κρυμμένες παραλίες.', photo: 'https://picsum.photos/seed/pilio/1600/1200', alt: 'Χωριά Πηλίου' },
   { slug: 'skyros', title: 'Σκύρος', cat: 'polyimeres', price: 240, duration: '3 ημέρες', dates: '5–7/9/2026', desc: 'Το άγνωστο νησί των Σποράδων με μοναδική αρχιτεκτονική.', photo: 'https://picsum.photos/seed/skyros/1600/1200', alt: 'Χώρα Σκύρου' },
+  { slug: 'saronikos-tria-nisia', title: 'Κρουαζιέρα στον Σαρωνικό · 3 Νησιά', cat: 'kroyazieres', price: 55, duration: 'Ολοήμερη', dates: 'Καθημερινά', desc: 'Ύδρα, Πόρος και Αίγινα σε μία μέρα — με γεύμα και μουσική εν πλω.', featured: true, photo: 'https://images.unsplash.com/photo-1523592121529-f6dde35f079e?w=1600&q=80', alt: 'Νησιά του Σαρωνικού από ψηλά' },
+  { slug: 'skiathos-koukounaries-kroyaziera', title: 'Σκιάθος · Κουκουναριές', cat: 'kroyazieres', price: 45, duration: 'Μονοήμερη κρουαζιέρα', dates: 'Σάββατο & Κυριακή', desc: 'Κρουαζιέρα στη διάσημη παραλία Κουκουναριές της Σκιάθου.', photo: 'https://picsum.photos/seed/skiathos/1600/1200', alt: 'Παραλία Κουκουναριές Σκιάθου' },
 ];
 
 const { data: cats, error: catErr } = await sb.from('categories').select('id,slug');
