@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/Button';
+import { createLead } from '@/app/(site)/actions';
 
 const QuoteSchema = z.object({
   name: z.string().min(2, 'Παρακαλώ συμπληρώστε το όνομά σας.'),
@@ -31,8 +32,21 @@ export function QuoteForm() {
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<QuoteInput>({
     resolver: zodResolver(QuoteSchema),
   });
-  // No enquiry backend yet (deferred); simulate success.
-  const onSubmit = (data: QuoteInput) => { console.log('quote request:', data); setSent(true); };
+  const [error, setError] = useState<string | null>(null);
+  const onSubmit = async (data: QuoteInput) => {
+    setError(null);
+    const res = await createLead({
+      type: 'quote',
+      name: data.name,
+      phone: data.phone,
+      preferred_date: data.date,
+      message: data.notes,
+      subject: 'Αίτημα προσφοράς πούλμαν',
+      source_path: '/enoikiaseis-poylman',
+    });
+    if (res.ok) setSent(true);
+    else setError('Κάτι πήγε στραβά. Δοκιμάστε ξανά ή καλέστε μας.');
+  };
 
   if (sent) {
     return (
@@ -57,6 +71,7 @@ export function QuoteForm() {
       <Field label="Προορισμός / Σημειώσεις">
         <textarea {...register('notes')} rows={3} className={inputCls} placeholder="π.χ. Δελφοί, 30 άτομα, σχολική εκδρομή" />
       </Field>
+      {error && <p className="text-[14px] text-cta">{error}</p>}
       <Button type="submit" size="lg" disabled={isSubmitting}>
         {isSubmitting ? 'Αποστολή…' : 'Ζητήστε Προσφορά'}
       </Button>
