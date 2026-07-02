@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { getFeaturedTours, getTours } from '@/lib/queries/tours';
 import { getCategories } from '@/lib/queries/categories';
 import { getSettings } from '@/lib/queries/settings';
+import { pickNewsTours } from '@/components/home/home-tours';
 import { Home1Hero } from '@/components/home/Home1Hero';
 import { Home1Destinations } from '@/components/home/Home1Destinations';
 import { Home1About } from '@/components/home/Home1About';
@@ -26,7 +27,7 @@ export default async function HomePage() {
     getCategories(),
     getSettings(),
   ]);
-  const news = allTours.filter((t) => !t.is_featured);
+  const news = pickNewsTours(allTours);
 
   return (
     <>
@@ -37,7 +38,7 @@ export default async function HomePage() {
       <Home1Promo />
       <Home1Process />
       <Home1Testimonials />
-      <Home1News tours={news.length ? news : allTours} />
+      <Home1News tours={news.length ? news : allTours.slice(0, 3)} />
       <Home1Cta settings={settings} />
     </>
   );
