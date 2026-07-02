@@ -18,25 +18,30 @@ const config: Config = {
     extend: {
       colors: {
         primary: {
-          DEFAULT: '#1B3A5C',
-          hover: '#152E49',
+          DEFAULT: '#00519d',
+          hover: '#00296b',
         },
-        sea: '#5B9FD4',
+        sea: '#4d83c9',
         cta: {
-          DEFAULT: '#C96A47',
-          hover: '#B25939',
+          DEFAULT: '#00519d',
+          hover: '#00296b',
         },
-        background: '#F7F2EB',
-        surface: '#FDFCFA',
-        body: '#1A1817',
-        muted: '#6B6259',
-        olive: '#6E7C4A',
-        'deep-ink': '#0F2233',
-        border: 'rgba(27, 58, 92, 0.12)',
+        gold: {
+          DEFAULT: '#fdc500',
+          hover: '#e6b000',
+        },
+        amber: '#f99a00',
+        background: '#f4f7fb',
+        surface: '#ffffff',
+        body: '#16233b',
+        muted: '#5b6b82',
+        olive: '#3f7d58',
+        'deep-ink': '#00296b',
+        border: 'rgba(0, 41, 107, 0.12)',
       },
       fontFamily: {
-        display: ['"Playfair Display"', 'Georgia', 'serif'],
-        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        display: ['Poppins', 'system-ui', 'sans-serif'],
+        sans: ['"Open Sans"', 'system-ui', '-apple-system', 'sans-serif'],
       },
       fontSize: {
         'display-hero': ['clamp(3.5rem, 7vw, 6rem)', { lineHeight: '1.05', letterSpacing: '-0.02em', fontWeight: '700' }],
@@ -52,9 +57,14 @@ const config: Config = {
         content: '1280px',
       },
       boxShadow: {
-        card: '0 1px 2px rgba(15, 34, 51, 0.04)',
-        'card-hover': '0 20px 40px -12px rgba(15, 34, 51, 0.15)',
-        cta: '0 8px 16px -4px rgba(201, 106, 71, 0.35)',
+        card: '0 1px 2px rgba(0, 41, 107, 0.05)',
+        'card-hover': '0 20px 40px -12px rgba(0, 41, 107, 0.18)',
+        cta: '0 8px 20px -6px rgba(0, 81, 157, 0.35)',
+        gold: '0 8px 20px -6px rgba(253, 197, 0, 0.4)',
+      },
+      backgroundImage: {
+        'mesh-blue':
+          'radial-gradient(60% 80% at 20% 10%, #4d83c9 0%, transparent 60%), radial-gradient(50% 70% at 90% 20%, #00519d 0%, transparent 55%), linear-gradient(160deg, #00296b, #00519d)',
       },
       transitionTimingFunction: {
         'editorial': 'cubic-bezier(0.22, 1, 0.36, 1)',
