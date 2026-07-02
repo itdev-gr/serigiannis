@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Check } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { createLead } from '@/app/(site)/actions';
 
 const ContactSchema = z.object({
   name: z.string().min(2, 'Παρακαλώ συμπληρώστε το όνομά σας.'),
@@ -33,8 +34,21 @@ export function ContactForm() {
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<ContactInput>({
     resolver: zodResolver(ContactSchema),
   });
-  // No enquiry backend yet (deferred); simulate success.
-  const onSubmit = (data: ContactInput) => { console.log('contact submit:', data); setSent(true); };
+  const [error, setError] = useState<string | null>(null);
+  const onSubmit = async (data: ContactInput) => {
+    setError(null);
+    const res = await createLead({
+      type: 'contact',
+      name: data.name,
+      email: data.email,
+      phone: data.phone,
+      subject: data.subject,
+      message: data.message,
+      source_path: '/epikoinonia',
+    });
+    if (res.ok) setSent(true);
+    else setError('Κάτι πήγε στραβά. Δοκιμάστε ξανά ή καλέστε μας.');
+  };
 
   if (sent) {
     return (
@@ -69,6 +83,7 @@ export function ContactForm() {
         <Field label="Μήνυμα">
           <textarea {...register('message')} rows={5} className={inputCls} placeholder="Πείτε μας πώς μπορούμε να σας εξυπηρετήσουμε…" />
         </Field>
+        {error && <p className="text-[14px] text-cta">{error}</p>}
         <Button type="submit" size="lg" disabled={isSubmitting}>
           {isSubmitting ? 'Αποστολή…' : 'Αποστολή Μηνύματος'}
         </Button>
