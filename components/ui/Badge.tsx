@@ -7,10 +7,10 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
-        sea: 'bg-cta/10 text-cta',
+        sea: 'bg-sea/15 text-primary',
         olive: 'bg-olive/15 text-olive',
-        cta: 'bg-cta text-surface',
-        gold: 'bg-gold text-primary',
+        cta: 'bg-primary text-surface',
+        gold: 'bg-gold text-[#00296b]',
         surface: 'bg-surface/95 text-primary shadow-sm',
       },
       size: {
@@ -30,11 +30,11 @@ export function Badge({ className, variant, size, ...props }: BadgeProps) {
 
 export function PriceBadge({ from, original }: { from: number; original?: number }) {
   return (
-    <div className="inline-flex items-center gap-2 rounded-full bg-surface/95 px-3.5 py-1.5 shadow-sm backdrop-blur">
+    <div className="inline-flex items-center gap-2 rounded-full bg-gold px-4 py-2 text-[#00296b] shadow-gold">
       {original !== undefined && original > from && (
-        <span className="font-sans text-[13px] font-medium text-muted line-through">{original}€</span>
+        <span className="font-sans text-[13px] font-semibold line-through opacity-60">{original}€</span>
       )}
-      <span className="font-sans text-[15px] font-bold text-cta tabular">από {from}€</span>
+      <span className="font-sans text-[16px] font-bold tabular">από {from}€</span>
     </div>
   );
 }

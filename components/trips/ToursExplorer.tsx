@@ -50,7 +50,7 @@ export function ToursExplorer({
 
   const chip = (active: boolean) =>
     `whitespace-nowrap rounded-full px-4 py-1.5 font-sans text-[13px] font-medium transition-colors ${
-      active ? 'bg-cta text-surface' : 'text-primary hover:bg-primary/10'
+      active ? 'bg-primary text-surface' : 'text-primary hover:bg-primary/10'
     }`;
 
   const reset = () => { setCategory(lockedCategory); setBand(undefined); setSort('popular'); setPage(1); };

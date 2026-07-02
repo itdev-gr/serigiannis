@@ -11,7 +11,7 @@ export function TourCard({ tour }: { tour: Tour }) {
   return (
     <Link
       href={`/tour/${tour.slug}`}
-      className="group relative flex flex-col overflow-hidden rounded-md bg-surface shadow-card transition-all duration-300 ease-editorial hover:-translate-y-1 hover:shadow-card-hover"
+      className="group relative flex flex-col overflow-hidden rounded-lg border border-border bg-surface shadow-card transition-all duration-300 ease-editorial hover:-translate-y-1 hover:shadow-card-hover"
     >
       <div className="relative aspect-[4/3] overflow-hidden bg-primary/5">
         <div className="absolute inset-0 transition-transform duration-700 ease-editorial group-hover:scale-105">
@@ -19,7 +19,7 @@ export function TourCard({ tour }: { tour: Tour }) {
         </div>
         {primaryCat && (
           <div className="absolute left-4 top-4">
-            <span className="inline-flex items-center rounded-sm bg-surface/95 px-2.5 py-1 font-sans text-[10px] font-bold uppercase tracking-[0.14em] text-cta shadow-sm backdrop-blur">
+            <span className="glass inline-flex items-center rounded-full px-3 py-1.5 font-sans text-[11px] font-semibold uppercase tracking-[0.12em] text-primary shadow-sm">
               {primaryCat.name_el}
             </span>
           </div>
@@ -31,7 +31,7 @@ export function TourCard({ tour }: { tour: Tour }) {
         )}
       </div>
       <div className="flex flex-1 flex-col p-6">
-        <h3 className="font-display text-[22px] font-semibold leading-tight text-primary transition-colors group-hover:text-cta">{tour.title}</h3>
+        <h3 className="font-display text-[22px] font-semibold leading-tight text-primary">{tour.title}</h3>
         {tour.summary && <p className="mt-2 text-[15px] leading-relaxed text-muted line-clamp-2">{tour.summary}</p>}
         <div className="mt-5 flex flex-wrap items-center gap-4 text-[13px] text-muted">
           {tour.duration_label && (

@@ -51,7 +51,7 @@ export function StorySection() {
       className={`relative bg-deep-ink text-surface ${reduced ? '' : 'overflow-hidden'}`}
       aria-label="Γιατί Sergiani Travel"
     >
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(55%_55%_at_82%_18%,rgba(212,0,42,0.35),transparent_60%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_60%_at_80%_20%,rgba(0,81,157,0.5),transparent_60%)]" />
       <div ref={trackRef} className={reduced ? 'relative flex flex-col' : 'relative flex h-screen min-h-[600px]'}>
         {PANELS.map((p, i) => (
           <div
@@ -63,11 +63,11 @@ export function StorySection() {
             }
           >
             <div className="container max-w-4xl">
-              <p className="font-sans text-[13px] font-semibold uppercase tracking-[0.2em] text-cta">{p.eyebrow}</p>
+              <p className="font-sans text-[13px] font-semibold uppercase tracking-[0.2em] text-gold">{p.eyebrow}</p>
               <h2 className="mt-4 font-display text-4xl font-bold leading-[1.1] text-surface md:text-6xl">{p.title}</h2>
               <p className="mt-6 max-w-2xl text-[18px] leading-relaxed text-surface/80 md:text-[20px]">{p.text}</p>
               <div className="mt-10 flex items-center gap-4 text-surface/40">
-                <span className="font-display text-2xl font-bold text-cta">0{i + 1}</span>
+                <span className="font-display text-2xl font-bold text-gold">0{i + 1}</span>
                 <span className="h-px w-16 bg-surface/20" />
                 <span className="font-sans text-[13px] uppercase tracking-[0.14em]">0{PANELS.length}</span>
                 {!reduced && i === 0 && (

@@ -58,7 +58,7 @@ export default async function AdminToursPage() {
                 <td className="px-5 py-3">
                   <div className="flex items-center justify-end gap-1.5">
                     <form action={setFeatured.bind(null, t.id, !t.is_featured)}>
-                      <button type="submit" title={t.is_featured ? 'Αφαίρεση από προβεβλημένες' : 'Προβολή στην αρχική'} className={`grid h-8 w-8 place-items-center rounded-md hover:bg-background ${t.is_featured ? 'text-cta' : 'text-muted'}`}>
+                      <button type="submit" title={t.is_featured ? 'Αφαίρεση από προβεβλημένες' : 'Προβολή στην αρχική'} className={`grid h-8 w-8 place-items-center rounded-md hover:bg-background ${t.is_featured ? 'text-gold' : 'text-muted'}`}>
                         <Star className="h-4 w-4" strokeWidth={1.75} fill={t.is_featured ? 'currentColor' : 'none'} />
                       </button>
                     </form>
