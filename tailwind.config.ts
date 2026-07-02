@@ -18,30 +18,34 @@ const config: Config = {
     extend: {
       colors: {
         primary: {
-          DEFAULT: '#00519d',
-          hover: '#00296b',
+          DEFAULT: '#000000',
+          hover: '#333535',
         },
-        sea: '#4d83c9',
+        sea: '#d4002a',
         cta: {
-          DEFAULT: '#00519d',
-          hover: '#00296b',
+          DEFAULT: '#d4002a',
+          hover: '#a80020',
+        },
+        red: {
+          DEFAULT: '#d4002a',
+          hover: '#a80020',
         },
         gold: {
-          DEFAULT: '#fdc500',
-          hover: '#e6b000',
+          DEFAULT: '#fcb900',
+          hover: '#e6a800',
         },
         amber: '#f99a00',
-        background: '#f4f7fb',
+        background: '#f4f4f4',
         surface: '#ffffff',
-        body: '#16233b',
-        muted: '#5b6b82',
+        body: '#333535',
+        muted: '#5f6b73',
         olive: '#3f7d58',
-        'deep-ink': '#00296b',
-        border: 'rgba(0, 41, 107, 0.12)',
+        'deep-ink': '#000000',
+        border: 'rgba(0, 0, 0, 0.10)',
       },
       fontFamily: {
-        display: ['Poppins', 'system-ui', 'sans-serif'],
-        sans: ['"Open Sans"', 'system-ui', '-apple-system', 'sans-serif'],
+        display: ['Fraunces', 'Georgia', 'serif'],
+        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
       },
       fontSize: {
         'display-hero': ['clamp(3.5rem, 7vw, 6rem)', { lineHeight: '1.05', letterSpacing: '-0.02em', fontWeight: '700' }],
@@ -57,14 +61,14 @@ const config: Config = {
         content: '1280px',
       },
       boxShadow: {
-        card: '0 1px 2px rgba(0, 41, 107, 0.05)',
-        'card-hover': '0 20px 40px -12px rgba(0, 41, 107, 0.18)',
-        cta: '0 8px 20px -6px rgba(0, 81, 157, 0.35)',
-        gold: '0 8px 20px -6px rgba(253, 197, 0, 0.4)',
+        card: '0 1px 2px rgba(0, 0, 0, 0.04)',
+        'card-hover': '0 14px 32px -16px rgba(0, 0, 0, 0.20)',
+        cta: 'none',
+        gold: '0 8px 20px -8px rgba(252, 185, 0, 0.35)',
       },
       backgroundImage: {
         'mesh-blue':
-          'radial-gradient(60% 80% at 20% 10%, #4d83c9 0%, transparent 60%), radial-gradient(50% 70% at 90% 20%, #00519d 0%, transparent 55%), linear-gradient(160deg, #00296b, #00519d)',
+          'linear-gradient(160deg, #000000, #333535)',
       },
       transitionTimingFunction: {
         'editorial': 'cubic-bezier(0.22, 1, 0.36, 1)',

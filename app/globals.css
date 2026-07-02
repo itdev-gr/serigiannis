@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Open+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,16 +6,16 @@
 
 @layer base {
   :root {
-    --color-primary: 0 81 157;
-    --color-sea: 77 131 201;
-    --color-cta: 0 81 157;
-    --color-gold: 253 197 0;
-    --color-bg: 244 247 251;
+    --color-primary: 0 0 0;
+    --color-sea: 212 0 42;
+    --color-cta: 212 0 42;
+    --color-gold: 252 185 0;
+    --color-bg: 244 244 244;
     --color-surface: 255 255 255;
-    --color-body: 22 35 59;
-    --color-muted: 91 107 130;
+    --color-body: 51 53 53;
+    --color-muted: 95 107 115;
     --color-olive: 63 125 88;
-    --color-deep-ink: 0 41 107;
+    --color-deep-ink: 0 0 0;
   }
 
   html {
@@ -62,24 +62,24 @@
   .scrollbar-hide::-webkit-scrollbar { display: none; }
   .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
+  .bg-editorial-dark {
+    background-image: linear-gradient(165deg, #000000 0%, #1a1a1a 60%, #333535 100%);
+  }
   .bg-mesh-blue {
-    background-image:
-      radial-gradient(60% 80% at 20% 10%, #4d83c9 0%, transparent 60%),
-      radial-gradient(50% 70% at 90% 20%, #00519d 0%, transparent 55%),
-      linear-gradient(160deg, #00296b, #00519d);
+    background-image: linear-gradient(165deg, #000000 0%, #1a1a1a 60%, #333535 100%);
   }
   .glass {
-    background: rgba(255, 255, 255, 0.72);
-    backdrop-filter: blur(14px) saturate(160%);
-    -webkit-backdrop-filter: blur(14px) saturate(160%);
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px) saturate(140%);
+    -webkit-backdrop-filter: blur(12px) saturate(140%);
   }
   .glass-dark {
-    background: rgba(0, 41, 107, 0.55);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
   }
   .text-gradient-blue {
-    background: linear-gradient(120deg, #00519d, #4d83c9);
+    background: linear-gradient(120deg, #d4002a, #a80020);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
