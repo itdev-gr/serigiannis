@@ -7,7 +7,7 @@ import { ConfirmForm } from '@/components/admin/ConfirmForm';
 const STATUS_STYLE: Record<string, string> = {
   published: 'bg-olive/15 text-olive',
   draft: 'bg-muted/15 text-muted',
-  hidden: 'bg-cta/15 text-cta',
+  hidden: 'bg-amber/15 text-[#a15c00]',
   archived: 'bg-muted/15 text-muted',
 };
 const STATUS_LABEL: Record<string, string> = {
@@ -58,7 +58,7 @@ export default async function AdminToursPage() {
                 <td className="px-5 py-3">
                   <div className="flex items-center justify-end gap-1.5">
                     <form action={setFeatured.bind(null, t.id, !t.is_featured)}>
-                      <button type="submit" title={t.is_featured ? 'Αφαίρεση από προβεβλημένες' : 'Προβολή στην αρχική'} className={`grid h-8 w-8 place-items-center rounded-md hover:bg-background ${t.is_featured ? 'text-cta' : 'text-muted'}`}>
+                      <button type="submit" title={t.is_featured ? 'Αφαίρεση από προβεβλημένες' : 'Προβολή στην αρχική'} className={`grid h-8 w-8 place-items-center rounded-md hover:bg-background ${t.is_featured ? 'text-gold' : 'text-muted'}`}>
                         <Star className="h-4 w-4" strokeWidth={1.75} fill={t.is_featured ? 'currentColor' : 'none'} />
                       </button>
                     </form>
