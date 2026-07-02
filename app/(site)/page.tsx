@@ -3,6 +3,7 @@ import { Phone } from 'lucide-react';
 import { HomeHero } from '@/components/home/HomeHero';
 import { CategoryStrip } from '@/components/home/CategoryStrip';
 import { EditorialFeature } from '@/components/home/EditorialFeature';
+import { StorySection } from '@/components/home/StorySection';
 import { FeatureTripCard } from '@/components/trips/FeatureTripCard';
 import { StatCounter } from '@/components/shared/StatCounter';
 import { TestimonialBlock } from '@/components/shared/TestimonialBlock';
@@ -71,6 +72,8 @@ export default async function HomePage() {
       </section>
 
       <EditorialFeature />
+
+      <StorySection />
 
       {/* Testimonials */}
       <section className="py-24 md:py-32">

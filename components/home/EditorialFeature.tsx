@@ -7,8 +7,8 @@ import { useGsapContext } from '@/hooks/useGsapContext';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { Button } from '@/components/ui/Button';
 
-// Interim editorial image (replaced by a Storage-hosted asset in Phase 2).
-const FEATURE_SRC = 'https://images.unsplash.com/photo-1601581875039-e899893d520c?w=1600&q=80';
+// Self-hosted editorial image (Supabase Storage).
+const FEATURE_SRC = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/tour-images/site/editorial-ydra.jpg`;
 
 export function EditorialFeature() {
   const scopeRef = useRef<HTMLDivElement>(null);

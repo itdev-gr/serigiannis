@@ -9,8 +9,8 @@ import { useGsapContext } from '@/hooks/useGsapContext';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { Button } from '@/components/ui/Button';
 
-// Interim hero image (replaced by a Storage-hosted asset in Phase 2).
-const HERO_SRC = 'https://images.unsplash.com/photo-1533105079780-92b9be482077?w=2000&q=85';
+// Self-hosted hero image (Supabase Storage).
+const HERO_SRC = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/tour-images/site/home-hero.jpg`;
 
 export function HomeHero() {
   const scopeRef = useRef<HTMLElement>(null);
