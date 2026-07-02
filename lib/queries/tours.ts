@@ -1,4 +1,4 @@
-import { isDbConfigured, createServerClient } from '@/lib/supabase/server';
+import { isDbConfigured, createPublicClient } from '@/lib/supabase/server';
 import { seedTours } from '@/data/seed/tours';
 import type { Category, Tour, TourImage } from '@/types/db';
 
@@ -26,7 +26,7 @@ function normalize(row: RawTour): Tour {
 
 export async function getTours(): Promise<Tour[]> {
   if (!isDbConfigured()) return seedTours;
-  const sb = await createServerClient();
+  const sb = createPublicClient();
   const { data, error } = await sb
     .from('tours')
     .select(SELECT)
@@ -41,7 +41,7 @@ export async function getTours(): Promise<Tour[]> {
 
 export async function getTourBySlug(slug: string): Promise<Tour | null> {
   if (!isDbConfigured()) return seedTours.find((t) => t.slug === slug) ?? null;
-  const sb = await createServerClient();
+  const sb = createPublicClient();
   const { data, error } = await sb
     .from('tours')
     .select(SELECT)
