@@ -1,0 +1,347 @@
+- generic [ref=e2]:
+  - link "Μετάβαση στο περιεχόμενο" [ref=e3] [cursor=pointer]:
+    - /url: "#main"
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - link "Sergiani Travel — αρχική" [ref=e6] [cursor=pointer]:
+        - /url: /
+        - img [ref=e8]
+        - generic [ref=e12]:
+          - generic [ref=e13]: Sergiani
+          - generic [ref=e14]: Travel · 1995
+      - navigation "Κύρια πλοήγηση" [ref=e15]:
+        - link "Αρχική" [ref=e16] [cursor=pointer]:
+          - /url: /
+        - link "Μονοήμερες" [ref=e17] [cursor=pointer]:
+          - /url: /monoimeres
+        - link "Κρουαζιέρες" [ref=e18] [cursor=pointer]:
+          - /url: /kroyazieres
+        - link "Πούλμαν" [ref=e19] [cursor=pointer]:
+          - /url: /pullman-rentals
+        - link "Επικοινωνία" [ref=e20] [cursor=pointer]:
+          - /url: /epikoinonia
+      - link "Κλείστε Θέση" [ref=e22] [cursor=pointer]:
+        - /url: /epikoinonia
+  - generic [ref=e23]:
+    - generic [ref=e24]:
+      - img "Λευκά και μπλε ελληνικού νησιού" [ref=e25]
+      - generic [ref=e27]:
+        - paragraph [ref=e28]: Από το 1995 · Ταξιδιωτικό Γραφείο Περιστέρι
+        - heading "Ανακαλύψτε την Ελλάδα" [level=1] [ref=e30]:
+          - generic [ref=e31]: Ανακαλύψτε
+          - generic [ref=e32]: την
+          - generic [ref=e33]: Ελλάδα
+        - paragraph [ref=e34]: Μονοήμερες, κρουαζιέρες και πολυήμερες εκδρομές από την Αθήνα. 30 χρόνια εμπειρίας. Άνετα πούλμαν, έμπειροι ξεναγοί, ξεκάθαρες τιμές.
+        - generic [ref=e35]:
+          - link "Δείτε τις Εκδρομές" [ref=e37] [cursor=pointer]:
+            - /url: /monoimeres
+          - link "Ενοικίαση Πούλμαν" [ref=e39] [cursor=pointer]:
+            - /url: /pullman-rentals
+            - img [ref=e40]
+            - text: Ενοικίαση Πούλμαν
+      - img [ref=e45]
+    - generic [ref=e49]:
+      - link "Μονοήμερες" [ref=e50] [cursor=pointer]:
+        - /url: /monoimeres
+        - img [ref=e51]
+        - text: Μονοήμερες
+      - link "Κρουαζιέρες" [ref=e54] [cursor=pointer]:
+        - /url: /kroyazieres
+        - img [ref=e55]
+        - text: Κρουαζιέρες
+      - link "Πολυήμερες" [ref=e59] [cursor=pointer]:
+        - /url: /monoimeres
+        - img [ref=e60]
+        - text: Πολυήμερες
+      - link "Θαλάσσια Μπάνια" [ref=e63] [cursor=pointer]:
+        - /url: /monoimeres
+        - img [ref=e64]
+        - text: Θαλάσσια Μπάνια
+      - link "Πεζοπορίες" [ref=e68] [cursor=pointer]:
+        - /url: /monoimeres
+        - img [ref=e69]
+        - text: Πεζοπορίες
+      - link "Ενοικίαση Πούλμαν" [ref=e71] [cursor=pointer]:
+        - /url: /pullman-rentals
+        - img [ref=e72]
+        - text: Ενοικίαση Πούλμαν
+    - generic [ref=e77]:
+      - generic [ref=e78]:
+        - generic [ref=e79]:
+          - paragraph [ref=e80]: Ξεχωριστές Επιλογές
+          - heading "Οι πιο δημοφιλείς εκδρομές μας" [level=2] [ref=e81]
+          - paragraph [ref=e82]: Επιλεγμένες από τους ταξιδιώτες μας — μονοήμερες αποδράσεις με αρχή και τέλος στην Αθήνα.
+        - link "Όλες οι εκδρομές" [ref=e84] [cursor=pointer]:
+          - /url: /monoimeres
+          - generic [ref=e85]: Όλες οι εκδρομές
+          - img [ref=e87]
+      - generic [ref=e89]:
+        - link "Παραλία Ψάθα με τιρκουάζ νερά 12€ από 10€ 5,5 ώρες · Καθημερινά · Ιούλιος–Αύγουστος Θαλάσσια Μπάνια Ψάθα Καθημερινές αναχωρήσεις για μπάνιο στη Ψάθα με άνετο πούλμαν. Ανακαλύψτε τη διαδρομή" [ref=e91] [cursor=pointer]:
+          - /url: /monoimeres/psatha-thalassia-bania
+          - img "Παραλία Ψάθα με τιρκουάζ νερά" [ref=e92]
+          - generic [ref=e95]:
+            - generic [ref=e96]: 12€
+            - generic [ref=e97]: από 10€
+          - generic [ref=e98]:
+            - paragraph [ref=e99]: 5,5 ώρες · Καθημερινά · Ιούλιος–Αύγουστος
+            - heading "Θαλάσσια Μπάνια Ψάθα" [level=3] [ref=e100]
+            - paragraph [ref=e101]: Καθημερινές αναχωρήσεις για μπάνιο στη Ψάθα με άνετο πούλμαν.
+            - generic [ref=e102]:
+              - generic [ref=e103]: Ανακαλύψτε τη διαδρομή
+              - img [ref=e104]
+        - generic [ref=e107]:
+          - link "Λιμάνι της Ύδρας από 25€ Μονοήμερη · 27/6, 12/7/2026 Ύδρα · Το Νησί του Μιαούλη Ανακαλύψτε τη διαδρομή" [ref=e109] [cursor=pointer]:
+            - /url: /monoimeres/ydra
+            - img "Λιμάνι της Ύδρας" [ref=e110]
+            - generic [ref=e114]: από 25€
+            - generic [ref=e115]:
+              - paragraph [ref=e116]: Μονοήμερη · 27/6, 12/7/2026
+              - heading "Ύδρα · Το Νησί του Μιαούλη" [level=3] [ref=e117]
+              - generic [ref=e118]:
+                - generic [ref=e119]: Ανακαλύψτε τη διαδρομή
+                - img [ref=e120]
+          - link "Μοναστήρια στα Μετέωρα από 65€ Μονοήμερη · Κάθε Σάββατο Μετέωρα Ανακαλύψτε τη διαδρομή" [ref=e124] [cursor=pointer]:
+            - /url: /monoimeres/meteora
+            - img "Μοναστήρια στα Μετέωρα" [ref=e125]
+            - generic [ref=e129]: από 65€
+            - generic [ref=e130]:
+              - paragraph [ref=e131]: Μονοήμερη · Κάθε Σάββατο
+              - heading "Μετέωρα" [level=3] [ref=e132]
+              - generic [ref=e133]:
+                - generic [ref=e134]: Ανακαλύψτε τη διαδρομή
+                - img [ref=e135]
+    - generic [ref=e139]:
+      - generic [ref=e140]:
+        - paragraph [ref=e141]: Από το 1995
+        - heading "Τριάντα χρόνια δημιουργούμε αναμνήσεις" [level=2] [ref=e142]
+        - paragraph [ref=e143]: Είμαστε ένα ταξιδιωτικό γραφείο στο Περιστέρι που πιστεύει ότι κάθε εκδρομή είναι μια ιστορία. Οργανώνουμε ταξίδια σε όλη την Ελλάδα με σεβασμό στον χρόνο και τη διάθεσή σας.
+        - link "Ελάτε να γνωριστούμε" [ref=e145] [cursor=pointer]:
+          - /url: /epikoinonia
+      - generic [ref=e146]:
+        - generic [ref=e147]:
+          - generic [ref=e148]: 0+
+          - generic [ref=e149]: Χρόνια Εμπειρίας
+        - generic [ref=e150]:
+          - generic [ref=e151]: 0+
+          - generic [ref=e152]: Εκδρομές τον Χρόνο
+        - generic [ref=e153]:
+          - generic [ref=e154]: 0+
+          - generic [ref=e155]: Ταξιδιώτες
+        - generic [ref=e156]:
+          - generic [ref=e157]: 0+
+          - generic [ref=e158]: Προορισμοί
+    - generic [ref=e160]:
+      - img "Λιμάνι της Ύδρας" [ref=e163]
+      - generic [ref=e164]:
+        - paragraph [ref=e165]: Αυτό το Σαββατοκύριακο
+        - heading "Ύδρα — το νησί του Μιαούλη" [level=2] [ref=e166]
+        - paragraph [ref=e167]: Η Ύδρα δεν έχει αυτοκίνητα. Έχει μόνο πέτρα, φως, θάλασσα και ιστορία. Ένα ταξίδι που μοιάζει με ταινία. Καθημερινές αναχωρήσεις από τον Πειραιά, μαζί με τον έμπειρο συνοδό μας.
+        - generic [ref=e168]:
+          - link "Δείτε τη Διαδρομή" [ref=e169] [cursor=pointer]:
+            - /url: /monoimeres
+          - generic [ref=e170]: από 25€
+    - generic [ref=e172]:
+      - generic [ref=e173]:
+        - generic [ref=e174]:
+          - paragraph [ref=e175]: Θάλασσα
+          - heading "Κρουαζιέρες στον Σαρωνικό" [level=2] [ref=e176]
+          - paragraph [ref=e177]: Τρεις κρουαζιέρες, τρεις ολόκληρες μέρες θάλασσας — χωρίς άγχος, χωρίς μετακίνηση.
+        - link "Όλες οι κρουαζιέρες" [ref=e179] [cursor=pointer]:
+          - /url: /kroyazieres
+          - generic [ref=e180]: Όλες οι κρουαζιέρες
+          - img [ref=e182]
+      - generic [ref=e184]:
+        - article [ref=e186]:
+          - img "Ελληνικό νησί στον Σαρωνικό" [ref=e188]
+          - generic [ref=e189]:
+            - generic [ref=e190]:
+              - generic [ref=e191]:
+                - generic [ref=e192]: Σαρωνικός
+                - generic [ref=e193]:
+                  - img [ref=e194]
+                  - text: Μονοήμερη
+              - heading "Σαλαμίνα · Αίγινα · Αγκίστρι" [level=3] [ref=e197]
+              - paragraph [ref=e198]: Τρία νησιά, μία μέρα, μια κρουαζιέρα με μπάνιο, φαγητό και ξενάγηση.
+              - generic [ref=e199]:
+                - img [ref=e200]
+                - generic [ref=e204]:
+                  - text: Σαλαμίνα
+                  - generic [ref=e205]: ·
+                - generic [ref=e206]:
+                  - text: Αίγινα
+                  - generic [ref=e207]: ·
+                - generic [ref=e208]: Αγκίστρι
+              - generic [ref=e209]:
+                - img [ref=e210]
+                - text: Κάθε Κυριακή · Ιούλιος–Αύγουστος
+            - generic [ref=e212]:
+              - generic [ref=e213]:
+                - generic [ref=e214]: Από
+                - generic [ref=e215]: 20€
+              - link "Κράτηση" [ref=e216] [cursor=pointer]:
+                - /url: /kroyazieres/salamina-aigina-agkistri
+        - article [ref=e218]:
+          - img "Κρυστάλλινα νερά ελληνικού νησιού" [ref=e220]
+          - generic [ref=e221]:
+            - generic [ref=e222]:
+              - generic [ref=e223]:
+                - generic [ref=e224]: Αργοσαρωνικός
+                - generic [ref=e225]:
+                  - img [ref=e226]
+                  - text: Ημερήσια
+              - heading "Κρουαζιέρα Κολύμβησης" [level=3] [ref=e229]
+              - paragraph [ref=e230]: Μια μέρα αφιερωμένη στη θάλασσα — τρία σημεία, πολλές βουτιές.
+              - generic [ref=e231]:
+                - img [ref=e232]
+                - generic [ref=e236]:
+                  - text: Αγκίστρι
+                  - generic [ref=e237]: ·
+                - generic [ref=e238]:
+                  - text: Μετώπη
+                  - generic [ref=e239]: ·
+                - generic [ref=e240]: Αίγινα
+              - generic [ref=e241]:
+                - img [ref=e242]
+                - text: Καθημερινά · Ιούνιος–Σεπτέμβριος
+            - generic [ref=e244]:
+              - generic [ref=e245]:
+                - generic [ref=e246]: Από
+                - generic [ref=e247]: 55€
+              - link "Κράτηση" [ref=e248] [cursor=pointer]:
+                - /url: /kroyazieres/kolymvisis-agkistri-metopi-aigina
+        - article [ref=e250]:
+          - img "Λιμάνι Ύδρας από ψηλά" [ref=e252]
+          - generic [ref=e253]:
+            - generic [ref=e254]:
+              - generic [ref=e255]:
+                - generic [ref=e256]: Αργοσαρωνικός
+                - generic [ref=e257]:
+                  - img [ref=e258]
+                  - text: One-day cruise
+              - heading "Ύδρα · Πόρος · Αίγινα" [level=3] [ref=e261]
+              - paragraph [ref=e262]: Τα τρία στολίδια του Αργοσαρωνικού με γεύμα και μουσική στο πλοίο.
+              - generic [ref=e263]:
+                - img [ref=e264]
+                - generic [ref=e268]:
+                  - text: Ύδρα
+                  - generic [ref=e269]: ·
+                - generic [ref=e270]:
+                  - text: Πόρος
+                  - generic [ref=e271]: ·
+                - generic [ref=e272]: Αίγινα
+              - generic [ref=e273]:
+                - img [ref=e274]
+                - text: Καθημερινά
+            - generic [ref=e276]:
+              - generic [ref=e277]:
+                - generic [ref=e278]: Από
+                - generic [ref=e279]: 55€
+              - link "Κράτηση" [ref=e280] [cursor=pointer]:
+                - /url: /kroyazieres/ydra-poros-aigina
+    - generic [ref=e282]:
+      - generic [ref=e284]:
+        - paragraph [ref=e285]: Οι Ταξιδιώτες Μας
+        - heading "Τι λένε όσοι ταξίδεψαν μαζί μας" [level=2] [ref=e286]
+      - generic [ref=e287]:
+        - figure "Μαρία Κ. Αθήνα" [ref=e289]:
+          - generic [ref=e290]: "\""
+          - blockquote [ref=e291]: Η εκδρομή στα Μετέωρα ήταν άψογα οργανωμένη. Ο ξεναγός γνώριζε τα πάντα και το πούλμαν άνετο. Θα ξαναταξιδέψουμε μαζί σας.
+          - generic [ref=e292]:
+            - generic [ref=e293]: Μαρία Κ.
+            - generic [ref=e294]: Αθήνα
+        - figure "Γιώργος Π. Περιστέρι" [ref=e296]:
+          - generic [ref=e297]: "\""
+          - blockquote [ref=e298]: Πολυήμερη στην Καππαδοκία με τη Sergiani — αξεπέραστη ποιότητα και ξεκάθαρη τιμή, χωρίς κρυφές χρεώσεις.
+          - generic [ref=e299]:
+            - generic [ref=e300]: Γιώργος Π.
+            - generic [ref=e301]: Περιστέρι
+        - figure "Ελένη Μ. Ομόνοια" [ref=e303]:
+          - generic [ref=e304]: "\""
+          - blockquote [ref=e305]: Κάθε καλοκαίρι πάμε στη Ψάθα με το πούλμαν τους. Καθαρό, στην ώρα του, με χαμογελαστό προσωπικό.
+          - generic [ref=e306]:
+            - generic [ref=e307]: Ελένη Μ.
+            - generic [ref=e308]: Ομόνοια
+    - generic [ref=e310]:
+      - generic [ref=e311]:
+        - heading "Έτοιμοι για την επόμενη περιπέτεια;" [level=2] [ref=e312]
+        - paragraph [ref=e313]: Καλέστε μας ή στείλτε μας μήνυμα — απαντάμε την ίδια μέρα.
+      - generic [ref=e314]:
+        - link "210 571 2451" [ref=e315] [cursor=pointer]:
+          - /url: tel:+302105712451
+          - img [ref=e316]
+          - text: 210 571 2451
+        - link "ή στείλτε μήνυμα" [ref=e318] [cursor=pointer]:
+          - /url: /epikoinonia
+  - contentinfo [ref=e319]:
+    - generic [ref=e320]:
+      - generic [ref=e321]:
+        - generic [ref=e322]:
+          - img [ref=e324]
+          - generic [ref=e328]: Sergiani Travel
+        - paragraph [ref=e329]: Ταξιδιωτικό γραφείο στο Περιστέρι από το 1995. Οργανώνουμε εκδρομές, κρουαζιέρες και μεταφορές σε όλη την Ελλάδα.
+        - generic [ref=e330]:
+          - link "Facebook" [ref=e331] [cursor=pointer]:
+            - /url: https://facebook.com/sergiani.travelgr
+            - img [ref=e332]
+          - link "Instagram" [ref=e334] [cursor=pointer]:
+            - /url: https://instagram.com/sergiani_travel
+            - img [ref=e335]
+          - link "YouTube" [ref=e339] [cursor=pointer]:
+            - /url: https://youtube.com/@sergianitravel
+            - img [ref=e340]
+      - generic [ref=e342]:
+        - heading "Εκδρομές" [level=3] [ref=e343]
+        - list [ref=e344]:
+          - listitem [ref=e345]:
+            - link "Μονοήμερες" [ref=e346] [cursor=pointer]:
+              - /url: /monoimeres
+          - listitem [ref=e347]:
+            - link "Κρουαζιέρες" [ref=e348] [cursor=pointer]:
+              - /url: /kroyazieres
+          - listitem [ref=e349]:
+            - link "Θαλάσσια Μπάνια" [ref=e350] [cursor=pointer]:
+              - /url: /monoimeres
+          - listitem [ref=e351]:
+            - link "Πολυήμερες" [ref=e352] [cursor=pointer]:
+              - /url: /monoimeres
+          - listitem [ref=e353]:
+            - link "Ενοικίαση Πούλμαν" [ref=e354] [cursor=pointer]:
+              - /url: /pullman-rentals
+      - generic [ref=e355]:
+        - heading "Επικοινωνία" [level=3] [ref=e356]
+        - list [ref=e357]:
+          - listitem [ref=e358]:
+            - img [ref=e359]
+            - generic [ref=e362]:
+              - text: Π. Μελά 45, Περιστέρι 121 31
+              - text: (Μετρό Αγίου Αντωνίου)
+          - listitem [ref=e363]:
+            - img [ref=e364]
+            - link "210 571 2451" [ref=e366] [cursor=pointer]:
+              - /url: tel:+302105712451
+          - listitem [ref=e367]:
+            - img [ref=e368]
+            - link "6976 811 825 (24ώρο)" [ref=e370] [cursor=pointer]:
+              - /url: tel:+306976811825
+          - listitem [ref=e371]:
+            - img [ref=e372]
+            - link "info@sergianitravel.gr" [ref=e375] [cursor=pointer]:
+              - /url: mailto:info@sergianitravel.gr
+      - generic [ref=e376]:
+        - heading "Ωράριο" [level=3] [ref=e377]
+        - list [ref=e378]:
+          - listitem [ref=e379]:
+            - img [ref=e380]
+            - generic [ref=e383]:
+              - generic [ref=e384]: "Δευ–Παρ: 09:00–17:00"
+              - generic [ref=e385]: "Σάββατο: 09:00–14:00"
+        - generic [ref=e386]:
+          - generic [ref=e387]: Ασφαλείς πληρωμές
+          - generic [ref=e388]: Κάρτα, IRIS, Τραπεζική Κατάθεση
+    - generic [ref=e390]:
+      - generic [ref=e391]: © 2026 Sergiani Travel. All rights reserved.
+      - generic [ref=e392]:
+        - link "Όροι Συμμετοχής" [ref=e393] [cursor=pointer]:
+          - /url: "#"
+        - link "Πολιτική Απορρήτου" [ref=e394] [cursor=pointer]:
+          - /url: "#"
