@@ -85,7 +85,7 @@ create index tour_images_tour_pos_idx on public.tour_images (tour_id, position);
 create index tour_departures_tour_date_idx on public.tour_departures (tour_id, starts_on);
 
 create or replace function public.touch_updated_at() returns trigger
-language plpgsql as $$
+language plpgsql set search_path = '' as $$
 begin
   new.updated_at = now();
   return new;
