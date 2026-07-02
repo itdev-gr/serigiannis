@@ -1,13 +1,8 @@
 import Link from 'next/link';
 import { Phone } from 'lucide-react';
 import type { SettingsData } from '@/types/db';
+import { telHref } from '@/lib/phone';
 import { homeContent } from './content';
-
-/** Greek phone → tel: E.164 (strip spaces, prefix +30 for local numbers). */
-function telHref(phone: string): string {
-  const digits = phone.replace(/\s+/g, '');
-  return digits.startsWith('+') ? `tel:${digits}` : `tel:+30${digits}`;
-}
 
 export function Home1Cta({ settings }: { settings: SettingsData }) {
   const c = homeContent.cta;

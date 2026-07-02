@@ -3,6 +3,7 @@ import { getFeaturedTours, getTours } from '@/lib/queries/tours';
 import { getCategories } from '@/lib/queries/categories';
 import { getSettings } from '@/lib/queries/settings';
 import { pickNewsTours } from '@/components/home/home-tours';
+import { resolveHomeContent } from '@/components/home/resolve-content';
 import { Home1Hero } from '@/components/home/Home1Hero';
 import { Home1Destinations } from '@/components/home/Home1Destinations';
 import { Home1About } from '@/components/home/Home1About';
@@ -28,12 +29,13 @@ export default async function HomePage() {
     getSettings(),
   ]);
   const news = pickNewsTours(allTours);
+  const copy = resolveHomeContent(settings);
 
   return (
     <>
-      <Home1Hero categories={categories} />
+      <Home1Hero categories={categories} content={copy.hero} />
       <Home1Destinations categories={categories} tours={allTours} />
-      <Home1About />
+      <Home1About content={copy.about} />
       <Home1Listing tours={featured} />
       <Home1Promo />
       <Home1Process />

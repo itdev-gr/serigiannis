@@ -2,11 +2,46 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { createServerClient } from '@/lib/supabase/server';
+import type { SettingsData } from '@/types/db';
 
 function revalidatePublic() {
   revalidatePath('/admin');
   revalidatePath('/');
   revalidatePath('/ekdromes');
+}
+
+export async function saveSettings(formData: FormData) {
+  const sb = await createServerClient();
+  const g = (k: string) => String(formData.get(k) || '').trim();
+  const opt = (v: string) => (v ? v : undefined);
+
+  const data: SettingsData = {
+    phones: [g('phone1'), g('phone2'), g('phone3')].filter(Boolean),
+    address: g('address'),
+    email: g('email'),
+    hours: { weekdays: g('hours_weekdays'), saturday: g('hours_saturday') },
+    social: {
+      facebook: opt(g('social_facebook')),
+      instagram: opt(g('social_instagram')),
+      youtube: opt(g('social_youtube')),
+    },
+    hero: {
+      eyebrow: opt(g('hero_eyebrow')),
+      titleTop: opt(g('hero_titleTop')),
+      titleEmph: opt(g('hero_titleEmph')),
+      subtitle: opt(g('hero_subtitle')),
+    },
+    about: {
+      eyebrow: opt(g('about_eyebrow')),
+      title: opt(g('about_title')),
+      body: opt(g('about_body')),
+    },
+  };
+
+  await sb.from('settings').upsert({ id: 1, data }, { onConflict: 'id' });
+  // Refresh the footer (root layout) and home copy everywhere.
+  revalidatePath('/', 'layout');
+  redirect('/admin/settings?saved=1');
 }
 
 export async function signOut() {

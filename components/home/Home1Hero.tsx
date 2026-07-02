@@ -7,6 +7,7 @@ import type { Category } from '@/types/db';
 import { Button } from '@/components/ui/Button';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { homeContent } from './content';
+import type { HeroCopy } from './resolve-content';
 import { buildSearchHref } from './home-search';
 
 // Real hero images from sergianitravel.gr (self-hosted in /public/hero).
@@ -23,8 +24,14 @@ const HERO_IMAGES = [
 
 const ROTATE_MS = 5000;
 
-export function Home1Hero({ categories }: { categories: Category[] }) {
-  const c = homeContent.hero;
+export function Home1Hero({
+  categories,
+  content = homeContent.hero,
+}: {
+  categories: Category[];
+  content?: HeroCopy;
+}) {
+  const c = content;
   const router = useRouter();
   const reduced = useReducedMotion();
   const [category, setCategory] = useState('all');

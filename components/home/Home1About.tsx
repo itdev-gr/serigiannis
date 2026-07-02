@@ -4,9 +4,10 @@ import { stats } from '@/data/site';
 import { StatCounter } from '@/components/shared/StatCounter';
 import { Button } from '@/components/ui/Button';
 import { homeContent } from './content';
+import type { AboutCopy } from './resolve-content';
 
-export function Home1About() {
-  const c = homeContent.about;
+export function Home1About({ content = homeContent.about }: { content?: AboutCopy }) {
+  const c = content;
   return (
     <section className="bg-deep-ink py-24 text-surface md:py-32" aria-label={c.title}>
       <div className="container grid gap-16 md:grid-cols-12 md:items-start">

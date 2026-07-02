@@ -1,7 +1,9 @@
-import type { SVGProps } from 'react';
+import type { SVGProps, ComponentType } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { MapPin, Phone, Mail, Clock } from 'lucide-react';
+import { getSettings } from '@/lib/queries/settings';
+import { telHref } from '@/lib/phone';
 
 // Brand icons — lucide-react v1 removed brand marks, so we inline them.
 function Facebook(props: SVGProps<SVGSVGElement>) {
@@ -28,7 +30,14 @@ function Youtube(props: SVGProps<SVGSVGElement>) {
   );
 }
 
-export function Footer() {
+export async function Footer() {
+  const s = await getSettings();
+  const socials = [
+    s.social?.facebook && { href: s.social.facebook, label: 'Facebook', Icon: Facebook },
+    s.social?.instagram && { href: s.social.instagram, label: 'Instagram', Icon: Instagram },
+    s.social?.youtube && { href: s.social.youtube, label: 'YouTube', Icon: Youtube },
+  ].filter(Boolean) as { href: string; label: string; Icon: ComponentType<SVGProps<SVGSVGElement>> }[];
+
   return (
     <footer className="bg-deep-ink text-surface">
       <div className="container grid gap-12 py-20 md:grid-cols-2 lg:grid-cols-4">
@@ -40,15 +49,11 @@ export function Footer() {
             Ταξιδιωτικό γραφείο στο Περιστέρι από το 1995. Οργανώνουμε εκδρομές, κρουαζιέρες και μεταφορές σε όλη την Ελλάδα.
           </p>
           <div className="mt-6 flex gap-3">
-            <a href="https://facebook.com/sergiani.travelgr" aria-label="Facebook" className="grid h-10 w-10 place-items-center rounded-full bg-surface/10 transition-colors hover:bg-cta">
-              <Facebook className="h-4 w-4" />
-            </a>
-            <a href="https://instagram.com/sergiani_travel" aria-label="Instagram" className="grid h-10 w-10 place-items-center rounded-full bg-surface/10 transition-colors hover:bg-cta">
-              <Instagram className="h-4 w-4" />
-            </a>
-            <a href="https://youtube.com/@sergianitravel" aria-label="YouTube" className="grid h-10 w-10 place-items-center rounded-full bg-surface/10 transition-colors hover:bg-cta">
-              <Youtube className="h-4 w-4" />
-            </a>
+            {socials.map(({ href, label, Icon }) => (
+              <a key={label} href={href} aria-label={label} target="_blank" rel="noopener" className="grid h-10 w-10 place-items-center rounded-full bg-surface/10 transition-colors hover:bg-cta">
+                <Icon className="h-4 w-4" />
+              </a>
+            ))}
           </div>
         </div>
 
@@ -68,19 +73,17 @@ export function Footer() {
           <ul className="space-y-3 text-[15px] text-surface/80">
             <li className="flex items-start gap-3">
               <MapPin className="mt-1 h-4 w-4 shrink-0 text-cta" strokeWidth={1.75} />
-              <span>Π. Μελά 45, Περιστέρι 121 31<br/><span className="text-surface/60">(Μετρό Αγίου Αντωνίου)</span></span>
+              <span>{s.address}<br/><span className="text-surface/60">(Μετρό Αγίου Αντωνίου)</span></span>
             </li>
-            <li className="flex items-center gap-3">
-              <Phone className="h-4 w-4 shrink-0 text-cta" strokeWidth={1.75} />
-              <a href="tel:+302105712451" className="hover:text-cta">210 571 2451</a>
-            </li>
-            <li className="flex items-center gap-3">
-              <Phone className="h-4 w-4 shrink-0 text-cta" strokeWidth={1.75} />
-              <a href="tel:+306976811825" className="hover:text-cta">6976 811 825 <span className="text-surface/50">(24ώρο)</span></a>
-            </li>
+            {s.phones.map((phone) => (
+              <li key={phone} className="flex items-center gap-3">
+                <Phone className="h-4 w-4 shrink-0 text-cta" strokeWidth={1.75} />
+                <a href={telHref(phone)} className="hover:text-cta">{phone}</a>
+              </li>
+            ))}
             <li className="flex items-center gap-3">
               <Mail className="h-4 w-4 shrink-0 text-cta" strokeWidth={1.75} />
-              <a href="mailto:info@sergianitravel.gr" className="hover:text-cta">info@sergianitravel.gr</a>
+              <a href={`mailto:${s.email}`} className="hover:text-cta">{s.email}</a>
             </li>
           </ul>
         </div>
@@ -91,8 +94,8 @@ export function Footer() {
             <li className="flex items-start gap-3">
               <Clock className="mt-1 h-4 w-4 shrink-0 text-cta" strokeWidth={1.75} />
               <div>
-                <div>Δευ–Παρ: 09:00–17:00</div>
-                <div>Σάββατο: 09:00–14:00</div>
+                <div>Δευ–Παρ: {s.hours.weekdays}</div>
+                <div>Σάββατο: {s.hours.saturday}</div>
               </div>
             </li>
           </ul>

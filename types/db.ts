@@ -55,4 +55,7 @@ export type SettingsData = {
   email: string;
   hours: { weekdays: string; saturday: string };
   social?: { facebook?: string; instagram?: string; youtube?: string };
+  // Editable home-page copy (optional; each field falls back to the content.ts default).
+  hero?: { eyebrow?: string; titleTop?: string; titleEmph?: string; subtitle?: string };
+  about?: { eyebrow?: string; title?: string; body?: string };
 };

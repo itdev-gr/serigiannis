@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { LogOut, Plus, ExternalLink } from 'lucide-react';
+import { LogOut, Plus, ExternalLink, Settings } from 'lucide-react';
 import { createServerClient } from '@/lib/supabase/server';
 import { signOut } from './actions';
 
@@ -20,6 +20,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
             </Link>
             <Link href="/admin/tours/new" className="inline-flex items-center gap-1.5 rounded-full bg-cta px-4 py-1.5 font-sans text-[13px] font-semibold text-surface hover:bg-cta-hover">
               <Plus className="h-4 w-4" strokeWidth={2} /> Νέα Εκδρομή
+            </Link>
+            <Link href="/admin/settings" className="inline-flex items-center gap-1.5 font-sans text-[13px] font-medium text-muted hover:text-primary">
+              <Settings className="h-4 w-4" strokeWidth={1.75} /> Ρυθμίσεις
             </Link>
           </div>
           <div className="flex items-center gap-4 text-[13px]">
