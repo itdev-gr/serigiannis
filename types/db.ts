@@ -59,3 +59,48 @@ export type SettingsData = {
   hero?: { eyebrow?: string; titleTop?: string; titleEmph?: string; subtitle?: string };
   about?: { eyebrow?: string; title?: string; body?: string };
 };
+
+export type LeadType = 'contact' | 'quote' | 'booking';
+export type LeadStatus = 'new' | 'contacted' | 'booked' | 'completed' | 'cancelled';
+
+export type Lead = {
+  id: string;
+  type: LeadType;
+  status: LeadStatus;
+  name: string;
+  email: string | null;
+  phone: string | null;
+  subject: string | null;
+  message: string | null;
+  tour_id: string | null;
+  preferred_date: string | null;
+  party_size: number | null;
+  source_path: string | null;
+  admin_notes: string | null;
+  created_at: string;
+  updated_at: string;
+  tour_title?: string | null; // joined
+};
+
+export type LeadInput = {
+  type: LeadType;
+  name: string;
+  email?: string | null;
+  phone?: string | null;
+  subject?: string | null;
+  message?: string | null;
+  tour_id?: string | null;
+  preferred_date?: string | null;
+  party_size?: number | null;
+  source_path?: string | null;
+};
+
+export type Client = {
+  key: string;
+  name: string;
+  email: string | null;
+  phone: string | null;
+  count: number;
+  lastActivity: string;
+  leads: Lead[];
+};
