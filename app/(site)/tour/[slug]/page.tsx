@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { Clock, Calendar, MapPin, Phone, Check } from 'lucide-react';
 import { PageHero } from '@/components/shared/PageHero';
 import { TourCard } from '@/components/trips/TourCard';
+import { BookingForm } from '@/components/trips/BookingForm';
 import { Button } from '@/components/ui/Button';
 import { getTourBySlug, getTours, getPublishedSlugs } from '@/lib/queries/tours';
 import { coverImage, imageUrl } from '@/lib/images';
@@ -141,6 +142,9 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
               <a href="tel:+302105712451" className="mt-3 flex items-center justify-center gap-2 font-sans text-[14px] font-semibold text-primary hover:text-cta">
                 <Phone className="h-4 w-4" strokeWidth={1.75} /> 210 571 2451
               </a>
+            </div>
+            <div className="mt-6">
+              <BookingForm tourId={tour.id} tourTitle={tour.title} />
             </div>
           </aside>
         </div>
