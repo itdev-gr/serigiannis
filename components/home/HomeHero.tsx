@@ -28,17 +28,24 @@ export function HomeHero() {
     gsap.from('[data-hero-cta]', { opacity: 0, y: 20, delay: 1.1, duration: 0.7, ease: 'power2.out', stagger: 0.15 });
     gsap.from('[data-hero-scroll]', { opacity: 0, y: 10, delay: 1.6, duration: 0.6, ease: 'power2.out' });
     gsap.from('[data-hero-img]', { scale: 1.1, duration: 1.6, ease: 'power2.out' });
+    // Scroll parallax (scrub owns scroll-y; mount owns scale — no conflict).
+    gsap.to('[data-hero-img]', {
+      yPercent: 10,
+      ease: 'none',
+      scrollTrigger: { trigger: scopeRef.current!, start: 'top top', end: 'bottom top', scrub: true },
+    });
   }, scopeRef, [reduced]);
 
   return (
     <section ref={scopeRef} className="relative h-[100vh] min-h-[640px] w-full overflow-hidden">
-      <div data-hero-img className="absolute inset-0">
+      <div data-hero-img className="absolute inset-x-0 -top-[10%] h-[120%]">
         <Image src={HERO_SRC} alt="Λευκά και μπλε ελληνικού νησιού" fill priority sizes="100vw" className="object-cover" />
       </div>
-      <div className="absolute inset-0 bg-gradient-to-b from-deep-ink/40 via-deep-ink/30 to-deep-ink/80" />
+      <div className="absolute inset-0 bg-gradient-to-b from-deep-ink/35 via-deep-ink/20 to-deep-ink/85" />
+      <div className="absolute inset-0 bg-[radial-gradient(70%_60%_at_15%_100%,rgba(0,81,157,0.45),transparent_60%)]" />
       <div className="container relative flex h-full flex-col justify-end pb-20 pt-32 text-surface">
         <p data-hero-eyebrow className="mb-5 inline-flex items-center gap-3 self-start rounded-full border border-surface/25 bg-surface/10 px-4 py-2 font-sans text-[11px] font-semibold uppercase tracking-[0.2em] backdrop-blur-sm">
-          <span className="h-1.5 w-1.5 rounded-full bg-cta" />
+          <span className="h-1.5 w-1.5 rounded-full bg-gold" />
           Από το 1995 · Ταξιδιωτικό Γραφείο Περιστέρι
         </p>
         <h1 ref={titleRef} className="max-w-5xl overflow-hidden font-display text-display-hero text-balance leading-[1.02]">
@@ -49,7 +56,7 @@ export function HomeHero() {
         </p>
         <div className="mt-10 flex flex-wrap items-center gap-4">
           <div data-hero-cta>
-            <Button asChild size="lg">
+            <Button asChild variant="accent" size="lg">
               <Link href="/ekdromes">Δείτε τις Εκδρομές</Link>
             </Button>
           </div>
