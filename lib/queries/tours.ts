@@ -2,16 +2,12 @@ import { isDbConfigured, createServerClient } from '@/lib/supabase/server';
 import { seedTours } from '@/data/seed/tours';
 import type { Category, Tour, TourImage } from '@/types/db';
 
-const SELECT = '*, categories:tour_categories(category:categories(*)), images:tour_images(*)';
+// tours has two FKs to tour_images (images + cover_image_id), so the images
+// embed must name the one-to-many FK explicitly to avoid PGRST201 ambiguity.
+const SELECT =
+  '*, categories:tour_categories(category:categories(*)), images:tour_images!tour_images_tour_id_fkey(*)';
 
-/** Resolve a tour image to a URL: absolute (seed) as-is, else a Supabase Storage public URL. */
-export function imageUrl(image?: TourImage | null): string | null {
-  const p = image?.storage_path;
-  if (!p) return null;
-  if (/^https?:\/\//.test(p)) return p;
-  const base = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  return base ? `${base}/storage/v1/object/public/tour-images/${p}` : p;
-}
+export { imageUrl, coverImage } from '@/lib/images';
 
 type RawTour = Omit<Tour, 'categories' | 'images'> & {
   categories?: { category: Category | null }[] | null;

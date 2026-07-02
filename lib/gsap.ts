@@ -1,13 +1,10 @@
-// src/lib/gsap.ts
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-let registered = false;
-
-export function registerGsapPlugins() {
-  if (registered) return;
+// Register ScrollTrigger once, client-side only (guards against SSR where
+// window is undefined). Idempotent — gsap.registerPlugin dedupes.
+if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
-  registered = true;
 }
 
 export { gsap, ScrollTrigger };
