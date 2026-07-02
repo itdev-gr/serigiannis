@@ -1,5 +1,6 @@
 import { isDbConfigured, createPublicClient } from '@/lib/supabase/server';
 import { seedTours } from '@/data/seed/tours';
+import { decodeEntities, decodeMaybe } from '@/lib/text';
 import type { Category, Tour, TourImage } from '@/types/db';
 
 // tours has two FKs to tour_images (images + cover_image_id), so the images
@@ -21,7 +22,17 @@ function normalize(row: RawTour): Tour {
   const images = (row.images ?? []).slice().sort((a, b) => a.position - b.position);
   const { categories: _c, images: _i, ...rest } = row;
   void _c; void _i;
-  return { ...(rest as Omit<Tour, 'categories' | 'images'>), categories, images };
+  const clean = rest as Omit<Tour, 'categories' | 'images'>;
+  return {
+    ...clean,
+    title: decodeEntities(clean.title),
+    subtitle: decodeMaybe(clean.subtitle),
+    summary: decodeMaybe(clean.summary),
+    duration_label: decodeMaybe(clean.duration_label),
+    departure_note: decodeMaybe(clean.departure_note),
+    categories,
+    images,
+  };
 }
 
 export async function getTours(): Promise<Tour[]> {
