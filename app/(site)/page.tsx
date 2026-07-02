@@ -90,17 +90,17 @@ export default async function HomePage() {
       </section>
 
       {/* CTA strip */}
-      <section className="bg-gold py-16 text-[#00296b]">
+      <section className="bg-primary py-16 text-surface">
         <div className="container flex flex-col items-center justify-between gap-6 text-center md:flex-row md:text-left">
           <div>
             <h2 className="font-display text-3xl font-semibold md:text-4xl">Έτοιμοι για την επόμενη περιπέτεια;</h2>
-            <p className="mt-2 text-[17px] text-[#00296b]/80">Καλέστε μας ή στείλτε μας μήνυμα — απαντάμε την ίδια μέρα.</p>
+            <p className="mt-2 text-[17px] text-surface/70">Καλέστε μας ή στείλτε μας μήνυμα — απαντάμε την ίδια μέρα.</p>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <a href="tel:+302105712451" className="inline-flex items-center gap-3 rounded-full bg-[#00296b] px-6 py-3 font-display text-2xl font-semibold text-surface transition hover:bg-primary">
+            <a href="tel:+302105712451" className="inline-flex items-center gap-3 rounded-full bg-cta px-6 py-3 font-display text-2xl font-semibold text-surface transition hover:bg-cta-hover">
               <Phone className="h-5 w-5" strokeWidth={1.75}/> 210 571 2451
             </a>
-            <Link href="/epikoinonia" className="font-sans text-[13px] font-semibold uppercase tracking-[0.14em] underline underline-offset-4 hover:text-[#00296b]/70">
+            <Link href="/epikoinonia" className="font-sans text-[13px] font-semibold uppercase tracking-[0.14em] underline underline-offset-4 hover:text-surface/70">
               ή στείλτε μήνυμα
             </Link>
           </div>

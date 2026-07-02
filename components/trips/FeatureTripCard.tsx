@@ -13,7 +13,7 @@ export function FeatureTripCard({ tour, size = 'lg' }: { tour: Tour; size?: 'lg'
     <Link
       href={`/tour/${tour.slug}`}
       className={cn(
-        'group relative block overflow-hidden rounded-lg',
+        'group relative block overflow-hidden rounded-md',
         size === 'lg' ? 'aspect-[5/6] lg:aspect-[4/5]' : 'aspect-[4/3]'
       )}
     >
