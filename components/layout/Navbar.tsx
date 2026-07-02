@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Menu, X, Ship, MapPin, Bus, Mail, Home as HomeIcon } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
@@ -50,14 +51,15 @@ export function Navbar() {
         )}
       >
         <div className="container flex items-center justify-between gap-4">
-          <Link href="/" className="flex items-center gap-2.5" aria-label="Sergiani Travel — αρχική">
-            <div className={cn('grid h-10 w-10 place-items-center rounded-full transition-colors', dark ? 'bg-surface/15 backdrop-blur' : 'bg-primary')}>
-              <Ship className="h-5 w-5 text-surface" strokeWidth={1.5} />
-            </div>
-            <div className="leading-tight">
-              <div className={cn('font-display text-[20px] font-semibold', dark ? 'text-surface' : 'text-primary')}>Sergiani</div>
-              <div className={cn('font-sans text-[10px] uppercase tracking-[0.2em]', dark ? 'text-surface/70' : 'text-muted')}>Travel · 1995</div>
-            </div>
+          <Link href="/" className="flex items-center" aria-label="Sergiani Travel — αρχική">
+            <Image
+              src="/brand/logo-300x75.png"
+              alt="Sergiani Travel"
+              width={200}
+              height={50}
+              priority
+              className={cn('h-9 w-auto transition-all duration-300 md:h-10', dark && 'brightness-0 invert')}
+            />
           </Link>
 
           <nav className="hidden items-center gap-1 lg:flex" aria-label="Κύρια πλοήγηση">
@@ -107,7 +109,9 @@ export function Navbar() {
         aria-hidden={!mobileOpen}
       >
         <div className="flex items-center justify-between px-6 py-5">
-          <Link href="/" className="font-display text-2xl font-semibold text-surface">Sergiani</Link>
+          <Link href="/" aria-label="Sergiani Travel — αρχική">
+            <Image src="/brand/logo-300x75.png" alt="Sergiani Travel" width={200} height={50} className="h-9 w-auto brightness-0 invert" />
+          </Link>
           <button
             type="button"
             onClick={() => setMobileOpen(false)}

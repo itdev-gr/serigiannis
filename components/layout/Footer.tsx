@@ -1,6 +1,7 @@
 import type { SVGProps } from 'react';
 import Link from 'next/link';
-import { MapPin, Phone, Mail, Clock, Ship } from 'lucide-react';
+import Image from 'next/image';
+import { MapPin, Phone, Mail, Clock } from 'lucide-react';
 
 // Brand icons — lucide-react v1 removed brand marks, so we inline them.
 function Facebook(props: SVGProps<SVGSVGElement>) {
@@ -32,12 +33,9 @@ export function Footer() {
     <footer className="bg-deep-ink text-surface">
       <div className="container grid gap-12 py-20 md:grid-cols-2 lg:grid-cols-4">
         <div className="lg:col-span-1">
-          <div className="mb-4 flex items-center gap-2.5">
-            <div className="grid h-10 w-10 place-items-center rounded-full bg-surface/10">
-              <Ship className="h-5 w-5" strokeWidth={1.5} />
-            </div>
-            <div className="font-display text-2xl font-semibold">Sergiani Travel</div>
-          </div>
+          <Link href="/" aria-label="Sergiani Travel — αρχική" className="mb-5 inline-flex rounded-lg bg-surface px-3.5 py-2.5">
+            <Image src="/brand/logo-300x75.png" alt="Sergiani Travel" width={220} height={55} className="h-9 w-auto" />
+          </Link>
           <p className="text-[15px] leading-relaxed text-surface/70">
             Ταξιδιωτικό γραφείο στο Περιστέρι από το 1995. Οργανώνουμε εκδρομές, κρουαζιέρες και μεταφορές σε όλη την Ελλάδα.
           </p>
