@@ -57,18 +57,3 @@ export async function getClients(): Promise<Client[]> {
 export async function getBookings(): Promise<Lead[]> {
   return getLeads({ status: 'booked' });
 }
-
-export async function getDashboardStats(): Promise<{ tours: number; newRequests: number; clients: number; bookings: number }> {
-  if (!isDbConfigured()) return { tours: 0, newRequests: 0, clients: 0, bookings: 0 };
-  const sb = await createServerClient();
-  const [tours, leads] = await Promise.all([
-    sb.from('tours').select('id', { count: 'exact', head: true }).eq('status', 'published'),
-    getLeads(),
-  ]);
-  return {
-    tours: tours.count ?? 0,
-    newRequests: leads.filter((l) => l.status === 'new').length,
-    clients: groupClients(leads).length,
-    bookings: leads.filter((l) => l.status === 'booked').length,
-  };
-}

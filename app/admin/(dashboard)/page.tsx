@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { getDashboardStats, getLeads } from '@/lib/queries/leads';
+import { getLeads, groupClients } from '@/lib/queries/leads';
+import { getPublishedTourCount } from '@/lib/queries/tours';
 import { StatusBadge, TypeBadge } from '@/components/admin/StatusBadge';
 
 const TILES = [
@@ -10,7 +11,13 @@ const TILES = [
 ] as const;
 
 export default async function DashboardPage() {
-  const [stats, leads] = await Promise.all([getDashboardStats(), getLeads()]);
+  const [leads, tours] = await Promise.all([getLeads(), getPublishedTourCount()]);
+  const stats = {
+    tours,
+    newRequests: leads.filter((l) => l.status === 'new').length,
+    clients: groupClients(leads).length,
+    bookings: leads.filter((l) => l.status === 'booked').length,
+  };
   const latest = leads.slice(0, 5);
   return (
     <div>

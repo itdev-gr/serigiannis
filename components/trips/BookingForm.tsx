@@ -11,7 +11,7 @@ const Schema = z.object({
   phone: z.string().min(8, 'Συμπληρώστε ένα έγκυρο τηλέφωνο.'),
   email: z.string().email('Μη έγκυρο email.').optional().or(z.literal('')),
   date: z.string().optional(),
-  party: z.string().optional(),
+  party: z.string().optional().refine((v) => !v || (/^\d+$/.test(v) && Number(v) >= 1), 'Μη έγκυρος αριθμός ατόμων.'),
   notes: z.string().optional(),
 });
 type Input = z.infer<typeof Schema>;
@@ -28,7 +28,7 @@ function Field({ label, error, children }: { label: string; error?: string; chil
   );
 }
 
-export function BookingForm({ tourId, tourTitle }: { tourId: string; tourTitle: string }) {
+export function BookingForm({ tourId, tourTitle, slug }: { tourId: string; tourTitle: string; slug: string }) {
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<Input>({ resolver: zodResolver(Schema) });
@@ -50,7 +50,7 @@ export function BookingForm({ tourId, tourTitle }: { tourId: string; tourTitle: 
           type: 'booking', tour_id: tourId, name: d.name, phone: d.phone,
           email: d.email || null, preferred_date: d.date || null,
           party_size: d.party ? Number(d.party) : null,
-          subject: `Κράτηση: ${tourTitle}`, message: d.notes, source_path: `/tour`,
+          subject: `Κράτηση: ${tourTitle}`, message: d.notes, source_path: `/tour/${slug}`,
         });
         if (res.ok) setSent(true); else setError('Κάτι πήγε στραβά. Δοκιμάστε ξανά ή καλέστε μας.');
       })}

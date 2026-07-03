@@ -130,7 +130,8 @@ export async function upsertTour(formData: FormData) {
 
 export async function setLeadStatus(id: string, status: string) {
   const sb = await createServerClient();
-  await sb.from('leads').update({ status }).eq('id', id);
+  const { error } = await sb.from('leads').update({ status }).eq('id', id);
+  if (error) console.error('setLeadStatus:', error.message);
   revalidatePath('/admin');
   revalidatePath('/admin/requests');
   revalidatePath('/admin/bookings');
@@ -139,13 +140,15 @@ export async function setLeadStatus(id: string, status: string) {
 
 export async function saveLeadNotes(id: string, notes: string) {
   const sb = await createServerClient();
-  await sb.from('leads').update({ admin_notes: notes }).eq('id', id);
+  const { error } = await sb.from('leads').update({ admin_notes: notes }).eq('id', id);
+  if (error) console.error('saveLeadNotes:', error.message);
   revalidatePath(`/admin/requests/${id}`);
 }
 
 export async function deleteLead(id: string) {
   const sb = await createServerClient();
-  await sb.from('leads').delete().eq('id', id);
+  const { error } = await sb.from('leads').delete().eq('id', id);
+  if (error) console.error('deleteLead:', error.message);
   revalidatePath('/admin/requests');
   redirect('/admin/requests');
 }
@@ -159,15 +162,18 @@ export async function upsertCategory(formData: FormData) {
     sort_order: Number(formData.get('sort_order') || 0),
   };
   if (!payload.name_el || !payload.slug) return;
-  if (id) await sb.from('categories').update(payload).eq('id', id);
-  else await sb.from('categories').insert(payload);
+  const { error } = id
+    ? await sb.from('categories').update(payload).eq('id', id)
+    : await sb.from('categories').insert(payload);
+  if (error) console.error('upsertCategory:', error.message);
   revalidatePublic();
   revalidatePath('/admin/categories');
 }
 
 export async function deleteCategory(id: string) {
   const sb = await createServerClient();
-  await sb.from('categories').delete().eq('id', id);
+  const { error } = await sb.from('categories').delete().eq('id', id);
+  if (error) console.error('deleteCategory:', error.message);
   revalidatePublic();
   revalidatePath('/admin/categories');
 }

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Pencil, Eye, EyeOff, Star, Trash2, Plus } from 'lucide-react';
-import { createServerClient } from '@/lib/supabase/server';
+import { getAdminTours } from '@/lib/queries/tours';
 import { setStatus, setFeatured, deleteTour } from '../actions';
 import { ConfirmForm } from '@/components/admin/ConfirmForm';
 
@@ -15,12 +15,7 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 export default async function AdminToursPage() {
-  const sb = await createServerClient();
-  const { data: tours } = await sb
-    .from('tours')
-    .select('id, slug, title, status, is_featured, price_from')
-    .order('sort_order');
-  const rows = tours ?? [];
+  const rows = await getAdminTours();
   const published = rows.filter((t) => t.status === 'published').length;
 
   return (

@@ -144,7 +144,7 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
               </a>
             </div>
             <div className="mt-6">
-              <BookingForm tourId={tour.id} tourTitle={tour.title} />
+              <BookingForm tourId={tour.id} tourTitle={tour.title} slug={tour.slug} />
             </div>
           </aside>
         </div>
