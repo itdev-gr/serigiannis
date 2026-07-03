@@ -89,19 +89,31 @@ export async function getPublishedTourCount(): Promise<number> {
   return count ?? 0;
 }
 
-export type AdminTourRow = Pick<Tour, 'id' | 'slug' | 'title' | 'status' | 'is_featured' | 'price_from'>;
+export type AdminTourRow = Pick<Tour, 'id' | 'slug' | 'title' | 'status' | 'is_featured' | 'price_from'> & {
+  categories: { slug: string; name_el: string }[];
+};
 
-/** Admin list read (all statuses, session-scoped via RLS). */
+type RawAdminTour = Pick<Tour, 'id' | 'slug' | 'title' | 'status' | 'is_featured' | 'price_from'> & {
+  tour_categories?: { category: { slug: string; name_el: string } | null }[] | null;
+};
+
+/** Admin list read (all statuses, session-scoped via RLS), with categories for filtering. */
 export async function getAdminTours(): Promise<AdminTourRow[]> {
   if (!isDbConfigured()) return [];
   const sb = await createServerClient();
   const { data, error } = await sb
     .from('tours')
-    .select('id, slug, title, status, is_featured, price_from')
+    .select('id, slug, title, status, is_featured, price_from, tour_categories(category:categories(slug, name_el))')
     .order('sort_order');
   if (error) {
     console.error('getAdminTours:', error.message);
     return [];
   }
-  return data ?? [];
+  return ((data ?? []) as unknown as RawAdminTour[]).map((r) => {
+    const { tour_categories, ...rest } = r;
+    const categories = (tour_categories ?? [])
+      .map((tc) => tc.category)
+      .filter((c): c is { slug: string; name_el: string } => Boolean(c));
+    return { ...rest, title: decodeEntities(rest.title), categories };
+  });
 }
