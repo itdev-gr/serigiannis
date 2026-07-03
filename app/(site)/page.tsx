@@ -42,8 +42,8 @@ export default async function HomePage() {
       <Home1Destinations categories={categories} tours={allTours} />
       <Home1About content={copy.about} stats={homeStats} />
       <Home1Listing tours={featured} />
-      <Home1Promo />
-      <Home1Process />
+      <Home1Promo content={copy.promo} />
+      <Home1Process content={copy.process} />
       <Home1Testimonials testimonials={homeTestimonials} />
       <Home1News tours={news.length ? news : allTours.slice(0, 3)} />
       <Home1Cta settings={settings} />

@@ -1,8 +1,9 @@
 import { SectionHeading } from '@/components/shared/SectionHeading';
 import { homeContent } from './content';
+import type { ProcessCopy } from './resolve-content';
 
-export function Home1Process() {
-  const c = homeContent.process;
+export function Home1Process({ content = homeContent.process }: { content?: ProcessCopy }) {
+  const c = content;
   return (
     <section className="bg-background py-24 md:py-32" aria-label={c.title}>
       <div className="container">

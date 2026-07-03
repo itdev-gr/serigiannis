@@ -38,6 +38,19 @@ export async function saveSettings(formData: FormData) {
     },
   };
 
+  const promoEyebrow = opt(g('promo_eyebrow'));
+  const promoTitle = opt(g('promo_title'));
+  const promoBody = opt(g('promo_body'));
+  const promoCta = opt(g('promo_cta'));
+  if (promoEyebrow || promoTitle || promoBody || promoCta) {
+    data.promo = {
+      ...(promoEyebrow ? { eyebrow: promoEyebrow } : {}),
+      ...(promoTitle ? { title: promoTitle } : {}),
+      ...(promoBody ? { body: promoBody } : {}),
+      ...(promoCta ? { cta: promoCta } : {}),
+    };
+  }
+
   const stats = [0, 1, 2, 3, 4, 5]
     .map((i) => ({ value: Number(g(`stat_value_${i}`)) || 0, suffix: opt(g(`stat_suffix_${i}`)), label: g(`stat_label_${i}`) }))
     .filter((s) => s.label !== '');
@@ -52,6 +65,32 @@ export async function saveSettings(formData: FormData) {
     .map((i) => ({ title: g(`trust_title_${i}`), text: g(`trust_text_${i}`) }))
     .filter((t) => t.title !== '');
   if (trust.length) data.trust = trust;
+
+  const processEyebrow = opt(g('process_eyebrow'));
+  const processTitle = opt(g('process_title'));
+  const processSteps = [0, 1, 2]
+    .map((i) => ({ title: g(`process_step_title_${i}`), text: g(`process_step_text_${i}`) }))
+    .filter((s) => s.title !== '');
+  if (processEyebrow || processTitle || processSteps.length) {
+    data.process = {
+      ...(processEyebrow ? { eyebrow: processEyebrow } : {}),
+      ...(processTitle ? { title: processTitle } : {}),
+      ...(processSteps.length ? { steps: processSteps } : {}),
+    };
+  }
+
+  const poylmanValueProps = [0, 1, 2, 3]
+    .map((i) => ({ title: g(`poylman_vp_title_${i}`), description: g(`poylman_vp_desc_${i}`) }))
+    .filter((v) => v.title !== '');
+  const poylmanRoutes = [0, 1, 2]
+    .map((i) => ({ from: g(`poylman_route_from_${i}`), to: g(`poylman_route_to_${i}`), hours: g(`poylman_route_hours_${i}`) }))
+    .filter((r) => r.from !== '' || r.to !== '');
+  if (poylmanValueProps.length || poylmanRoutes.length) {
+    data.poylman = {
+      ...(poylmanValueProps.length ? { valueProps: poylmanValueProps } : {}),
+      ...(poylmanRoutes.length ? { routes: poylmanRoutes } : {}),
+    };
+  }
 
   const pageHeroKeys = ['ekdromes', 'kroyazieres', 'poylman', 'epikoinonia', 'istoriko'] as const;
   const pageHeros: Record<string, { eyebrow?: string; title?: string; subtitle?: string }> = {};

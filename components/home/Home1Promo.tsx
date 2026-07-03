@@ -2,9 +2,10 @@ import Link from 'next/link';
 import { Bus } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { homeContent } from './content';
+import type { PromoCopy } from './resolve-content';
 
-export function Home1Promo() {
-  const c = homeContent.promo;
+export function Home1Promo({ content = homeContent.promo }: { content?: PromoCopy }) {
+  const c = content;
   return (
     <section className="py-8" aria-label={c.title}>
       <div className="container">

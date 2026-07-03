@@ -5,25 +5,15 @@ import { SectionHeading } from '@/components/shared/SectionHeading';
 import { RevealOnScroll } from '@/components/shared/RevealOnScroll';
 import { QuoteForm } from '@/components/rentals/QuoteForm';
 import { getSettings } from '@/lib/queries/settings';
-import { resolvePageHero } from '@/components/home/resolve-content';
+import { resolvePageHero, resolvePoylman } from '@/components/home/resolve-content';
 
 export const metadata: Metadata = {
   title: 'Ενοικιάσεις Πούλμαν',
   description: 'Ιδιωτικές μεταφορές με σύγχρονα πούλμαν, έμπειρους οδηγούς και ξεκάθαρες τιμές — από την Αθήνα σε όλη την Ελλάδα.',
 };
 
-const VALUE_PROPS = [
-  { icon: UserRound, title: 'Έμπειροι Οδηγοί', description: 'Πιστοποιημένοι οδηγοί με πολυετή εμπειρία σε τουριστικές μεταφορές.' },
-  { icon: Wrench, title: 'Σύγχρονος Στόλος', description: 'Νεότερα πούλμαν με air-condition, mic, wifi και χώρο για αποσκευές.' },
-  { icon: MapPinned, title: 'Καθ’ όλη την Ελλάδα', description: 'Από τη Χαλκιδική μέχρι τη Μάνη — καλύπτουμε κάθε προορισμό.' },
-  { icon: PhoneCall, title: '24ωρη Εξυπηρέτηση', description: 'Είμαστε διαθέσιμοι όλο το εικοσιτετράωρο για κρατήσεις και αλλαγές.' },
-];
-
-const ROUTES = [
-  { from: 'Αθήνα', to: 'Δελφοί · Αράχωβα', hours: '≈ 2,5 ώρες' },
-  { from: 'Αθήνα', to: 'Μετέωρα · Καλαμπάκα', hours: '≈ 4,5 ώρες' },
-  { from: 'Αθήνα', to: 'Ναύπλιο · Επίδαυρος', hours: '≈ 2 ώρες' },
-];
+// Fixed icon per value-prop slot (icons aren't editable) — the text is resolved from settings.
+const VALUE_PROP_ICONS = [UserRound, Wrench, MapPinned, PhoneCall];
 
 const USE_CASES = [
   { icon: GraduationCap, title: 'Σχολικές Εκδρομές', description: 'Ασφαλείς, οργανωμένες μεταφορές για σχολεία και συλλόγους γονέων.' },
@@ -38,6 +28,7 @@ export default async function RentalsPage() {
     title: 'Ενοικιάσεις Πούλμαν',
     subtitle: 'Ιδιωτικές μεταφορές με σύγχρονα πούλμαν, έμπειρους οδηγούς και ξεκάθαρες τιμές. Από την Αθήνα σε όλη την Ελλάδα.',
   });
+  const { valueProps, routes } = resolvePoylman(settings);
   return (
     <>
       <PageHero
@@ -50,15 +41,18 @@ export default async function RentalsPage() {
 
       <section className="border-b border-border py-16">
         <div className="container grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-          {VALUE_PROPS.map(({ icon: Icon, title, description }) => (
-            <div key={title} className="text-center md:text-left">
-              <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-primary/10 text-primary md:mx-0">
-                <Icon className="h-5 w-5" strokeWidth={1.5} />
+          {valueProps.map(({ title, description }, i) => {
+            const Icon = VALUE_PROP_ICONS[i] ?? VALUE_PROP_ICONS[0];
+            return (
+              <div key={title} className="text-center md:text-left">
+                <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-primary/10 text-primary md:mx-0">
+                  <Icon className="h-5 w-5" strokeWidth={1.5} />
+                </div>
+                <h3 className="mt-5 font-display text-xl font-semibold text-primary">{title}</h3>
+                <p className="mt-2 text-[14px] leading-relaxed text-muted">{description}</p>
               </div>
-              <h3 className="mt-5 font-display text-xl font-semibold text-primary">{title}</h3>
-              <p className="mt-2 text-[14px] leading-relaxed text-muted">{description}</p>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 
@@ -70,7 +64,7 @@ export default async function RentalsPage() {
             subtitle="Οι διαδρομές που μας ζητούν πιο συχνά. Καλέστε μας για προσαρμοσμένα προγράμματα."
           />
           <RevealOnScroll className="mt-14 grid gap-6 lg:grid-cols-3">
-            {ROUTES.map((r) => (
+            {routes.map((r) => (
               <div key={r.to} data-reveal className="rounded-lg border border-border bg-surface p-8 shadow-card">
                 <div className="font-sans text-[12px] uppercase tracking-[0.14em] text-muted">{r.from} →</div>
                 <div className="mt-1 font-display text-2xl font-semibold text-primary">{r.to}</div>

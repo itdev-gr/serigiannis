@@ -1,6 +1,7 @@
 import type { SettingsData } from '@/types/db';
 import { homeContent } from '@/components/home/content';
 import { stats as defaultStats, testimonials as defaultTestimonials } from '@/data/site';
+import { resolvePoylman } from '@/components/home/resolve-content';
 import { Button } from '@/components/ui/Button';
 
 const inputCls =
@@ -31,9 +32,15 @@ export function SettingsForm({
 }) {
   const h = homeContent.hero;
   const a = homeContent.about;
+  const p = homeContent.promo;
+  const pr = homeContent.process;
   const statsSrc = settings.stats?.length ? settings.stats : defaultStats;
   const testimonialsSrc = settings.testimonials?.length ? settings.testimonials : defaultTestimonials;
   const trustSrc = settings.trust?.length ? settings.trust : homeContent.about.trust;
+  const processStepsSrc = settings.process?.steps?.length ? settings.process.steps : pr.steps;
+  const poylmanDefaults = resolvePoylman(undefined);
+  const poylmanVpSrc = settings.poylman?.valueProps?.length ? settings.poylman.valueProps : poylmanDefaults.valueProps;
+  const poylmanRoutesSrc = settings.poylman?.routes?.length ? settings.poylman.routes : poylmanDefaults.routes;
   const pageHeroDefaults: Record<string, { label: string; eyebrow: string; title: string; subtitle: string }> = {
     ekdromes: {
       label: 'Εκδρομές',
@@ -164,6 +171,64 @@ export function SettingsForm({
                 <Field label="Eyebrow" name={`pagehero_${key}_eyebrow`} defaultValue={o?.eyebrow ?? ''} placeholder={d.eyebrow} />
                 <Field label="Τίτλος" name={`pagehero_${key}_title`} defaultValue={o?.title ?? ''} placeholder={d.title} />
                 <Field label="Υπότιτλος" name={`pagehero_${key}_subtitle`} defaultValue={o?.subtitle ?? ''} placeholder={d.subtitle} textarea />
+              </div>
+            );
+          })}
+        </div>
+      </fieldset>
+
+      <fieldset className="grid gap-5 border-t border-border pt-8">
+        <legend className="mb-2 font-display text-2xl font-semibold text-primary">Προωθητικό (Πούλμαν στην αρχική)</legend>
+        <p className="-mt-1 text-[14px] text-muted">Αφήστε ένα πεδίο κενό για να χρησιμοποιηθεί το προεπιλεγμένο κείμενο.</p>
+        <Field label="Eyebrow" name="promo_eyebrow" defaultValue={settings.promo?.eyebrow ?? ''} placeholder={p.eyebrow} />
+        <Field label="Τίτλος" name="promo_title" defaultValue={settings.promo?.title ?? ''} placeholder={p.title} />
+        <Field label="Κείμενο" name="promo_body" defaultValue={settings.promo?.body ?? ''} placeholder={p.body} textarea />
+        <Field label="Κείμενο κουμπιού" name="promo_cta" defaultValue={settings.promo?.cta ?? ''} placeholder={p.cta} />
+      </fieldset>
+
+      <fieldset className="grid gap-5 border-t border-border pt-8">
+        <legend className="mb-2 font-display text-2xl font-semibold text-primary">Πώς λειτουργεί</legend>
+        <p className="-mt-1 text-[14px] text-muted">Αφήστε ένα πεδίο κενό για να χρησιμοποιηθεί το προεπιλεγμένο κείμενο.</p>
+        <Field label="Eyebrow" name="process_eyebrow" defaultValue={settings.process?.eyebrow ?? ''} placeholder={pr.eyebrow} />
+        <Field label="Τίτλος" name="process_title" defaultValue={settings.process?.title ?? ''} placeholder={pr.title} />
+        <div className="grid gap-5">
+          {Array.from({ length: 3 }).map((_, i) => {
+            const s = processStepsSrc[i];
+            return (
+              <div key={i} className="grid gap-3 rounded-md border border-border p-4">
+                <div className="font-sans text-[13px] font-semibold uppercase tracking-[0.1em] text-primary">Βήμα #{i + 1}</div>
+                <Field label="Τίτλος" name={`process_step_title_${i}`} defaultValue={settings.process?.steps?.[i]?.title ?? ''} placeholder={s?.title ?? ''} />
+                <Field label="Κείμενο" name={`process_step_text_${i}`} defaultValue={settings.process?.steps?.[i]?.text ?? ''} placeholder={s?.text ?? ''} textarea />
+              </div>
+            );
+          })}
+        </div>
+      </fieldset>
+
+      <fieldset className="grid gap-5 border-t border-border pt-8">
+        <legend className="mb-2 font-display text-2xl font-semibold text-primary">Σελίδα Πούλμαν</legend>
+        <p className="-mt-1 text-[14px] text-muted">Αφήστε κενό τον «Τίτλο» για να μην εμφανιστεί το σημείο. Αφήστε κενό το «Από» και το «Προς» για να μην εμφανιστεί η διαδρομή.</p>
+        <div className="font-sans text-[13px] font-semibold uppercase tracking-[0.1em] text-primary">Πλεονεκτήματα</div>
+        <div className="grid gap-5">
+          {Array.from({ length: 4 }).map((_, i) => {
+            const v = poylmanVpSrc[i];
+            return (
+              <div key={i} className="grid gap-3 rounded-md border border-border p-4">
+                <Field label={`Τίτλος #${i + 1}`} name={`poylman_vp_title_${i}`} defaultValue={settings.poylman?.valueProps?.[i]?.title ?? ''} placeholder={v?.title ?? ''} />
+                <Field label={`Κείμενο #${i + 1}`} name={`poylman_vp_desc_${i}`} defaultValue={settings.poylman?.valueProps?.[i]?.description ?? ''} placeholder={v?.description ?? ''} textarea />
+              </div>
+            );
+          })}
+        </div>
+        <div className="mt-2 font-sans text-[13px] font-semibold uppercase tracking-[0.1em] text-primary">Ενδεικτικές Διαδρομές</div>
+        <div className="grid gap-5">
+          {Array.from({ length: 3 }).map((_, i) => {
+            const r = poylmanRoutesSrc[i];
+            return (
+              <div key={i} className="grid gap-3 rounded-md border border-border p-4 sm:grid-cols-3 sm:items-start">
+                <Field label="Από" name={`poylman_route_from_${i}`} defaultValue={settings.poylman?.routes?.[i]?.from ?? ''} placeholder={r?.from ?? ''} />
+                <Field label="Προς" name={`poylman_route_to_${i}`} defaultValue={settings.poylman?.routes?.[i]?.to ?? ''} placeholder={r?.to ?? ''} />
+                <Field label="Διάρκεια" name={`poylman_route_hours_${i}`} defaultValue={settings.poylman?.routes?.[i]?.hours ?? ''} placeholder={r?.hours ?? ''} />
               </div>
             );
           })}

@@ -25,6 +25,39 @@ export type AboutCopy = {
   trust: readonly TrustPoint[];
 };
 
+export type PromoCopy = {
+  eyebrow: string;
+  title: string;
+  body: string;
+  cta: string;
+  ctaHref: string;
+};
+
+export type ProcessStep = { n: string; title: string; text: string };
+
+export type ProcessCopy = {
+  eyebrow: string;
+  title: string;
+  steps: readonly ProcessStep[];
+};
+
+export type PoylmanValueProp = { title: string; description: string };
+export type PoylmanRoute = { from: string; to: string; hours: string };
+
+// Real "Πούλμαν" page copy (crawl 2026-07-02). Icons stay in the page component.
+const poylmanValuePropsDefault: PoylmanValueProp[] = [
+  { title: 'Έμπειροι Οδηγοί', description: 'Πιστοποιημένοι οδηγοί με πολυετή εμπειρία σε τουριστικές μεταφορές.' },
+  { title: 'Σύγχρονος Στόλος', description: 'Νεότερα πούλμαν με air-condition, mic, wifi και χώρο για αποσκευές.' },
+  { title: 'Καθ’ όλη την Ελλάδα', description: 'Από τη Χαλκιδική μέχρι τη Μάνη — καλύπτουμε κάθε προορισμό.' },
+  { title: '24ωρη Εξυπηρέτηση', description: 'Είμαστε διαθέσιμοι όλο το εικοσιτετράωρο για κρατήσεις και αλλαγές.' },
+];
+
+const poylmanRoutesDefault: PoylmanRoute[] = [
+  { from: 'Αθήνα', to: 'Δελφοί · Αράχωβα', hours: '≈ 2,5 ώρες' },
+  { from: 'Αθήνα', to: 'Μετέωρα · Καλαμπάκα', hours: '≈ 4,5 ώρες' },
+  { from: 'Αθήνα', to: 'Ναύπλιο · Επίδαυρος', hours: '≈ 2 ώρες' },
+];
+
 /** Keep only non-empty string overrides (empty admin fields mean "use the default"). */
 function overrides<T extends object>(o: T | undefined): Partial<T> {
   if (!o) return {};
@@ -36,14 +69,38 @@ function overrides<T extends object>(o: T | undefined): Partial<T> {
 }
 
 /** Merge editable settings copy over the static content.ts defaults. */
-export function resolveHomeContent(settings?: SettingsData): { hero: HeroCopy; about: AboutCopy } {
+export function resolveHomeContent(
+  settings?: SettingsData,
+): { hero: HeroCopy; about: AboutCopy; promo: PromoCopy; process: ProcessCopy } {
   const trust: readonly TrustPoint[] = settings?.trust?.some((t) => t.title.trim() !== '')
     ? settings.trust.map((t) => ({ title: t.title, text: t.text }))
     : homeContent.about.trust;
+
+  const steps: readonly ProcessStep[] = settings?.process?.steps?.some((s) => s.title.trim() !== '')
+    ? settings.process.steps.map((s, i) => ({
+        n: homeContent.process.steps[i]?.n ?? String(i + 1).padStart(2, '0'),
+        title: s.title,
+        text: s.text,
+      }))
+    : homeContent.process.steps;
+
   return {
     hero: { ...homeContent.hero, ...overrides(settings?.hero) },
     about: { ...homeContent.about, ...overrides(settings?.about), trust },
+    promo: { ...homeContent.promo, ...overrides(settings?.promo) },
+    process: { ...homeContent.process, ...overrides(settings?.process), steps },
   };
+}
+
+/** Resolve the Πούλμαν page's value-props and example routes: editable via settings, else the page defaults. */
+export function resolvePoylman(settings?: SettingsData): { valueProps: PoylmanValueProp[]; routes: PoylmanRoute[] } {
+  const valueProps = settings?.poylman?.valueProps?.some((v) => v.title.trim() !== '')
+    ? settings.poylman.valueProps.map((v) => ({ title: v.title, description: v.description }))
+    : poylmanValuePropsDefault;
+  const routes = settings?.poylman?.routes?.some((r) => r.from.trim() !== '' || r.to.trim() !== '')
+    ? settings.poylman.routes.map((r) => ({ from: r.from, to: r.to, hours: r.hours }))
+    : poylmanRoutesDefault;
+  return { valueProps, routes };
 }
 
 /** Resolve the homepage stats: editable via settings, else the data/site.ts defaults. */
