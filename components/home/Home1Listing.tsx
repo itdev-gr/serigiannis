@@ -3,9 +3,10 @@ import { SectionHeading } from '@/components/shared/SectionHeading';
 import { TextLink } from '@/components/ui/TextLink';
 import { TourCard } from '@/components/trips/TourCard';
 import { homeContent } from './content';
+import type { ListingCopy } from './resolve-content';
 
-export function Home1Listing({ tours }: { tours: Tour[] }) {
-  const c = homeContent.listing;
+export function Home1Listing({ tours, content = homeContent.listing }: { tours: Tour[]; content?: ListingCopy }) {
+  const c = content;
   if (tours.length === 0) return null;
   return (
     <section className="py-24 md:py-32" aria-label={c.title}>

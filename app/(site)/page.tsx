@@ -39,14 +39,14 @@ export default async function HomePage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd()) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(tourItemListJsonLd(featured)) }} />
       <Home1Hero categories={categories} content={copy.hero} />
-      <Home1Destinations categories={categories} tours={allTours} />
+      <Home1Destinations categories={categories} tours={allTours} content={copy.destinations} />
       <Home1About content={copy.about} stats={homeStats} />
-      <Home1Listing tours={featured} />
+      <Home1Listing tours={featured} content={copy.listing} />
       <Home1Promo content={copy.promo} />
       <Home1Process content={copy.process} />
-      <Home1Testimonials testimonials={homeTestimonials} />
-      <Home1News tours={news.length ? news : allTours.slice(0, 3)} />
-      <Home1Cta settings={settings} />
+      <Home1Testimonials testimonials={homeTestimonials} content={copy.testimonials} />
+      <Home1News tours={news.length ? news : allTours.slice(0, 3)} content={copy.news} />
+      <Home1Cta settings={settings} content={copy.cta} />
     </>
   );
 }

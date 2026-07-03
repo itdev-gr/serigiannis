@@ -4,9 +4,16 @@ import { SectionHeading } from '@/components/shared/SectionHeading';
 import { TestimonialBlock } from '@/components/shared/TestimonialBlock';
 import { Stagger, StaggerItem } from '@/components/motion/Reveal';
 import { homeContent } from './content';
+import type { TestimonialsCopy } from './resolve-content';
 
-export function Home1Testimonials({ testimonials = defaultTestimonials }: { testimonials?: Testimonial[] }) {
-  const c = homeContent.testimonials;
+export function Home1Testimonials({
+  testimonials = defaultTestimonials,
+  content = homeContent.testimonials,
+}: {
+  testimonials?: Testimonial[];
+  content?: TestimonialsCopy;
+}) {
+  const c = content;
   return (
     <section className="py-24 md:py-32" aria-label={c.title}>
       <div className="container">

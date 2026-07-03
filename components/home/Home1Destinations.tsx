@@ -4,14 +4,23 @@ import type { Category, Tour } from '@/types/db';
 import { coverImage, imageUrl } from '@/lib/images';
 import { SectionHeading } from '@/components/shared/SectionHeading';
 import { homeContent } from './content';
+import type { DestinationsCopy } from './resolve-content';
 
 function categoryImage(slug: string, tours: Tour[]): string | null {
   const match = tours.find((t) => t.categories?.some((c) => c.slug === slug));
   return match ? imageUrl(coverImage(match)) : null;
 }
 
-export function Home1Destinations({ categories, tours }: { categories: Category[]; tours: Tour[] }) {
-  const c = homeContent.destinations;
+export function Home1Destinations({
+  categories,
+  tours,
+  content = homeContent.destinations,
+}: {
+  categories: Category[];
+  tours: Tour[];
+  content?: DestinationsCopy;
+}) {
+  const c = content;
   return (
     <section className="py-24 md:py-32" aria-label={c.title}>
       <div className="container">

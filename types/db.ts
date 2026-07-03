@@ -65,6 +65,14 @@ export type SettingsData = {
   pageHeros?: Record<string, { eyebrow?: string; title?: string; subtitle?: string }>;
   promo?: { eyebrow?: string; title?: string; body?: string; cta?: string };
   process?: { eyebrow?: string; title?: string; steps?: { title: string; text: string }[] };
+  // Editable home-page section headings (eyebrow/title/subtitle), each falling back to content.ts defaults.
+  homeSections?: {
+    destinations?: { eyebrow?: string; title?: string; subtitle?: string };
+    listing?: { eyebrow?: string; title?: string; subtitle?: string };
+    testimonials?: { eyebrow?: string; title?: string };
+    news?: { eyebrow?: string; title?: string; subtitle?: string };
+    cta?: { title?: string; body?: string };
+  };
   poylman?: { valueProps?: { title: string; description: string }[]; routes?: { from: string; to: string; hours: string }[] };
   // Editable legal page bodies (plain text, paragraphs separated by a blank line).
   // If unset/empty, the hardcoded default sections render unchanged.

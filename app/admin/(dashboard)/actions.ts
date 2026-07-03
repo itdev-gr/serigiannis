@@ -108,6 +108,60 @@ export async function saveSettings(formData: FormData) {
   }
   if (Object.keys(pageHeros).length) data.pageHeros = pageHeros;
 
+  const homeSections: NonNullable<SettingsData['homeSections']> = {};
+  const destinationsEyebrow = opt(g('homesec_destinations_eyebrow'));
+  const destinationsTitle = opt(g('homesec_destinations_title'));
+  const destinationsSubtitle = opt(g('homesec_destinations_subtitle'));
+  if (destinationsEyebrow || destinationsTitle || destinationsSubtitle) {
+    homeSections.destinations = {
+      ...(destinationsEyebrow ? { eyebrow: destinationsEyebrow } : {}),
+      ...(destinationsTitle ? { title: destinationsTitle } : {}),
+      ...(destinationsSubtitle ? { subtitle: destinationsSubtitle } : {}),
+    };
+  }
+
+  const listingEyebrow = opt(g('homesec_listing_eyebrow'));
+  const listingTitle = opt(g('homesec_listing_title'));
+  const listingSubtitle = opt(g('homesec_listing_subtitle'));
+  if (listingEyebrow || listingTitle || listingSubtitle) {
+    homeSections.listing = {
+      ...(listingEyebrow ? { eyebrow: listingEyebrow } : {}),
+      ...(listingTitle ? { title: listingTitle } : {}),
+      ...(listingSubtitle ? { subtitle: listingSubtitle } : {}),
+    };
+  }
+
+  const testimonialsEyebrow = opt(g('homesec_testimonials_eyebrow'));
+  const testimonialsTitle = opt(g('homesec_testimonials_title'));
+  if (testimonialsEyebrow || testimonialsTitle) {
+    homeSections.testimonials = {
+      ...(testimonialsEyebrow ? { eyebrow: testimonialsEyebrow } : {}),
+      ...(testimonialsTitle ? { title: testimonialsTitle } : {}),
+    };
+  }
+
+  const newsEyebrow = opt(g('homesec_news_eyebrow'));
+  const newsTitle = opt(g('homesec_news_title'));
+  const newsSubtitle = opt(g('homesec_news_subtitle'));
+  if (newsEyebrow || newsTitle || newsSubtitle) {
+    homeSections.news = {
+      ...(newsEyebrow ? { eyebrow: newsEyebrow } : {}),
+      ...(newsTitle ? { title: newsTitle } : {}),
+      ...(newsSubtitle ? { subtitle: newsSubtitle } : {}),
+    };
+  }
+
+  const ctaTitle = opt(g('homesec_cta_title'));
+  const ctaBody = opt(g('homesec_cta_body'));
+  if (ctaTitle || ctaBody) {
+    homeSections.cta = {
+      ...(ctaTitle ? { title: ctaTitle } : {}),
+      ...(ctaBody ? { body: ctaBody } : {}),
+    };
+  }
+
+  if (Object.keys(homeSections).length) data.homeSections = homeSections;
+
   const legalTerms = opt(g('legal_terms'));
   const legalPrivacy = opt(g('legal_privacy'));
   if (legalTerms || legalPrivacy) {

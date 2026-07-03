@@ -3,9 +3,10 @@ import { SectionHeading } from '@/components/shared/SectionHeading';
 import { TextLink } from '@/components/ui/TextLink';
 import { TourCard } from '@/components/trips/TourCard';
 import { homeContent } from './content';
+import type { NewsCopy } from './resolve-content';
 
-export function Home1News({ tours }: { tours: Tour[] }) {
-  const c = homeContent.news;
+export function Home1News({ tours, content = homeContent.news }: { tours: Tour[]; content?: NewsCopy }) {
+  const c = content;
   const items = tours.slice(0, 3);
   if (items.length === 0) return null;
   return (

@@ -3,9 +3,10 @@ import { Phone } from 'lucide-react';
 import type { SettingsData } from '@/types/db';
 import { telHref } from '@/lib/phone';
 import { homeContent } from './content';
+import type { CtaCopy } from './resolve-content';
 
-export function Home1Cta({ settings }: { settings: SettingsData }) {
-  const c = homeContent.cta;
+export function Home1Cta({ settings, content = homeContent.cta }: { settings: SettingsData; content?: CtaCopy }) {
+  const c = content;
   const phone = settings.phones[0] ?? '210 571 2451';
   return (
     <section className="bg-gold py-16 text-[#00296b]" aria-label={c.title}>

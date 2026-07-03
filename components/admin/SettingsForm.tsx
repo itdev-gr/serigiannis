@@ -34,6 +34,11 @@ export function SettingsForm({
   const a = homeContent.about;
   const p = homeContent.promo;
   const pr = homeContent.process;
+  const dst = homeContent.destinations;
+  const lst = homeContent.listing;
+  const tst = homeContent.testimonials;
+  const nws = homeContent.news;
+  const cta = homeContent.cta;
   const statsSrc = settings.stats?.length ? settings.stats : defaultStats;
   const testimonialsSrc = settings.testimonials?.length ? settings.testimonials : defaultTestimonials;
   const trustSrc = settings.trust?.length ? settings.trust : homeContent.about.trust;
@@ -174,6 +179,44 @@ export function SettingsForm({
               </div>
             );
           })}
+        </div>
+      </fieldset>
+
+      <fieldset className="grid gap-5 border-t border-border pt-8">
+        <legend className="mb-2 font-display text-2xl font-semibold text-primary">Επικεφαλίδες Ενοτήτων Αρχικής</legend>
+        <p className="-mt-1 text-[14px] text-muted">Αφήστε ένα πεδίο κενό για να χρησιμοποιηθεί το προεπιλεγμένο κείμενο.</p>
+
+        <div className="grid gap-5 rounded-md border border-border p-4">
+          <div className="font-sans text-[13px] font-semibold uppercase tracking-[0.1em] text-primary">Προορισμοί</div>
+          <Field label="Eyebrow" name="homesec_destinations_eyebrow" defaultValue={settings.homeSections?.destinations?.eyebrow ?? ''} placeholder={dst.eyebrow} />
+          <Field label="Τίτλος" name="homesec_destinations_title" defaultValue={settings.homeSections?.destinations?.title ?? ''} placeholder={dst.title} />
+          <Field label="Υπότιτλος" name="homesec_destinations_subtitle" defaultValue={settings.homeSections?.destinations?.subtitle ?? ''} placeholder={dst.subtitle} textarea />
+        </div>
+
+        <div className="grid gap-5 rounded-md border border-border p-4">
+          <div className="font-sans text-[13px] font-semibold uppercase tracking-[0.1em] text-primary">Δημοφιλείς Εκδρομές</div>
+          <Field label="Eyebrow" name="homesec_listing_eyebrow" defaultValue={settings.homeSections?.listing?.eyebrow ?? ''} placeholder={lst.eyebrow} />
+          <Field label="Τίτλος" name="homesec_listing_title" defaultValue={settings.homeSections?.listing?.title ?? ''} placeholder={lst.title} />
+          <Field label="Υπότιτλος" name="homesec_listing_subtitle" defaultValue={settings.homeSections?.listing?.subtitle ?? ''} placeholder={lst.subtitle} textarea />
+        </div>
+
+        <div className="grid gap-5 rounded-md border border-border p-4">
+          <div className="font-sans text-[13px] font-semibold uppercase tracking-[0.1em] text-primary">Αξιολογήσεις</div>
+          <Field label="Eyebrow" name="homesec_testimonials_eyebrow" defaultValue={settings.homeSections?.testimonials?.eyebrow ?? ''} placeholder={tst.eyebrow} />
+          <Field label="Τίτλος" name="homesec_testimonials_title" defaultValue={settings.homeSections?.testimonials?.title ?? ''} placeholder={tst.title} />
+        </div>
+
+        <div className="grid gap-5 rounded-md border border-border p-4">
+          <div className="font-sans text-[13px] font-semibold uppercase tracking-[0.1em] text-primary">Νέες Εκδρομές</div>
+          <Field label="Eyebrow" name="homesec_news_eyebrow" defaultValue={settings.homeSections?.news?.eyebrow ?? ''} placeholder={nws.eyebrow} />
+          <Field label="Τίτλος" name="homesec_news_title" defaultValue={settings.homeSections?.news?.title ?? ''} placeholder={nws.title} />
+          <Field label="Υπότιτλος" name="homesec_news_subtitle" defaultValue={settings.homeSections?.news?.subtitle ?? ''} placeholder={nws.subtitle} textarea />
+        </div>
+
+        <div className="grid gap-5 rounded-md border border-border p-4">
+          <div className="font-sans text-[13px] font-semibold uppercase tracking-[0.1em] text-primary">Κάλεσμα</div>
+          <Field label="Τίτλος" name="homesec_cta_title" defaultValue={settings.homeSections?.cta?.title ?? ''} placeholder={cta.title} />
+          <Field label="Κείμενο" name="homesec_cta_body" defaultValue={settings.homeSections?.cta?.body ?? ''} placeholder={cta.body} textarea />
         </div>
       </fieldset>
 

@@ -41,6 +41,40 @@ export type ProcessCopy = {
   steps: readonly ProcessStep[];
 };
 
+export type DestinationsCopy = {
+  eyebrow: string;
+  title: string;
+  subtitle: string;
+};
+
+export type ListingCopy = {
+  eyebrow: string;
+  title: string;
+  subtitle: string;
+  action: string;
+  actionHref: string;
+};
+
+export type TestimonialsCopy = {
+  eyebrow: string;
+  title: string;
+};
+
+export type NewsCopy = {
+  eyebrow: string;
+  title: string;
+  subtitle: string;
+  action: string;
+  actionHref: string;
+};
+
+export type CtaCopy = {
+  title: string;
+  body: string;
+  messageCta: string;
+  messageHref: string;
+};
+
 export type PoylmanValueProp = { title: string; description: string };
 export type PoylmanRoute = { from: string; to: string; hours: string };
 
@@ -71,7 +105,17 @@ function overrides<T extends object>(o: T | undefined): Partial<T> {
 /** Merge editable settings copy over the static content.ts defaults. */
 export function resolveHomeContent(
   settings?: SettingsData,
-): { hero: HeroCopy; about: AboutCopy; promo: PromoCopy; process: ProcessCopy } {
+): {
+  hero: HeroCopy;
+  about: AboutCopy;
+  promo: PromoCopy;
+  process: ProcessCopy;
+  destinations: DestinationsCopy;
+  listing: ListingCopy;
+  testimonials: TestimonialsCopy;
+  news: NewsCopy;
+  cta: CtaCopy;
+} {
   const trust: readonly TrustPoint[] = settings?.trust?.some((t) => t.title.trim() !== '')
     ? settings.trust.map((t) => ({ title: t.title, text: t.text }))
     : homeContent.about.trust;
@@ -89,6 +133,11 @@ export function resolveHomeContent(
     about: { ...homeContent.about, ...overrides(settings?.about), trust },
     promo: { ...homeContent.promo, ...overrides(settings?.promo) },
     process: { ...homeContent.process, ...overrides(settings?.process), steps },
+    destinations: { ...homeContent.destinations, ...overrides(settings?.homeSections?.destinations) },
+    listing: { ...homeContent.listing, ...overrides(settings?.homeSections?.listing) },
+    testimonials: { ...homeContent.testimonials, ...overrides(settings?.homeSections?.testimonials) },
+    news: { ...homeContent.news, ...overrides(settings?.homeSections?.news) },
+    cta: { ...homeContent.cta, ...overrides(settings?.homeSections?.cta) },
   };
 }
 
