@@ -178,24 +178,52 @@ export async function upsertTour(formData: FormData) {
     }
   }
 
-  // optional cover image upload -> Storage
-  const file = formData.get('image') as File | null;
-  if (file && file.size > 0) {
-    const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
-    const path = `${slug}/cover-${Date.now()}.${ext === 'jpeg' ? 'jpg' : ext}`;
-    const buf = Buffer.from(await file.arrayBuffer());
-    const { error } = await sb.storage.from('tour-images').upload(path, buf, { contentType: file.type || 'image/jpeg', upsert: true });
-    if (!error) {
-      await sb.from('tour_images').delete().eq('tour_id', tourId);
-      const { data: img } = await sb.from('tour_images')
-        .insert({ tour_id: tourId, storage_path: path, alt_el: payload.title, position: 0 })
-        .select('id').single();
-      if (img) await sb.from('tours').update({ cover_image_id: img.id }).eq('id', tourId);
-    }
-  }
-
   revalidatePublic();
   redirect('/admin/tours');
+}
+
+export async function addTourImages(tourId: string, formData: FormData) {
+  const sb = await createServerClient();
+  const { data: tour } = await sb.from('tours').select('slug, cover_image_id').eq('id', tourId).maybeSingle();
+  if (!tour) return;
+  const files = formData.getAll('files').filter((f): f is File => f instanceof File && f.size > 0);
+  const { data: existing } = await sb.from('tour_images').select('position').eq('tour_id', tourId).order('position', { ascending: false }).limit(1);
+  let pos = (existing?.[0]?.position ?? -1) + 1;
+  let firstNewId: string | null = null;
+  for (const file of files) {
+    const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+    const path = `${tour.slug}/gallery-${Date.now()}-${pos}.${ext === 'jpeg' ? 'jpg' : ext}`;
+    const buf = Buffer.from(await file.arrayBuffer());
+    const { error } = await sb.storage.from('tour-images').upload(path, buf, { contentType: file.type || 'image/jpeg', upsert: true });
+    if (error) { console.error('addTourImages upload:', error.message); continue; }
+    const { data: img } = await sb.from('tour_images').insert({ tour_id: tourId, storage_path: path, position: pos }).select('id').single();
+    if (img && !firstNewId) firstNewId = img.id;
+    pos++;
+  }
+  if (!tour.cover_image_id && firstNewId) await sb.from('tours').update({ cover_image_id: firstNewId }).eq('id', tourId);
+  revalidatePath(`/admin/tours/${tourId}/edit`);
+  revalidatePublic();
+}
+
+export async function deleteTourImage(imageId: string, tourId: string) {
+  const sb = await createServerClient();
+  const { data: img } = await sb.from('tour_images').select('storage_path').eq('id', imageId).maybeSingle();
+  const { data: tour } = await sb.from('tours').select('cover_image_id').eq('id', tourId).maybeSingle();
+  await sb.from('tour_images').delete().eq('id', imageId);
+  if (img?.storage_path) await sb.storage.from('tour-images').remove([img.storage_path]);
+  if (tour?.cover_image_id === imageId) {
+    const { data: next } = await sb.from('tour_images').select('id').eq('tour_id', tourId).order('position').limit(1);
+    await sb.from('tours').update({ cover_image_id: next?.[0]?.id ?? null }).eq('id', tourId);
+  }
+  revalidatePath(`/admin/tours/${tourId}/edit`);
+  revalidatePublic();
+}
+
+export async function setCoverImage(tourId: string, imageId: string) {
+  const sb = await createServerClient();
+  await sb.from('tours').update({ cover_image_id: imageId }).eq('id', tourId);
+  revalidatePath(`/admin/tours/${tourId}/edit`);
+  revalidatePublic();
 }
 
 export async function setLeadStatus(id: string, status: string) {

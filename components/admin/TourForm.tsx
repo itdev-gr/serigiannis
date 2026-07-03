@@ -79,11 +79,6 @@ export function TourForm({
         </label>
       </div>
 
-      <label className="block">
-        <span className={labelCls}>Εικόνα εξωφύλλου {tour ? '(αντικατάσταση)' : ''}</span>
-        <input name="image" type="file" accept="image/*" className="block w-full text-[14px] text-muted file:mr-4 file:rounded-md file:border-0 file:bg-primary file:px-4 file:py-2 file:font-sans file:text-[13px] file:font-semibold file:text-surface" />
-      </label>
-
       <div className="mt-2 flex items-center gap-4">
         <Button type="submit" size="lg">Αποθήκευση</Button>
         <Link href="/admin" className="font-sans text-[14px] font-semibold text-muted hover:text-primary">Άκυρο</Link>
