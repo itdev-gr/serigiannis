@@ -61,3 +61,19 @@ export function resolveTestimonials(settings?: SettingsData): Testimonial[] {
   }
   return defaultTestimonials;
 }
+
+export type PageHeroCopy = { eyebrow?: string; title: string; subtitle?: string };
+
+/** Resolve an inner page's hero copy: editable via settings.pageHeros[key], else the page's own defaults. */
+export function resolvePageHero(
+  settings: SettingsData | undefined,
+  key: string,
+  defaults: PageHeroCopy,
+): PageHeroCopy {
+  const o = settings?.pageHeros?.[key];
+  return {
+    eyebrow: (o?.eyebrow?.trim() || undefined) ?? defaults.eyebrow,
+    title: o?.title?.trim() || defaults.title,
+    subtitle: (o?.subtitle?.trim() || undefined) ?? defaults.subtitle,
+  };
+}

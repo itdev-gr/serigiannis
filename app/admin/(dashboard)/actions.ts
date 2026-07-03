@@ -53,6 +53,22 @@ export async function saveSettings(formData: FormData) {
     .filter((t) => t.title !== '');
   if (trust.length) data.trust = trust;
 
+  const pageHeroKeys = ['ekdromes', 'kroyazieres', 'poylman', 'epikoinonia', 'istoriko'] as const;
+  const pageHeros: Record<string, { eyebrow?: string; title?: string; subtitle?: string }> = {};
+  for (const key of pageHeroKeys) {
+    const eyebrow = opt(g(`pagehero_${key}_eyebrow`));
+    const title = opt(g(`pagehero_${key}_title`));
+    const subtitle = opt(g(`pagehero_${key}_subtitle`));
+    if (eyebrow || title || subtitle) {
+      pageHeros[key] = {
+        ...(eyebrow ? { eyebrow } : {}),
+        ...(title ? { title } : {}),
+        ...(subtitle ? { subtitle } : {}),
+      };
+    }
+  }
+  if (Object.keys(pageHeros).length) data.pageHeros = pageHeros;
+
   await sb.from('settings').upsert({ id: 1, data }, { onConflict: 'id' });
   // Refresh the footer (root layout) and home copy everywhere.
   revalidatePath('/', 'layout');

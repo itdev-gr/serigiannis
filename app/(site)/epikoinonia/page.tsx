@@ -4,6 +4,7 @@ import { MapPin, Phone, Mail, Clock } from 'lucide-react';
 import { PageHero } from '@/components/shared/PageHero';
 import { ContactForm } from '@/components/contact/ContactForm';
 import { getSettings } from '@/lib/queries/settings';
+import { resolvePageHero } from '@/components/home/resolve-content';
 
 export const metadata: Metadata = {
   title: 'Επικοινωνία',
@@ -24,12 +25,17 @@ function Youtube(props: SVGProps<SVGSVGElement>) {
 
 export default async function ContactPage() {
   const s = await getSettings();
+  const hero = resolvePageHero(s, 'epikoinonia', {
+    eyebrow: 'Είμαστε εδώ για εσάς',
+    title: 'Επικοινωνήστε μαζί μας',
+    subtitle: `${s.address} · Απαντάμε την ίδια μέρα.`,
+  });
   return (
     <>
       <PageHero
-        eyebrow="Είμαστε εδώ για εσάς"
-        title="Επικοινωνήστε μαζί μας"
-        subtitle={`${s.address} · Απαντάμε την ίδια μέρα.`}
+        eyebrow={hero.eyebrow}
+        title={hero.title}
+        subtitle={hero.subtitle}
         breadcrumbs={[{ label: 'Αρχική', href: '/' }, { label: 'Επικοινωνία' }]}
         heightClass="h-[48vh] min-h-[360px]"
       />

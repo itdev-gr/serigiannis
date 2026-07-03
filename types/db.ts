@@ -61,6 +61,8 @@ export type SettingsData = {
   stats?: { value: number; suffix?: string; label: string }[];
   testimonials?: { name: string; city: string; quote: string }[];
   trust?: { title: string; text: string }[];
+  // Editable inner-page hero copy (eyebrow/title/subtitle), keyed by page slug.
+  pageHeros?: Record<string, { eyebrow?: string; title?: string; subtitle?: string }>;
 };
 
 export type LeadType = 'contact' | 'quote' | 'booking';

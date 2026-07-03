@@ -6,6 +6,8 @@ import { TourCard } from '@/components/trips/TourCard';
 import { RevealOnScroll } from '@/components/shared/RevealOnScroll';
 import { Button } from '@/components/ui/Button';
 import { getTours } from '@/lib/queries/tours';
+import { getSettings } from '@/lib/queries/settings';
+import { resolvePageHero } from '@/components/home/resolve-content';
 
 export const metadata: Metadata = {
   title: 'Κρουαζιέρες από τον Πειραιά',
@@ -13,15 +15,20 @@ export const metadata: Metadata = {
 };
 
 export default async function KroyazieresPage() {
-  const tours = await getTours();
+  const [tours, settings] = await Promise.all([getTours(), getSettings()]);
   const cruises = tours.filter((t) => t.categories?.some((c) => c.slug === 'kroyazieres'));
+  const hero = resolvePageHero(settings, 'kroyazieres', {
+    eyebrow: 'Σαρωνικός · Αργοσαρωνικός',
+    title: 'Κρουαζιέρες από τον Πειραιά',
+    subtitle: 'Μια μέρα, πολλά νησιά, χίλιες φωτογραφίες. Οργανωμένες κρουαζιέρες με άνετα πλοία και γεύμα εν πλω.',
+  });
 
   return (
     <>
       <PageHero
-        eyebrow="Σαρωνικός · Αργοσαρωνικός"
-        title="Κρουαζιέρες από τον Πειραιά"
-        subtitle="Μια μέρα, πολλά νησιά, χίλιες φωτογραφίες. Οργανωμένες κρουαζιέρες με άνετα πλοία και γεύμα εν πλω."
+        eyebrow={hero.eyebrow}
+        title={hero.title}
+        subtitle={hero.subtitle}
         breadcrumbs={[{ label: 'Αρχική', href: '/' }, { label: 'Κρουαζιέρες' }]}
         heightClass="h-[58vh] min-h-[460px]"
       />

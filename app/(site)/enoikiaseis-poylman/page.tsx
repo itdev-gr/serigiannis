@@ -4,6 +4,8 @@ import { PageHero } from '@/components/shared/PageHero';
 import { SectionHeading } from '@/components/shared/SectionHeading';
 import { RevealOnScroll } from '@/components/shared/RevealOnScroll';
 import { QuoteForm } from '@/components/rentals/QuoteForm';
+import { getSettings } from '@/lib/queries/settings';
+import { resolvePageHero } from '@/components/home/resolve-content';
 
 export const metadata: Metadata = {
   title: 'Ενοικιάσεις Πούλμαν',
@@ -29,13 +31,19 @@ const USE_CASES = [
   { icon: PartyPopper, title: 'Γάμοι & Εκδηλώσεις', description: 'Μεταφορά καλεσμένων με άνεση, στην ώρα και με στυλ.' },
 ];
 
-export default function RentalsPage() {
+export default async function RentalsPage() {
+  const settings = await getSettings();
+  const hero = resolvePageHero(settings, 'poylman', {
+    eyebrow: 'Εκδρομές · Μεταφορές · Εταιρικά',
+    title: 'Ενοικιάσεις Πούλμαν',
+    subtitle: 'Ιδιωτικές μεταφορές με σύγχρονα πούλμαν, έμπειρους οδηγούς και ξεκάθαρες τιμές. Από την Αθήνα σε όλη την Ελλάδα.',
+  });
   return (
     <>
       <PageHero
-        eyebrow="Εκδρομές · Μεταφορές · Εταιρικά"
-        title="Ενοικιάσεις Πούλμαν"
-        subtitle="Ιδιωτικές μεταφορές με σύγχρονα πούλμαν, έμπειρους οδηγούς και ξεκάθαρες τιμές. Από την Αθήνα σε όλη την Ελλάδα."
+        eyebrow={hero.eyebrow}
+        title={hero.title}
+        subtitle={hero.subtitle}
         breadcrumbs={[{ label: 'Αρχική', href: '/' }, { label: 'Ενοικιάσεις Πούλμαν' }]}
         heightClass="h-[52vh] min-h-[420px]"
       />

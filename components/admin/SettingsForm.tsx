@@ -34,6 +34,38 @@ export function SettingsForm({
   const statsSrc = settings.stats?.length ? settings.stats : defaultStats;
   const testimonialsSrc = settings.testimonials?.length ? settings.testimonials : defaultTestimonials;
   const trustSrc = settings.trust?.length ? settings.trust : homeContent.about.trust;
+  const pageHeroDefaults: Record<string, { label: string; eyebrow: string; title: string; subtitle: string }> = {
+    ekdromes: {
+      label: 'Εκδρομές',
+      eyebrow: '2026',
+      title: 'Εκδρομές από την Αθήνα',
+      subtitle: 'Επιλέξτε προορισμό — μονοήμερες αποδράσεις, πολυήμερα ταξίδια, κρουαζιέρες και πολλά ακόμη.',
+    },
+    kroyazieres: {
+      label: 'Κρουαζιέρες',
+      eyebrow: 'Σαρωνικός · Αργοσαρωνικός',
+      title: 'Κρουαζιέρες από τον Πειραιά',
+      subtitle: 'Μια μέρα, πολλά νησιά, χίλιες φωτογραφίες. Οργανωμένες κρουαζιέρες με άνετα πλοία και γεύμα εν πλω.',
+    },
+    poylman: {
+      label: 'Πούλμαν',
+      eyebrow: 'Εκδρομές · Μεταφορές · Εταιρικά',
+      title: 'Ενοικιάσεις Πούλμαν',
+      subtitle: 'Ιδιωτικές μεταφορές με σύγχρονα πούλμαν, έμπειρους οδηγούς και ξεκάθαρες τιμές. Από την Αθήνα σε όλη την Ελλάδα.',
+    },
+    epikoinonia: {
+      label: 'Επικοινωνία',
+      eyebrow: 'Είμαστε εδώ για εσάς',
+      title: 'Επικοινωνήστε μαζί μας',
+      subtitle: `${settings.address} · Απαντάμε την ίδια μέρα.`,
+    },
+    istoriko: {
+      label: 'Ιστορικό',
+      eyebrow: 'Από το 1995',
+      title: 'Ιστορικό Εκδρομών',
+      subtitle: 'Τριάντα χρόνια ταξιδιών — ένα δείγμα από τους προορισμούς που έχουμε μοιραστεί με τους ταξιδιώτες μας.',
+    },
+  };
   return (
     <form action={action} className="grid max-w-2xl gap-8">
       <fieldset className="grid gap-5">
@@ -114,6 +146,24 @@ export function SettingsForm({
               <div key={i} className="grid gap-3 rounded-md border border-border p-4">
                 <Field label={`Τίτλος #${i + 1}`} name={`trust_title_${i}`} defaultValue={t?.title ?? ''} />
                 <Field label={`Κείμενο #${i + 1}`} name={`trust_text_${i}`} defaultValue={t?.text ?? ''} textarea />
+              </div>
+            );
+          })}
+        </div>
+      </fieldset>
+
+      <fieldset className="grid gap-5 border-t border-border pt-8">
+        <legend className="mb-2 font-display text-2xl font-semibold text-primary">Επικεφαλίδες Σελίδων</legend>
+        <p className="-mt-1 text-[14px] text-muted">Αφήστε ένα πεδίο κενό για να χρησιμοποιηθεί το προεπιλεγμένο κείμενο.</p>
+        <div className="grid gap-6">
+          {Object.entries(pageHeroDefaults).map(([key, d]) => {
+            const o = settings.pageHeros?.[key];
+            return (
+              <div key={key} className="grid gap-5 rounded-md border border-border p-4">
+                <div className="font-sans text-[13px] font-semibold uppercase tracking-[0.1em] text-primary">{d.label}</div>
+                <Field label="Eyebrow" name={`pagehero_${key}_eyebrow`} defaultValue={o?.eyebrow ?? ''} placeholder={d.eyebrow} />
+                <Field label="Τίτλος" name={`pagehero_${key}_title`} defaultValue={o?.title ?? ''} placeholder={d.title} />
+                <Field label="Υπότιτλος" name={`pagehero_${key}_subtitle`} defaultValue={o?.subtitle ?? ''} placeholder={d.subtitle} textarea />
               </div>
             );
           })}
