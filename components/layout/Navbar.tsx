@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { Menu, X, Ship, MapPin, Bus, Mail, Home as HomeIcon } from 'lucide-react';
+import { Menu, X, Ship, MapPin, Bus, Mail, Home as HomeIcon, Newspaper } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { cn } from '@/lib/utils';
 
@@ -13,6 +13,7 @@ const NAV_ITEMS = [
   { to: '/kroyazieres', label: 'Κρουαζιέρες', icon: Ship },
   { to: '/enoikiaseis-poylman', label: 'Πούλμαν', icon: Bus },
   { to: '/epikoinonia', label: 'Επικοινωνία', icon: Mail },
+  { to: '/nea', label: 'Νέα', icon: Newspaper },
 ];
 
 function isActive(pathname: string, to: string): boolean {

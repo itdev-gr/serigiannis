@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next';
 import { getPublishedSlugs } from '@/lib/queries/tours';
+import { getPublishedPostSlugs } from '@/lib/queries/posts';
 import { SITE_URL } from '@/lib/seo';
 
 const STATIC_ROUTES = [
@@ -17,13 +18,15 @@ const STATIC_ROUTES = [
   '/istoriko-ekdromon',
   '/oroi',
   '/politiki-aporritou',
+  '/nea',
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const slugs = await getPublishedSlugs();
+  const [slugs, postSlugs] = await Promise.all([getPublishedSlugs(), getPublishedPostSlugs()]);
   const now = new Date();
   return [
     ...STATIC_ROUTES.map((r) => ({ url: `${SITE_URL}${r}`, lastModified: now })),
     ...slugs.map((s) => ({ url: `${SITE_URL}/tour/${s}`, lastModified: now })),
+    ...postSlugs.map((s) => ({ url: `${SITE_URL}/nea/${s}`, lastModified: now })),
   ];
 }

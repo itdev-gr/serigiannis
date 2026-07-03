@@ -17,3 +17,10 @@ export function coverImage(
   if (imgs.length === 0) return null;
   return imgs.find((i) => i.id === tour.cover_image_id) ?? imgs[0];
 }
+
+/** Resolve a blog post's raw `cover_path` to a Supabase Storage public URL. */
+export function coverPathUrl(path: string | null): string | null {
+  if (!path) return null;
+  const base = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  return base ? `${base}/storage/v1/object/public/tour-images/${path}` : null;
+}
