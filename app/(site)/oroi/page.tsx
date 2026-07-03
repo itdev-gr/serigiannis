@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import { PageHero } from '@/components/shared/PageHero';
+import { LegalBody } from '@/components/shared/LegalBody';
+import { getSettings } from '@/lib/queries/settings';
 
 export const metadata: Metadata = {
   title: 'Όροι Συμμετοχής',
@@ -14,7 +16,10 @@ const SECTIONS = [
   { h: 'Προσωπικά Δεδομένα', p: 'Τα προσωπικά σας δεδομένα χρησιμοποιούνται αποκλειστικά για την εξυπηρέτηση της κράτησής σας, σύμφωνα με την ισχύουσα νομοθεσία περί προστασίας δεδομένων.' },
 ];
 
-export default function TermsPage() {
+export default async function TermsPage() {
+  const settings = await getSettings();
+  const customBody = settings.legal?.terms?.trim();
+
   return (
     <>
       <PageHero
@@ -28,14 +33,18 @@ export default function TermsPage() {
           <p className="text-[15px] italic text-muted">
             Οι παρακάτω όροι είναι ενδεικτικοί. Για τους πλήρεις και επίσημους όρους συμμετοχής, επικοινωνήστε με το γραφείο μας.
           </p>
-          <div className="mt-10 space-y-10">
-            {SECTIONS.map((s) => (
-              <div key={s.h}>
-                <h2 className="font-display text-2xl font-semibold text-primary">{s.h}</h2>
-                <p className="mt-3 text-[17px] leading-relaxed text-muted">{s.p}</p>
-              </div>
-            ))}
-          </div>
+          {customBody ? (
+            <LegalBody text={settings.legal!.terms!} />
+          ) : (
+            <div className="mt-10 space-y-10">
+              {SECTIONS.map((s) => (
+                <div key={s.h}>
+                  <h2 className="font-display text-2xl font-semibold text-primary">{s.h}</h2>
+                  <p className="mt-3 text-[17px] leading-relaxed text-muted">{s.p}</p>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
     </>

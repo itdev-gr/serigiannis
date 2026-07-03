@@ -66,6 +66,9 @@ export type SettingsData = {
   promo?: { eyebrow?: string; title?: string; body?: string; cta?: string };
   process?: { eyebrow?: string; title?: string; steps?: { title: string; text: string }[] };
   poylman?: { valueProps?: { title: string; description: string }[]; routes?: { from: string; to: string; hours: string }[] };
+  // Editable legal page bodies (plain text, paragraphs separated by a blank line).
+  // If unset/empty, the hardcoded default sections render unchanged.
+  legal?: { terms?: string; privacy?: string };
 };
 
 export type LeadType = 'contact' | 'quote' | 'booking';

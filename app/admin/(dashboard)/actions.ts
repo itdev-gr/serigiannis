@@ -108,6 +108,15 @@ export async function saveSettings(formData: FormData) {
   }
   if (Object.keys(pageHeros).length) data.pageHeros = pageHeros;
 
+  const legalTerms = opt(g('legal_terms'));
+  const legalPrivacy = opt(g('legal_privacy'));
+  if (legalTerms || legalPrivacy) {
+    data.legal = {
+      ...(legalTerms ? { terms: legalTerms } : {}),
+      ...(legalPrivacy ? { privacy: legalPrivacy } : {}),
+    };
+  }
+
   await sb.from('settings').upsert({ id: 1, data }, { onConflict: 'id' });
   // Refresh the footer (root layout) and home copy everywhere.
   revalidatePath('/', 'layout');

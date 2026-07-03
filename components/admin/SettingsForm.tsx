@@ -235,6 +235,13 @@ export function SettingsForm({
         </div>
       </fieldset>
 
+      <fieldset className="grid gap-5 border-t border-border pt-8">
+        <legend className="mb-2 font-display text-2xl font-semibold text-primary">Νομικά Κείμενα</legend>
+        <p className="-mt-1 text-[14px] text-muted">Αφήστε κενό για το προεπιλεγμένο κείμενο. Χωρίστε παραγράφους με κενή γραμμή.</p>
+        <Field label="Όροι Συμμετοχής" name="legal_terms" defaultValue={settings.legal?.terms ?? ''} textarea />
+        <Field label="Πολιτική Απορρήτου" name="legal_privacy" defaultValue={settings.legal?.privacy ?? ''} textarea />
+      </fieldset>
+
       <div className="flex items-center gap-4">
         <Button type="submit">Αποθήκευση</Button>
       </div>

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { PageHero } from '@/components/shared/PageHero';
+import { LegalBody } from '@/components/shared/LegalBody';
 import { getSettings } from '@/lib/queries/settings';
 
 export const metadata: Metadata = {
@@ -11,6 +12,7 @@ export const metadata: Metadata = {
 
 export default async function PrivacyPolicyPage() {
   const s = await getSettings();
+  const customBody = s.legal?.privacy?.trim();
 
   const SECTIONS: { h: string; p: string }[] = [
     {
@@ -61,14 +63,18 @@ export default async function PrivacyPolicyPage() {
             Το παρόν είναι ενημερωτικό κείμενο σχετικά με την επεξεργασία των προσωπικών σας δεδομένων. Για οποιαδήποτε
             διευκρίνιση επικοινωνήστε με το γραφείο μας.
           </p>
-          <div className="mt-10 space-y-10">
-            {SECTIONS.map((sec) => (
-              <div key={sec.h}>
-                <h2 className="font-display text-2xl font-semibold text-primary">{sec.h}</h2>
-                <p className="mt-3 text-[17px] leading-relaxed text-muted">{sec.p}</p>
-              </div>
-            ))}
-          </div>
+          {customBody ? (
+            <LegalBody text={s.legal!.privacy!} />
+          ) : (
+            <div className="mt-10 space-y-10">
+              {SECTIONS.map((sec) => (
+                <div key={sec.h}>
+                  <h2 className="font-display text-2xl font-semibold text-primary">{sec.h}</h2>
+                  <p className="mt-3 text-[17px] leading-relaxed text-muted">{sec.p}</p>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
     </>
