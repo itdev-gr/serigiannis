@@ -1,5 +1,5 @@
 'use client';
-import { useState, type ReactNode } from 'react';
+import { useRef, useState, type ReactNode } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -13,6 +13,7 @@ const Schema = z.object({
   date: z.string().optional(),
   party: z.string().optional().refine((v) => !v || (/^\d+$/.test(v) && Number(v) >= 1), 'Μη έγκυρος αριθμός ατόμων.'),
   notes: z.string().optional(),
+  hp: z.string().optional(),
 });
 type Input = z.infer<typeof Schema>;
 
@@ -32,6 +33,7 @@ export function BookingForm({ tourId, tourTitle, slug }: { tourId: string; tourT
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<Input>({ resolver: zodResolver(Schema) });
+  const mountedAt = useRef(Date.now());
 
   if (sent) {
     return (
@@ -51,10 +53,12 @@ export function BookingForm({ tourId, tourTitle, slug }: { tourId: string; tourT
           email: d.email || null, preferred_date: d.date || null,
           party_size: d.party ? Number(d.party) : null,
           subject: `Κράτηση: ${tourTitle}`, message: d.notes, source_path: `/tour/${slug}`,
+          hp: d.hp, ts: mountedAt.current,
         });
         if (res.ok) setSent(true); else setError('Κάτι πήγε στραβά. Δοκιμάστε ξανά ή καλέστε μας.');
       })}
     >
+      <input {...register('hp')} type="text" name="hp" tabIndex={-1} autoComplete="off" aria-hidden="true" className="absolute left-[-9999px] top-0 h-0 w-0 opacity-0" />
       <h3 className="font-display text-2xl font-semibold text-primary">Κράτηση / Ενδιαφέρον</h3>
       <Field label="Ονοματεπώνυμο *" error={errors.name?.message}><input {...register('name')} className={inputCls} /></Field>
       <div className="grid gap-4 sm:grid-cols-2">

@@ -1,5 +1,5 @@
 'use client';
-import { useState, type ReactNode } from 'react';
+import { useRef, useState, type ReactNode } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -13,6 +13,7 @@ const ContactSchema = z.object({
   phone: z.string().optional(),
   subject: z.string().min(2, 'Παρακαλώ γράψτε ένα θέμα.'),
   message: z.string().optional(),
+  hp: z.string().optional(),
 });
 type ContactInput = z.infer<typeof ContactSchema>;
 
@@ -35,6 +36,7 @@ export function ContactForm() {
     resolver: zodResolver(ContactSchema),
   });
   const [error, setError] = useState<string | null>(null);
+  const mountedAt = useRef(Date.now());
   const onSubmit = async (data: ContactInput) => {
     setError(null);
     const res = await createLead({
@@ -45,6 +47,8 @@ export function ContactForm() {
       subject: data.subject,
       message: data.message,
       source_path: '/epikoinonia',
+      hp: data.hp,
+      ts: mountedAt.current,
     });
     if (res.ok) setSent(true);
     else setError('Κάτι πήγε στραβά. Δοκιμάστε ξανά ή καλέστε μας.');
@@ -64,6 +68,7 @@ export function ContactForm() {
       <h2 className="font-display text-3xl font-semibold text-primary">Στείλτε μας μήνυμα</h2>
       <p className="mt-2 text-muted">Συμπληρώστε τη φόρμα και θα σας απαντήσουμε άμεσα.</p>
       <form onSubmit={handleSubmit(onSubmit)} className="mt-8 grid gap-5">
+        <input {...register('hp')} type="text" name="hp" tabIndex={-1} autoComplete="off" aria-hidden="true" className="absolute left-[-9999px] top-0 h-0 w-0 opacity-0" />
         <div className="grid gap-5 md:grid-cols-2">
           <Field label="Ονοματεπώνυμο *" error={errors.name?.message}>
             <input {...register('name')} className={inputCls} placeholder="π.χ. Μαρία Παπαδοπούλου" />

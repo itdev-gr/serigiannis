@@ -1,5 +1,5 @@
 'use client';
-import { useState, type ReactNode } from 'react';
+import { useRef, useState, type ReactNode } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -11,6 +11,7 @@ const QuoteSchema = z.object({
   phone: z.string().min(8, 'Παρακαλώ συμπληρώστε ένα έγκυρο τηλέφωνο.'),
   date: z.string().min(1, 'Παρακαλώ επιλέξτε ημερομηνία.'),
   notes: z.string().optional(),
+  hp: z.string().optional(),
 });
 type QuoteInput = z.infer<typeof QuoteSchema>;
 
@@ -33,6 +34,7 @@ export function QuoteForm() {
     resolver: zodResolver(QuoteSchema),
   });
   const [error, setError] = useState<string | null>(null);
+  const mountedAt = useRef(Date.now());
   const onSubmit = async (data: QuoteInput) => {
     setError(null);
     const res = await createLead({
@@ -43,6 +45,8 @@ export function QuoteForm() {
       message: data.notes,
       subject: 'Αίτημα προσφοράς πούλμαν',
       source_path: '/enoikiaseis-poylman',
+      hp: data.hp,
+      ts: mountedAt.current,
     });
     if (res.ok) setSent(true);
     else setError('Κάτι πήγε στραβά. Δοκιμάστε ξανά ή καλέστε μας.');
@@ -58,6 +62,7 @@ export function QuoteForm() {
   }
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4">
+      <input {...register('hp')} type="text" name="hp" tabIndex={-1} autoComplete="off" aria-hidden="true" className="absolute left-[-9999px] top-0 h-0 w-0 opacity-0" />
       <h3 className="font-display text-2xl font-semibold text-primary">Γρήγορη Προσφορά</h3>
       <Field label="Ονοματεπώνυμο" error={errors.name?.message}>
         <input {...register('name')} className={inputCls} placeholder="π.χ. Γιώργος Παπαδόπουλος" />

@@ -5,6 +5,10 @@ import type { LeadInput } from '@/types/db';
 // TODO: rate-limit public submissions (needs a store/edge middleware)
 /** Persist a public enquiry. Status is pinned to 'new'; only whitelisted fields are stored. */
 export async function createLead(input: LeadInput): Promise<{ ok: boolean; error?: string }> {
+  // Anti-spam: honeypot filled, or submitted implausibly fast → silently drop (pretend success).
+  if (input.hp && input.hp.trim() !== '') return { ok: true };
+  if (typeof input.ts === 'number' && Date.now() - input.ts < 1500) return { ok: true };
+
   const name = (input.name ?? '').trim();
   if (!name || !['contact', 'quote', 'booking'].includes(input.type)) {
     return { ok: false, error: 'invalid' };
@@ -29,5 +33,13 @@ export async function createLead(input: LeadInput): Promise<{ ok: boolean; error
   const sb = await createServerClient();
   const { error } = await sb.from('leads').insert(row);
   if (error) { console.error('createLead:', error.message); return { ok: false, error: 'db' }; }
+
+  try {
+    const { getSettings } = await import('@/lib/queries/settings');
+    const { sendLeadNotification } = await import('@/lib/notify');
+    const s = await getSettings();
+    await sendLeadNotification({ type: row.type, name: row.name, phone: row.phone, email: row.email, subject: row.subject, message: row.message, tourTitle: null }, s.email);
+  } catch (e) { console.error('lead notify:', e); }
+
   return { ok: true };
 }
