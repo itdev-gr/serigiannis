@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { PageHero } from '@/components/shared/PageHero';
-import { LegalBody } from '@/components/shared/LegalBody';
+import { PostBody } from '@/components/blog/PostBody';
 import { getPostBySlug, getPublishedPostSlugs } from '@/lib/queries/posts';
 import { coverPathUrl } from '@/lib/images';
 import { SITE_URL } from '@/lib/seo';
@@ -66,7 +66,7 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
       />
       <section className="py-16 md:py-24">
         <div className="container max-w-prose">
-          <LegalBody text={post.body} />
+          <PostBody body={post.body} />
           <Link href="/nea" className="mt-10 inline-block font-sans text-[14px] font-semibold uppercase tracking-[0.1em] text-primary hover:text-cta">
             ← Όλα τα άρθρα
           </Link>
