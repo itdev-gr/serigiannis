@@ -338,3 +338,70 @@ export async function deleteCategory(id: string) {
   revalidatePublic();
   revalidatePath('/admin/categories');
 }
+
+function revalidatePosts(slug?: string) {
+  revalidatePath('/admin/posts');
+  revalidatePath('/nea');
+  if (slug) revalidatePath(`/nea/${slug}`);
+}
+
+export async function upsertPost(formData: FormData) {
+  const sb = await createServerClient();
+  const id = (formData.get('id') as string) || null;
+  const slug = String(formData.get('slug') || '').trim();
+  const status = String(formData.get('status') || 'draft');
+  const payload = {
+    title: String(formData.get('title') || '').trim(),
+    slug,
+    excerpt: (String(formData.get('excerpt') || '').trim() || null) as string | null,
+    body: String(formData.get('body') || '').trim(),
+    seo_title: (String(formData.get('seo_title') || '').trim() || null) as string | null,
+    seo_description: (String(formData.get('seo_description') || '').trim() || null) as string | null,
+    status,
+    published_at: status === 'published' ? new Date().toISOString() : null,
+  };
+
+  let postId = id;
+  if (id) {
+    const { error } = await sb.from('posts').update(payload).eq('id', id);
+    if (error) console.error('upsertPost update:', error.message);
+  } else {
+    const { data, error } = await sb.from('posts').insert(payload).select('id').single();
+    if (error) console.error('upsertPost insert:', error.message);
+    postId = data?.id ?? null;
+  }
+  if (!postId) return;
+
+  const cover = formData.get('cover');
+  if (cover instanceof File && cover.size > 0) {
+    const ext = (cover.name.split('.').pop() || 'jpg').toLowerCase();
+    const path = `posts/${slug}/cover-${Date.now()}.${ext === 'jpeg' ? 'jpg' : ext}`;
+    const buf = Buffer.from(await cover.arrayBuffer());
+    const { error } = await sb.storage.from('tour-images').upload(path, buf, { contentType: cover.type || 'image/jpeg', upsert: true });
+    if (error) {
+      console.error('upsertPost upload:', error.message);
+    } else {
+      await sb.from('posts').update({ cover_path: path }).eq('id', postId);
+    }
+  }
+
+  revalidatePosts(slug);
+  redirect('/admin/posts');
+}
+
+export async function setPostStatus(id: string, status: string) {
+  const sb = await createServerClient();
+  const { error } = await sb.from('posts').update({
+    status,
+    published_at: status === 'published' ? new Date().toISOString() : null,
+  }).eq('id', id);
+  if (error) console.error('setPostStatus:', error.message);
+  revalidatePosts();
+}
+
+export async function deletePost(id: string) {
+  const sb = await createServerClient();
+  const { error } = await sb.from('posts').delete().eq('id', id);
+  if (error) console.error('deletePost:', error.message);
+  revalidatePosts();
+}

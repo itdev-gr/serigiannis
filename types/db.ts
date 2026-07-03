@@ -49,6 +49,21 @@ export type Tour = {
   next_departure?: string | null;
 };
 
+export type Post = {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string | null;
+  body: string;
+  cover_path: string | null;
+  status: TourStatus;
+  seo_title: string | null;
+  seo_description: string | null;
+  published_at: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 export type SettingsData = {
   phones: string[];
   address: string;
