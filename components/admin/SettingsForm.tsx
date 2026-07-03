@@ -1,5 +1,6 @@
 import type { SettingsData } from '@/types/db';
 import { homeContent } from '@/components/home/content';
+import { stats as defaultStats, testimonials as defaultTestimonials } from '@/data/site';
 import { Button } from '@/components/ui/Button';
 
 const inputCls =
@@ -30,6 +31,9 @@ export function SettingsForm({
 }) {
   const h = homeContent.hero;
   const a = homeContent.about;
+  const statsSrc = settings.stats?.length ? settings.stats : defaultStats;
+  const testimonialsSrc = settings.testimonials?.length ? settings.testimonials : defaultTestimonials;
+  const trustSrc = settings.trust?.length ? settings.trust : homeContent.about.trust;
   return (
     <form action={action} className="grid max-w-2xl gap-8">
       <fieldset className="grid gap-5">
@@ -62,6 +66,58 @@ export function SettingsForm({
         <Field label="Σχετικά — Eyebrow" name="about_eyebrow" defaultValue={settings.about?.eyebrow ?? ''} placeholder={a.eyebrow} />
         <Field label="Σχετικά — Τίτλος" name="about_title" defaultValue={settings.about?.title ?? ''} placeholder={a.title} />
         <Field label="Σχετικά — Κείμενο" name="about_body" defaultValue={settings.about?.body ?? ''} placeholder={a.body} textarea />
+      </fieldset>
+
+      <fieldset className="grid gap-5 border-t border-border pt-8">
+        <legend className="mb-2 font-display text-2xl font-semibold text-primary">Αριθμοί</legend>
+        <p className="-mt-1 text-[14px] text-muted">Αφήστε κενή την «Ετικέτα» για να μην εμφανιστεί ο αριθμός.</p>
+        <div className="grid gap-5">
+          {Array.from({ length: 6 }).map((_, i) => {
+            const s = statsSrc[i];
+            return (
+              <div key={i} className="grid gap-5 sm:grid-cols-3">
+                <Field label={`Τιμή #${i + 1}`} name={`stat_value_${i}`} defaultValue={s?.value != null ? String(s.value) : ''} />
+                <Field label={`Σύμβολο #${i + 1}`} name={`stat_suffix_${i}`} defaultValue={s?.suffix ?? ''} />
+                <Field label={`Ετικέτα #${i + 1}`} name={`stat_label_${i}`} defaultValue={s?.label ?? ''} />
+              </div>
+            );
+          })}
+        </div>
+      </fieldset>
+
+      <fieldset className="grid gap-5 border-t border-border pt-8">
+        <legend className="mb-2 font-display text-2xl font-semibold text-primary">Αξιολογήσεις</legend>
+        <p className="-mt-1 text-[14px] text-muted">Αφήστε κενά τα «Όνομα» και «Κείμενο» για να μην εμφανιστεί η αξιολόγηση.</p>
+        <div className="grid gap-5">
+          {Array.from({ length: 4 }).map((_, i) => {
+            const t = testimonialsSrc[i];
+            return (
+              <div key={i} className="grid gap-3 rounded-md border border-border p-4">
+                <div className="grid gap-5 sm:grid-cols-2">
+                  <Field label={`Όνομα #${i + 1}`} name={`testi_name_${i}`} defaultValue={t?.name ?? ''} />
+                  <Field label={`Πόλη #${i + 1}`} name={`testi_city_${i}`} defaultValue={t?.city ?? ''} />
+                </div>
+                <Field label={`Κείμενο #${i + 1}`} name={`testi_quote_${i}`} defaultValue={t?.quote ?? ''} textarea />
+              </div>
+            );
+          })}
+        </div>
+      </fieldset>
+
+      <fieldset className="grid gap-5 border-t border-border pt-8">
+        <legend className="mb-2 font-display text-2xl font-semibold text-primary">Γιατί να μας Εμπιστευτείτε</legend>
+        <p className="-mt-1 text-[14px] text-muted">Αφήστε κενό τον «Τίτλο» για να μην εμφανιστεί το σημείο.</p>
+        <div className="grid gap-5">
+          {Array.from({ length: 4 }).map((_, i) => {
+            const t = trustSrc[i];
+            return (
+              <div key={i} className="grid gap-3 rounded-md border border-border p-4">
+                <Field label={`Τίτλος #${i + 1}`} name={`trust_title_${i}`} defaultValue={t?.title ?? ''} />
+                <Field label={`Κείμενο #${i + 1}`} name={`trust_text_${i}`} defaultValue={t?.text ?? ''} textarea />
+              </div>
+            );
+          })}
+        </div>
       </fieldset>
 
       <div className="flex items-center gap-4">

@@ -58,6 +58,9 @@ export type SettingsData = {
   // Editable home-page copy (optional; each field falls back to the content.ts default).
   hero?: { eyebrow?: string; titleTop?: string; titleEmph?: string; subtitle?: string };
   about?: { eyebrow?: string; title?: string; body?: string };
+  stats?: { value: number; suffix?: string; label: string }[];
+  testimonials?: { name: string; city: string; quote: string }[];
+  trust?: { title: string; text: string }[];
 };
 
 export type LeadType = 'contact' | 'quote' | 'booking';

@@ -3,7 +3,7 @@ import { getFeaturedTours, getTours } from '@/lib/queries/tours';
 import { getCategories } from '@/lib/queries/categories';
 import { getSettings } from '@/lib/queries/settings';
 import { pickNewsTours } from '@/components/home/home-tours';
-import { resolveHomeContent } from '@/components/home/resolve-content';
+import { resolveHomeContent, resolveStats, resolveTestimonials } from '@/components/home/resolve-content';
 import { websiteJsonLd, tourItemListJsonLd } from '@/lib/seo';
 import { Home1Hero } from '@/components/home/Home1Hero';
 import { Home1Destinations } from '@/components/home/Home1Destinations';
@@ -31,6 +31,8 @@ export default async function HomePage() {
   ]);
   const news = pickNewsTours(allTours);
   const copy = resolveHomeContent(settings);
+  const homeStats = resolveStats(settings);
+  const homeTestimonials = resolveTestimonials(settings);
 
   return (
     <>
@@ -38,11 +40,11 @@ export default async function HomePage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(tourItemListJsonLd(featured)) }} />
       <Home1Hero categories={categories} content={copy.hero} />
       <Home1Destinations categories={categories} tours={allTours} />
-      <Home1About content={copy.about} />
+      <Home1About content={copy.about} stats={homeStats} />
       <Home1Listing tours={featured} />
       <Home1Promo />
       <Home1Process />
-      <Home1Testimonials />
+      <Home1Testimonials testimonials={homeTestimonials} />
       <Home1News tours={news.length ? news : allTours.slice(0, 3)} />
       <Home1Cta settings={settings} />
     </>

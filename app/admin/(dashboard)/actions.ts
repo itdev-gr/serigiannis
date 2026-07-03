@@ -38,6 +38,21 @@ export async function saveSettings(formData: FormData) {
     },
   };
 
+  const stats = [0, 1, 2, 3, 4, 5]
+    .map((i) => ({ value: Number(g(`stat_value_${i}`)) || 0, suffix: opt(g(`stat_suffix_${i}`)), label: g(`stat_label_${i}`) }))
+    .filter((s) => s.label !== '');
+  if (stats.length) data.stats = stats;
+
+  const testimonials = [0, 1, 2, 3]
+    .map((i) => ({ name: g(`testi_name_${i}`), city: g(`testi_city_${i}`), quote: g(`testi_quote_${i}`) }))
+    .filter((t) => t.name !== '' && t.quote !== '');
+  if (testimonials.length) data.testimonials = testimonials;
+
+  const trust = [0, 1, 2, 3]
+    .map((i) => ({ title: g(`trust_title_${i}`), text: g(`trust_text_${i}`) }))
+    .filter((t) => t.title !== '');
+  if (trust.length) data.trust = trust;
+
   await sb.from('settings').upsert({ id: 1, data }, { onConflict: 'id' });
   // Refresh the footer (root layout) and home copy everywhere.
   revalidatePath('/', 'layout');

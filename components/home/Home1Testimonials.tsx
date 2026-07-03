@@ -1,10 +1,11 @@
-import { testimonials } from '@/data/site';
+import { testimonials as defaultTestimonials } from '@/data/site';
+import type { Testimonial } from '@/data/site';
 import { SectionHeading } from '@/components/shared/SectionHeading';
 import { TestimonialBlock } from '@/components/shared/TestimonialBlock';
 import { Stagger, StaggerItem } from '@/components/motion/Reveal';
 import { homeContent } from './content';
 
-export function Home1Testimonials() {
+export function Home1Testimonials({ testimonials = defaultTestimonials }: { testimonials?: Testimonial[] }) {
   const c = homeContent.testimonials;
   return (
     <section className="py-24 md:py-32" aria-label={c.title}>
