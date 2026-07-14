@@ -17,6 +17,7 @@ export async function saveSettings(formData: FormData) {
 
   const data: SettingsData = {
     phones: [g('phone1'), g('phone2'), g('phone3')].filter(Boolean),
+    phone24h: opt(g('phone_24h')),
     address: g('address'),
     email: g('email'),
     hours: { weekdays: g('hours_weekdays'), saturday: g('hours_saturday') },

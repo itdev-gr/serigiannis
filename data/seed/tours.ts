@@ -55,6 +55,7 @@ export const seedCategories = Object.entries(CAT_NAME).map(([slug, name_el], i) 
 
 export const seedSettings = {
   phones: ['210 571 2451', '210 821 2452', '6976 811 825'],
+  phone24h: '6976 811 825',
   address: 'Π. Μελά 45, Περιστέρι 121 31',
   email: 'info@sergianitravel.gr',
   hours: { weekdays: '09:00–17:00', saturday: '09:00–14:00' },

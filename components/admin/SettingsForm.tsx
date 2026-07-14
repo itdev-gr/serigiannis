@@ -108,10 +108,11 @@ export function SettingsForm({
       <div className={tab === 0 ? 'grid gap-8' : 'hidden'}>
         <fieldset className="grid gap-5">
           <legend className="mb-2 font-display text-2xl font-semibold text-primary">Επικοινωνία</legend>
-          <div className="grid gap-5 sm:grid-cols-3">
+          <div className="grid gap-5 sm:grid-cols-2">
             <Field label="Τηλέφωνο 1" name="phone1" defaultValue={settings.phones[0] ?? ''} />
             <Field label="Τηλέφωνο 2" name="phone2" defaultValue={settings.phones[1] ?? ''} />
             <Field label="Τηλέφωνο 3" name="phone3" defaultValue={settings.phones[2] ?? ''} />
+            <Field label="Κινητό 24ώρου" name="phone_24h" defaultValue={settings.phone24h ?? ''} placeholder="π.χ. 6976 811 825" />
           </div>
           <Field label="Διεύθυνση" name="address" defaultValue={settings.address} />
           <Field label="Email" name="email" defaultValue={settings.email} />

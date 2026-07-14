@@ -3,9 +3,10 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { Menu, X, Ship, MapPin, Bus, Mail, Home as HomeIcon, Newspaper } from 'lucide-react';
+import { Menu, X, Ship, MapPin, Bus, Mail, Home as HomeIcon, Newspaper, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { cn } from '@/lib/utils';
+import { telHref } from '@/lib/phone';
 
 const NAV_ITEMS = [
   { to: '/', label: 'Αρχική', icon: HomeIcon },
@@ -21,7 +22,7 @@ function isActive(pathname: string, to: string): boolean {
   return pathname === to || pathname.startsWith(to + '/');
 }
 
-export function Navbar() {
+export function Navbar({ phones = [], phone24h = null }: { phones?: string[]; phone24h?: string | null }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
@@ -51,6 +52,24 @@ export function Navbar() {
           scrolled ? 'py-3' : 'py-5'
         )}
       >
+        {!scrolled && (
+          <div className="border-b border-surface/15">
+            <div className="container flex h-9 items-center justify-between gap-4 font-sans text-[13px] text-surface/85">
+              <div className="hidden items-center gap-5 sm:flex">
+                {phones.map((p) => (
+                  <a key={p} href={telHref(p)} className="flex items-center gap-1.5 hover:text-surface">
+                    <Phone className="h-3.5 w-3.5" strokeWidth={1.75} /> {p}
+                  </a>
+                ))}
+              </div>
+              {phone24h && (
+                <a href={telHref(phone24h)} className="flex items-center gap-1.5 font-semibold text-gold hover:text-surface">
+                  <Phone className="h-3.5 w-3.5" strokeWidth={1.75} /> 24ωρο: {phone24h}
+                </a>
+              )}
+            </div>
+          </div>
+        )}
         <div className="container flex items-center justify-between gap-4">
           <Link href="/" className="flex items-center" aria-label="Sergiani Travel — αρχική">
             <Image

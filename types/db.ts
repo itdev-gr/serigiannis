@@ -66,6 +66,7 @@ export type Post = {
 
 export type SettingsData = {
   phones: string[];
+  phone24h?: string; // 24ωρο κινητό, shown in the header top bar
   address: string;
   email: string;
   hours: { weekdays: string; saturday: string };
