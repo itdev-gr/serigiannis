@@ -3,6 +3,7 @@ import type { SVGProps } from 'react';
 import { MapPin, Phone, Mail, Clock } from 'lucide-react';
 import { PageHero } from '@/components/shared/PageHero';
 import { ContactForm } from '@/components/contact/ContactForm';
+import { PaymentMethods } from '@/components/shared/PaymentMethods';
 import { getSettings } from '@/lib/queries/settings';
 import { resolvePageHero } from '@/components/home/resolve-content';
 
@@ -46,6 +47,7 @@ export default async function ContactPage() {
             <div className="rounded-lg border border-border bg-surface p-8 shadow-card md:p-12">
               <ContactForm />
             </div>
+            <PaymentMethods className="mt-6" />
           </div>
 
           <aside className="lg:col-span-5">

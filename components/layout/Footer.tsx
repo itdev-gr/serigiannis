@@ -101,7 +101,7 @@ export async function Footer() {
           </ul>
           <div className="mt-6 rounded-lg border border-surface/10 bg-surface/5 p-4">
             <div className="font-sans text-[12px] uppercase tracking-[0.14em] text-cta">Ασφαλείς πληρωμές</div>
-            <div className="mt-1.5 text-[14px] text-surface/70">Κάρτα, IRIS, Τραπεζική Κατάθεση</div>
+            <div className="mt-1.5 text-[14px] text-surface/70">Μετρητά, POS, IRIS, Πιστωτικές & Χρεωστικές Κάρτες</div>
           </div>
         </div>
       </div>
