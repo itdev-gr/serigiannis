@@ -354,11 +354,17 @@ export async function upsertPost(formData: FormData) {
   const status = String(formData.get('status') || 'draft');
 
   let existingPublishedAt: string | null = null;
+  let existingLookupFailed = false;
   if (id) {
-    const { data: existing } = await sb.from('posts').select('published_at').eq('id', id).maybeSingle();
+    const { data: existing, error } = await sb.from('posts').select('published_at').eq('id', id).maybeSingle();
+    if (error) {
+      console.error('upsertPost select:', error.message);
+      existingLookupFailed = true;
+    }
     existingPublishedAt = existing?.published_at ?? null;
   }
   const priceRaw = String(formData.get('price') || '').trim();
+  const submittedPublishedOn = String(formData.get('published_on') || '').trim();
 
   const payload = {
     title: String(formData.get('title') || '').trim(),
@@ -370,11 +376,17 @@ export async function upsertPost(formData: FormData) {
     status,
     trip_date: (String(formData.get('trip_date') || '').trim() || null) as string | null,
     price: priceRaw ? Number(priceRaw) : null,
-    published_at: resolvePublishedAt({
-      status,
-      submitted: String(formData.get('published_on') || '').trim(),
-      existing: existingPublishedAt,
-    }),
+    // If the lookup failed, only an explicit form date may touch published_at —
+    // otherwise leave the column as-is rather than risk re-dating the post.
+    ...(existingLookupFailed && !submittedPublishedOn
+      ? {}
+      : {
+          published_at: resolvePublishedAt({
+            status,
+            submitted: submittedPublishedOn,
+            existing: existingPublishedAt,
+          }),
+        }),
   };
 
   let postId = id;
@@ -409,8 +421,9 @@ export async function setPostStatus(id: string, status: string) {
   const sb = await createServerClient();
   const patch: { status: string; published_at?: string } = { status };
   if (status === 'published') {
-    const { data } = await sb.from('posts').select('published_at').eq('id', id).maybeSingle();
-    if (!data?.published_at) patch.published_at = new Date().toISOString();
+    const { data, error } = await sb.from('posts').select('published_at').eq('id', id).maybeSingle();
+    if (error) console.error('setPostStatus select:', error.message);
+    else if (!data?.published_at) patch.published_at = new Date().toISOString();
   }
   const { error } = await sb.from('posts').update(patch).eq('id', id);
   if (error) console.error('setPostStatus:', error.message);
