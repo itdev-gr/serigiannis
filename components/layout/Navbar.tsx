@@ -104,7 +104,7 @@ export function Navbar({ phones = [], phone24h = null }: { phones?: string[]; ph
 
           <div className="flex items-center gap-2">
             <Button asChild variant={dark ? 'ghost' : 'primary'} size="sm" className="hidden md:inline-flex">
-              <Link href="/epikoinonia">Κλείστε Θέση</Link>
+              <Link href="/kratisi">Κλείστε Online Θέση</Link>
             </Button>
             <button
               type="button"
@@ -160,7 +160,7 @@ export function Navbar({ phones = [], phone24h = null }: { phones?: string[]; ph
             );
           })}
           <Button asChild size="lg" className="mt-8">
-            <Link href="/epikoinonia">Κλείστε Θέση</Link>
+            <Link href="/kratisi">Κλείστε Online Θέση</Link>
           </Button>
         </nav>
       </div>

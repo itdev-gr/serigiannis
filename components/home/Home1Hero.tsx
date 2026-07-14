@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Search } from 'lucide-react';
 import type { Category } from '@/types/db';
@@ -98,6 +99,12 @@ export function Home1Hero({
             <Search className="h-4 w-4" strokeWidth={2} /> {c.searchCta}
           </Button>
         </form>
+
+        <div className="mt-6">
+          <Button asChild variant="accent" size="lg">
+            <Link href="/kratisi">Κλείστε Online Θέση</Link>
+          </Button>
+        </div>
 
         <p className="mt-6 font-sans text-[13px] uppercase tracking-[0.14em] text-surface/70">{c.bookedNote}</p>
 

@@ -16,6 +16,12 @@ export function Home1Cta({ settings, content = homeContent.cta }: { settings: Se
           <p className="mt-2 text-[17px] text-[#00296b]/80">{c.body}</p>
         </div>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <Link
+            href="/kratisi"
+            className="inline-flex items-center justify-center rounded-full bg-surface px-6 py-3.5 font-sans text-[13px] font-semibold uppercase tracking-[0.14em] text-[#00296b] transition hover:bg-surface/85"
+          >
+            Κλείστε Online Θέση
+          </Link>
           <a
             href={telHref(phone)}
             className="inline-flex items-center gap-3 rounded-full bg-[#00296b] px-6 py-3 font-display text-2xl font-semibold text-surface transition hover:bg-primary"
