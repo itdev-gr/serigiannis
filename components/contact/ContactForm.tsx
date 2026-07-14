@@ -10,7 +10,7 @@ import { createLead } from '@/app/(site)/actions';
 const ContactSchema = z.object({
   name: z.string().min(2, 'Παρακαλώ συμπληρώστε το όνομά σας.'),
   email: z.string().email('Μη έγκυρη διεύθυνση email.'),
-  phone: z.string().optional(),
+  phone: z.string().min(8, 'Παρακαλώ συμπληρώστε το τηλέφωνό σας.'),
   subject: z.string().min(2, 'Παρακαλώ γράψτε ένα θέμα.'),
   message: z.string().optional(),
   hp: z.string().optional(),
@@ -78,8 +78,8 @@ export function ContactForm() {
           </Field>
         </div>
         <div className="grid gap-5 md:grid-cols-2">
-          <Field label="Τηλέφωνο" error={errors.phone?.message}>
-            <input {...register('phone')} className={inputCls} placeholder="Προαιρετικό" />
+          <Field label="Τηλέφωνο *" error={errors.phone?.message}>
+            <input {...register('phone')} type="tel" className={inputCls} placeholder="π.χ. 69X XXX XXXX" />
           </Field>
           <Field label="Θέμα *" error={errors.subject?.message}>
             <input {...register('subject')} className={inputCls} placeholder="π.χ. Κράτηση για Μετέωρα" />
