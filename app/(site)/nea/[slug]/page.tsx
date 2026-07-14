@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { Calendar } from 'lucide-react';
 import { PageHero } from '@/components/shared/PageHero';
 import { PostBody } from '@/components/blog/PostBody';
 import { getPostBySlug, getPublishedPostSlugs } from '@/lib/queries/posts';
@@ -66,6 +67,21 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
       />
       <section className="py-16 md:py-24">
         <div className="container max-w-prose">
+          {(post.trip_date || post.price != null) && (
+            <div className="mb-10 flex flex-wrap items-center gap-x-8 gap-y-4 rounded-lg border border-border bg-surface p-6 shadow-card">
+              {post.trip_date && (
+                <div className="flex items-center gap-2.5 text-[15px] text-body">
+                  <Calendar className="h-5 w-5 shrink-0 text-cta" strokeWidth={1.75} />
+                  <span><span className="font-semibold">Ημερομηνία εκδρομής:</span> {new Date(post.trip_date).toLocaleDateString('el-GR')}</span>
+                </div>
+              )}
+              {post.price != null && (
+                <div className="text-[15px] text-body">
+                  <span className="font-semibold">Τιμή:</span> {post.price}€ / άτομο
+                </div>
+              )}
+            </div>
+          )}
           <PostBody body={post.body} />
           <Link href="/nea" className="mt-10 inline-block font-sans text-[14px] font-semibold uppercase tracking-[0.1em] text-primary hover:text-cta">
             ← Όλα τα άρθρα

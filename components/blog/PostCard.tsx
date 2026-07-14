@@ -13,6 +13,11 @@ export function PostCard({ post }: { post: Post }) {
       className="group relative flex flex-col overflow-hidden rounded-lg border border-border bg-surface shadow-card transition-all duration-300 ease-editorial hover:-translate-y-1 hover:shadow-card-hover"
     >
       <div className="relative aspect-[16/10] overflow-hidden bg-primary/5">
+        {post.trip_date && (
+          <span className="absolute left-4 top-4 z-10 rounded-full bg-cta px-3 py-1.5 font-sans text-[12px] font-semibold uppercase tracking-[0.08em] text-surface">
+            Εκδρομή {new Date(post.trip_date).toLocaleDateString('el-GR')}
+          </span>
+        )}
         {cover ? (
           <div className="absolute inset-0 transition-transform duration-700 ease-editorial group-hover:scale-105">
             <Image src={cover} alt={post.title} fill sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw" className="object-cover" />
