@@ -27,7 +27,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
         {lead.email && (<><dt className="text-muted">Email</dt><dd className="col-span-2"><a href={`mailto:${lead.email}`} className="text-primary hover:text-cta">{lead.email}</a></dd></>)}
         {lead.tour_title && (<><dt className="text-muted">Εκδρομή</dt><dd className="col-span-2">{lead.tour_title}</dd></>)}
         {lead.preferred_date && (<><dt className="text-muted">Ημερομηνία</dt><dd className="col-span-2">{lead.preferred_date}</dd></>)}
-        {lead.party_size != null && (<><dt className="text-muted">Άτομα</dt><dd className="col-span-2">{lead.party_size}</dd></>)}
+        {lead.party_size != null && (<><dt className="text-muted">Θέσεις</dt><dd className="col-span-2">{lead.party_size}</dd></>)}
         {lead.subject && (<><dt className="text-muted">Θέμα</dt><dd className="col-span-2">{lead.subject}</dd></>)}
         {lead.message && (<><dt className="text-muted">Μήνυμα</dt><dd className="col-span-2 whitespace-pre-wrap">{lead.message}</dd></>)}
         <dt className="text-muted">Ημ/νία</dt><dd className="col-span-2">{new Date(lead.created_at).toLocaleString('el-GR')}</dd>

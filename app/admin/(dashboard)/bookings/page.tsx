@@ -10,7 +10,7 @@ export default async function BookingsPage() {
       <div className="mt-8 overflow-hidden rounded-lg border border-border bg-surface">
         <table className="w-full text-left text-[14px]">
           <thead className="border-b border-border bg-background/50 font-sans text-[12px] uppercase tracking-[0.1em] text-muted">
-            <tr><th className="px-5 py-3">Πελάτης</th><th className="px-5 py-3">Εκδρομή</th><th className="px-5 py-3">Ημερομηνία</th><th className="px-5 py-3">Άτομα</th><th className="px-5 py-3">Επικοινωνία</th></tr>
+            <tr><th className="px-5 py-3">Πελάτης</th><th className="px-5 py-3">Εκδρομή</th><th className="px-5 py-3">Ημερομηνία</th><th className="px-5 py-3">Θέσεις</th><th className="px-5 py-3">Επικοινωνία</th></tr>
           </thead>
           <tbody>
             {bookings.length === 0 && <tr><td colSpan={5} className="px-5 py-8 text-center text-muted">Δεν υπάρχουν κρατήσεις ακόμη.</td></tr>}

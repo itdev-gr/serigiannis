@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 import { Clock, Calendar, MapPin, Phone, Check } from 'lucide-react';
 import { PageHero } from '@/components/shared/PageHero';
 import { TourCard } from '@/components/trips/TourCard';
-import { BookingForm } from '@/components/trips/BookingForm';
+import { OnlineBookingForm } from '@/components/booking/OnlineBookingForm';
 import { Button } from '@/components/ui/Button';
 import { getTourBySlug, getTours, getPublishedSlugs } from '@/lib/queries/tours';
 import { getSettings } from '@/lib/queries/settings';
@@ -142,7 +142,7 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
                 )}
               </ul>
               <Button asChild variant="accent" size="lg" className="mt-8 w-full">
-                <Link href="/epikoinonia">Κλείστε Θέση</Link>
+                <Link href="#kratisi">Κλείστε Online Θέση</Link>
               </Button>
               {phone && (
                 <a href={telHref(phone)} className="mt-3 flex items-center justify-center gap-2 font-sans text-[14px] font-semibold text-primary hover:text-cta">
@@ -150,8 +150,13 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
                 </a>
               )}
             </div>
-            <div className="mt-6">
-              <BookingForm tourId={tour.id} tourTitle={tour.title} slug={tour.slug} />
+            <div className="mt-6 scroll-mt-28" id="kratisi">
+              <OnlineBookingForm
+                tourId={tour.id}
+                subject={tour.title}
+                pricePerSeat={tour.price_from}
+                sourcePath={`/tour/${tour.slug}`}
+              />
             </div>
           </aside>
         </div>
