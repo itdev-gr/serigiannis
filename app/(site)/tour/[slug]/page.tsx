@@ -12,6 +12,7 @@ import { getSettings } from '@/lib/queries/settings';
 import { coverImage, imageUrl } from '@/lib/images';
 import { telHref } from '@/lib/phone';
 import { SITE_URL } from '@/lib/seo';
+import { decodeSlugParam } from '@/lib/slug';
 
 export const revalidate = 3600;
 
@@ -21,7 +22,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const tour = await getTourBySlug(slug);
+  const tour = await getTourBySlug(decodeSlugParam(slug));
   if (!tour) return {};
   const cover = coverImage(tour);
   const img = imageUrl(cover);
@@ -39,7 +40,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function TourDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const tour = await getTourBySlug(slug);
+  const tour = await getTourBySlug(decodeSlugParam(slug));
   if (!tour) notFound();
 
   const cover = coverImage(tour);

@@ -7,6 +7,7 @@ import { PostBody } from '@/components/blog/PostBody';
 import { getPostBySlug, getPublishedPostSlugs } from '@/lib/queries/posts';
 import { coverPathUrl } from '@/lib/images';
 import { SITE_URL } from '@/lib/seo';
+import { decodeSlugParam } from '@/lib/slug';
 
 export const revalidate = 3600;
 
@@ -16,7 +17,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const post = await getPostBySlug(slug);
+  const post = await getPostBySlug(decodeSlugParam(slug));
   if (!post) return {};
   const img = coverPathUrl(post.cover_path);
   return {
@@ -33,7 +34,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function PostDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const post = await getPostBySlug(slug);
+  const post = await getPostBySlug(decodeSlugParam(slug));
   if (!post) notFound();
 
   const coverUrl = coverPathUrl(post.cover_path);
