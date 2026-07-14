@@ -64,7 +64,7 @@ export async function Footer() {
             <li><Link href="/kroyazieres" className="text-surface/80 hover:text-cta">Κρουαζιέρες</Link></li>
             <li><Link href="/ekdromes/thalassia-mpania" className="text-surface/80 hover:text-cta">Θαλάσσια Μπάνια</Link></li>
             <li><Link href="/ekdromes/polyimeres" className="text-surface/80 hover:text-cta">Πολυήμερες</Link></li>
-            <li><Link href="/enoikiaseis-poylman" className="text-surface/80 hover:text-cta">Ενοικίαση Πούλμαν</Link></li>
+            <li><Link href="/enoikiaseis-poylman" className="text-surface/80 hover:text-cta">Ενοικιάσεις Πούλμαν – Μίνι Βαν</Link></li>
           </ul>
         </div>
 
