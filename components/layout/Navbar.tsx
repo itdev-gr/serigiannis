@@ -72,13 +72,22 @@ export function Navbar({ phones = [], phone24h = null }: { phones?: string[]; ph
         )}
         <div className="container flex items-center justify-between gap-4">
           <Link href="/" className="flex items-center" aria-label="Sergiani Travel — αρχική">
+            {/* Both variants stay mounted so the scroll swap never flashes. */}
             <Image
-              src="/brand/logo-300x75.png"
+              src="/brand/logo-white.svg"
               alt="Sergiani Travel"
-              width={200}
-              height={50}
+              width={152}
+              height={48}
               priority
-              className={cn('h-9 w-auto transition-all duration-300 md:h-10', dark && 'brightness-0 invert')}
+              className={cn('h-10 w-auto transition-all duration-300 md:h-12', !dark && 'hidden')}
+            />
+            <Image
+              src="/brand/logo.svg"
+              alt="Sergiani Travel"
+              width={152}
+              height={48}
+              priority
+              className={cn('h-10 w-auto transition-all duration-300 md:h-12', dark && 'hidden')}
             />
           </Link>
 
@@ -130,7 +139,7 @@ export function Navbar({ phones = [], phone24h = null }: { phones?: string[]; ph
       >
         <div className="flex items-center justify-between px-6 py-5">
           <Link href="/" aria-label="Sergiani Travel — αρχική">
-            <Image src="/brand/logo-300x75.png" alt="Sergiani Travel" width={200} height={50} className="h-9 w-auto brightness-0 invert" />
+            <Image src="/brand/logo-white.svg" alt="Sergiani Travel" width={152} height={48} className="h-10 w-auto" />
           </Link>
           <button
             type="button"

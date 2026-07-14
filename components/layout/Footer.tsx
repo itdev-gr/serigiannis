@@ -42,8 +42,8 @@ export async function Footer() {
     <footer className="bg-deep-ink text-surface">
       <div className="container grid gap-12 py-20 md:grid-cols-2 lg:grid-cols-4">
         <div className="lg:col-span-1">
-          <Link href="/" aria-label="Sergiani Travel — αρχική" className="mb-5 inline-flex rounded-lg bg-surface px-3.5 py-2.5">
-            <Image src="/brand/logo-300x75.png" alt="Sergiani Travel" width={220} height={55} className="h-9 w-auto" />
+          <Link href="/" aria-label="Sergiani Travel — αρχική" className="mb-5 inline-flex">
+            <Image src="/brand/logo-white.svg" alt="Sergiani Travel" width={165} height={52} className="h-12 w-auto" />
           </Link>
           <p className="text-[15px] leading-relaxed text-surface/70">
             Ταξιδιωτικό γραφείο στο Περιστέρι από το 1995. Οργανώνουμε εκδρομές, κρουαζιέρες και μεταφορές σε όλη την Ελλάδα.
