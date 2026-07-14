@@ -60,6 +60,8 @@ export type Post = {
   seo_title: string | null;
   seo_description: string | null;
   published_at: string | null;
+  trip_date: string | null; // 'YYYY-MM-DD' — ημερομηνία εκδρομής
+  price: number | null;     // per-person €, drives booking total
   created_at: string;
   updated_at: string;
 };

@@ -3,6 +3,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { createServerClient } from '@/lib/supabase/server';
 import type { SettingsData } from '@/types/db';
+import { resolvePublishedAt } from '@/lib/posts-publish';
 
 function revalidatePublic() {
   revalidatePath('/admin');
@@ -351,6 +352,14 @@ export async function upsertPost(formData: FormData) {
   const id = (formData.get('id') as string) || null;
   const slug = String(formData.get('slug') || '').trim();
   const status = String(formData.get('status') || 'draft');
+
+  let existingPublishedAt: string | null = null;
+  if (id) {
+    const { data: existing } = await sb.from('posts').select('published_at').eq('id', id).maybeSingle();
+    existingPublishedAt = existing?.published_at ?? null;
+  }
+  const priceRaw = String(formData.get('price') || '').trim();
+
   const payload = {
     title: String(formData.get('title') || '').trim(),
     slug,
@@ -359,7 +368,13 @@ export async function upsertPost(formData: FormData) {
     seo_title: (String(formData.get('seo_title') || '').trim() || null) as string | null,
     seo_description: (String(formData.get('seo_description') || '').trim() || null) as string | null,
     status,
-    published_at: status === 'published' ? new Date().toISOString() : null,
+    trip_date: (String(formData.get('trip_date') || '').trim() || null) as string | null,
+    price: priceRaw ? Number(priceRaw) : null,
+    published_at: resolvePublishedAt({
+      status,
+      submitted: String(formData.get('published_on') || '').trim(),
+      existing: existingPublishedAt,
+    }),
   };
 
   let postId = id;
@@ -392,10 +407,12 @@ export async function upsertPost(formData: FormData) {
 
 export async function setPostStatus(id: string, status: string) {
   const sb = await createServerClient();
-  const { error } = await sb.from('posts').update({
-    status,
-    published_at: status === 'published' ? new Date().toISOString() : null,
-  }).eq('id', id);
+  const patch: { status: string; published_at?: string } = { status };
+  if (status === 'published') {
+    const { data } = await sb.from('posts').select('published_at').eq('id', id).maybeSingle();
+    if (!data?.published_at) patch.published_at = new Date().toISOString();
+  }
+  const { error } = await sb.from('posts').update(patch).eq('id', id);
   if (error) console.error('setPostStatus:', error.message);
   revalidatePosts();
 }
