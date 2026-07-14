@@ -8,7 +8,9 @@ import { TourCard } from '@/components/trips/TourCard';
 import { BookingForm } from '@/components/trips/BookingForm';
 import { Button } from '@/components/ui/Button';
 import { getTourBySlug, getTours, getPublishedSlugs } from '@/lib/queries/tours';
+import { getSettings } from '@/lib/queries/settings';
 import { coverImage, imageUrl } from '@/lib/images';
+import { telHref } from '@/lib/phone';
 import { SITE_URL } from '@/lib/seo';
 
 export const revalidate = 3600;
@@ -42,7 +44,8 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
 
   const cover = coverImage(tour);
   const primaryCat = tour.categories?.[0] ?? null;
-  const all = await getTours();
+  const [all, settings] = await Promise.all([getTours(), getSettings()]);
+  const phone = settings.phones[0] ?? null;
   const related = all
     .filter((t) => t.slug !== tour.slug && t.categories?.some((c) => primaryCat && c.slug === primaryCat.slug))
     .slice(0, 3);
@@ -140,9 +143,11 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
               <Button asChild variant="accent" size="lg" className="mt-8 w-full">
                 <Link href="/epikoinonia">Κλείστε Θέση</Link>
               </Button>
-              <a href="tel:+302105712451" className="mt-3 flex items-center justify-center gap-2 font-sans text-[14px] font-semibold text-primary hover:text-cta">
-                <Phone className="h-4 w-4" strokeWidth={1.75} /> 210 571 2451
-              </a>
+              {phone && (
+                <a href={telHref(phone)} className="mt-3 flex items-center justify-center gap-2 font-sans text-[14px] font-semibold text-primary hover:text-cta">
+                  <Phone className="h-4 w-4" strokeWidth={1.75} /> {phone}
+                </a>
+              )}
             </div>
             <div className="mt-6">
               <BookingForm tourId={tour.id} tourTitle={tour.title} slug={tour.slug} />
