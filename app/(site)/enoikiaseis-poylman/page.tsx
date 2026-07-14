@@ -31,6 +31,7 @@ export default async function RentalsPage() {
   });
   const { valueProps, routes } = resolvePoylman(settings);
   const officePhone = settings.phones[0] ?? null;
+  const phone24h = settings.phone24h ?? settings.phones.find((p) => p.replace(/\s/g, '').startsWith('69')) ?? null;
   return (
     <>
       <PageHero
@@ -112,13 +113,15 @@ export default async function RentalsPage() {
                   </div>
                 </a>
               )}
-              <a href="tel:+306976811825" className="group inline-flex items-center gap-3 text-surface">
-                <div className="grid h-11 w-11 place-items-center rounded-full bg-cta"><PhoneCall className="h-4 w-4" strokeWidth={1.75}/></div>
-                <div>
-                  <div className="font-sans text-[11px] uppercase tracking-[0.14em] text-surface/60">Κινητό 24ώρου</div>
-                  <div className="font-display text-2xl font-semibold group-hover:text-cta">6976 811 825</div>
-                </div>
-              </a>
+              {phone24h && (
+                <a href={telHref(phone24h)} className="group inline-flex items-center gap-3 text-surface">
+                  <div className="grid h-11 w-11 place-items-center rounded-full bg-cta"><PhoneCall className="h-4 w-4" strokeWidth={1.75}/></div>
+                  <div>
+                    <div className="font-sans text-[11px] uppercase tracking-[0.14em] text-surface/60">Κινητό 24ώρου</div>
+                    <div className="font-display text-2xl font-semibold group-hover:text-cta">{phone24h}</div>
+                  </div>
+                </a>
+              )}
             </div>
           </div>
           <div className="rounded-lg border border-surface/10 bg-surface p-8 text-body md:p-10">
