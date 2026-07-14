@@ -5,6 +5,7 @@ import { SectionHeading } from '@/components/shared/SectionHeading';
 import { RevealOnScroll } from '@/components/shared/RevealOnScroll';
 import { QuoteForm } from '@/components/rentals/QuoteForm';
 import { getSettings } from '@/lib/queries/settings';
+import { telHref } from '@/lib/phone';
 import { resolvePageHero, resolvePoylman } from '@/components/home/resolve-content';
 
 export const metadata: Metadata = {
@@ -29,6 +30,7 @@ export default async function RentalsPage() {
     subtitle: 'Ιδιωτικές μεταφορές με σύγχρονα πούλμαν, έμπειρους οδηγούς και ξεκάθαρες τιμές. Από την Αθήνα σε όλη την Ελλάδα.',
   });
   const { valueProps, routes } = resolvePoylman(settings);
+  const officePhone = settings.phones[0] ?? null;
   return (
     <>
       <PageHero
@@ -101,13 +103,15 @@ export default async function RentalsPage() {
               Πείτε μας τον προορισμό, την ημερομηνία και τον αριθμό επιβατών — θα σας απαντήσουμε με πλήρη τιμή εντός 24 ωρών.
             </p>
             <div className="mt-8 flex flex-col gap-3">
-              <a href="tel:+302105712451" className="group inline-flex items-center gap-3 text-surface">
-                <div className="grid h-11 w-11 place-items-center rounded-full bg-cta"><Phone className="h-4 w-4" strokeWidth={1.75}/></div>
-                <div>
-                  <div className="font-sans text-[11px] uppercase tracking-[0.14em] text-surface/60">Τηλέφωνο γραφείου</div>
-                  <div className="font-display text-2xl font-semibold group-hover:text-cta">210 571 2451</div>
-                </div>
-              </a>
+              {officePhone && (
+                <a href={telHref(officePhone)} className="group inline-flex items-center gap-3 text-surface">
+                  <div className="grid h-11 w-11 place-items-center rounded-full bg-cta"><Phone className="h-4 w-4" strokeWidth={1.75}/></div>
+                  <div>
+                    <div className="font-sans text-[11px] uppercase tracking-[0.14em] text-surface/60">Τηλέφωνο γραφείου</div>
+                    <div className="font-display text-2xl font-semibold group-hover:text-cta">{officePhone}</div>
+                  </div>
+                </a>
+              )}
               <a href="tel:+306976811825" className="group inline-flex items-center gap-3 text-surface">
                 <div className="grid h-11 w-11 place-items-center rounded-full bg-cta"><PhoneCall className="h-4 w-4" strokeWidth={1.75}/></div>
                 <div>

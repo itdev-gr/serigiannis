@@ -7,6 +7,7 @@ import { RevealOnScroll } from '@/components/shared/RevealOnScroll';
 import { Button } from '@/components/ui/Button';
 import { getTours } from '@/lib/queries/tours';
 import { getSettings } from '@/lib/queries/settings';
+import { telHref } from '@/lib/phone';
 import { resolvePageHero } from '@/components/home/resolve-content';
 
 export const metadata: Metadata = {
@@ -16,6 +17,7 @@ export const metadata: Metadata = {
 
 export default async function KroyazieresPage() {
   const [tours, settings] = await Promise.all([getTours(), getSettings()]);
+  const phone = settings.phones[0] ?? null;
   const cruises = tours.filter((t) => t.categories?.some((c) => c.slug === 'kroyazieres'));
   const hero = resolvePageHero(settings, 'kroyazieres', {
     eyebrow: 'Σαρωνικός · Αργοσαρωνικός',
@@ -55,7 +57,9 @@ export default async function KroyazieresPage() {
             <p className="mt-2 text-surface/80">Καλέστε μας — απαντάμε την ίδια μέρα.</p>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row">
-            <Button asChild variant="ghost" size="lg"><a href="tel:+302105712451"><Phone className="h-4 w-4" strokeWidth={1.75}/> 210 571 2451</a></Button>
+            {phone && (
+              <Button asChild variant="ghost" size="lg"><a href={telHref(phone)}><Phone className="h-4 w-4" strokeWidth={1.75}/> {phone}</a></Button>
+            )}
             <Button asChild variant="ghost" size="lg"><Link href="/epikoinonia">Στείλτε μήνυμα</Link></Button>
           </div>
         </div>
