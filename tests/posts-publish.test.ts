@@ -26,4 +26,9 @@ describe('resolvePublishedAt', () => {
   it('stays null for a never-published draft', () => {
     expect(resolvePublishedAt({ status: 'draft', submitted: '', existing: null })).toBeNull();
   });
+
+  it('keeps the exact existing timestamp when the submitted date is the same day', () => {
+    expect(resolvePublishedAt({ status: 'published', submitted: '2026-01-02', existing: '2026-01-02T10:30:00.000Z' }))
+      .toBe('2026-01-02T10:30:00.000Z');
+  });
 });

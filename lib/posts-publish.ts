@@ -7,6 +7,9 @@ export function resolvePublishedAt(opts: {
   submitted: string; // 'YYYY-MM-DD' from the admin form, '' when empty
   existing: string | null; // current DB value (null for new posts)
 }): string | null {
+  if (opts.submitted && opts.existing && opts.existing.slice(0, 10) === opts.submitted) {
+    return opts.existing; // same calendar day as current value — keep the exact timestamp
+  }
   if (opts.submitted) return new Date(`${opts.submitted}T12:00:00Z`).toISOString();
   if (opts.status === 'published' && !opts.existing) return new Date().toISOString();
   return opts.existing;
