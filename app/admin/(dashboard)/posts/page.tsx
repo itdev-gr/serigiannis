@@ -36,13 +36,14 @@ export default async function AdminPostsPage() {
             <tr>
               <th className="px-5 py-3">Τίτλος</th>
               <th className="px-5 py-3">Κατάσταση</th>
+              <th className="px-5 py-3">Ημ/νία εκδρομής</th>
               <th className="px-5 py-3">Ημ/νία δημοσίευσης</th>
               <th className="px-5 py-3 text-right">Ενέργειες</th>
             </tr>
           </thead>
           <tbody>
             {posts.length === 0 && (
-              <tr><td colSpan={4} className="px-5 py-10 text-center text-muted">Δεν βρέθηκαν άρθρα.</td></tr>
+              <tr><td colSpan={5} className="px-5 py-10 text-center text-muted">Δεν βρέθηκαν άρθρα.</td></tr>
             )}
             {posts.map((p) => (
               <tr key={p.id} className="border-b border-border/60 last:border-0">
@@ -54,6 +55,9 @@ export default async function AdminPostsPage() {
                   <span className={`inline-flex rounded-full px-2.5 py-1 font-sans text-[11px] font-semibold uppercase tracking-[0.08em] ${STATUS_STYLE[p.status] ?? ''}`}>
                     {STATUS_LABEL[p.status] ?? p.status}
                   </span>
+                </td>
+                <td className="px-5 py-3 text-body">
+                  {p.trip_date ? new Date(p.trip_date).toLocaleDateString('el-GR') : '—'}
                 </td>
                 <td className="px-5 py-3 text-body">
                   {p.published_at ? new Date(p.published_at).toLocaleDateString('el-GR') : '—'}

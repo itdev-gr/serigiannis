@@ -43,6 +43,21 @@ export function PostForm({
         <textarea name="body" rows={12} defaultValue={post?.body ?? ''} className={inputCls} />
       </label>
 
+      <div className="grid gap-5 sm:grid-cols-3">
+        <label className="block">
+          <span className={labelCls}>Ημερομηνία εκδρομής</span>
+          <input name="trip_date" type="date" defaultValue={post?.trip_date ?? ''} className={inputCls} />
+        </label>
+        <label className="block">
+          <span className={labelCls}>Τιμή ανά άτομο (€)</span>
+          <input name="price" type="number" min={0} step="0.01" defaultValue={post?.price ?? ''} className={inputCls} />
+        </label>
+        <label className="block">
+          <span className={labelCls}>Ημερομηνία δημοσίευσης</span>
+          <input name="published_on" type="date" defaultValue={post?.published_at ? post.published_at.slice(0, 10) : ''} className={inputCls} />
+        </label>
+      </div>
+
       <label className="block">
         <span className={labelCls}>Κατάσταση</span>
         <select name="status" defaultValue={post?.status ?? 'draft'} className={inputCls}>
