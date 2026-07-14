@@ -15,6 +15,7 @@ const STATIC_ROUTES = [
   '/kroyazieres',
   '/enoikiaseis-poylman',
   '/epikoinonia',
+  '/kratisi',
   '/istoriko-ekdromon',
   '/oroi',
   '/politiki-aporritou',
