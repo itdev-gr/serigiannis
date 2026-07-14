@@ -63,7 +63,7 @@ export function Navbar() {
             />
           </Link>
 
-          <nav className="hidden items-center gap-1 lg:flex" aria-label="Κύρια πλοήγηση">
+          <nav className="hidden items-center gap-1 xl:flex" aria-label="Κύρια πλοήγηση">
             {NAV_ITEMS.map(({ to, label }) => {
               const active = isActive(pathname, to);
               return (
@@ -72,7 +72,7 @@ export function Navbar() {
                   href={to}
                   aria-current={active ? 'page' : undefined}
                   className={cn(
-                    'rounded-full px-3 py-2 font-sans text-[13px] font-medium uppercase tracking-[0.1em] transition-all',
+                    'whitespace-nowrap rounded-full px-3 py-2 font-sans text-[13px] font-medium uppercase tracking-[0.1em] transition-all',
                     dark ? 'text-surface/85 hover:bg-surface/10 hover:text-surface' : 'text-primary hover:bg-primary/5',
                     active && (dark ? 'bg-surface/15 text-surface' : 'bg-primary/10 text-primary')
                   )}
@@ -90,7 +90,7 @@ export function Navbar() {
             <button
               type="button"
               onClick={() => setMobileOpen(true)}
-              className={cn('grid h-11 w-11 place-items-center rounded-full lg:hidden', dark ? 'text-surface hover:bg-surface/10' : 'text-primary hover:bg-primary/10')}
+              className={cn('grid h-11 w-11 place-items-center rounded-full xl:hidden', dark ? 'text-surface hover:bg-surface/10' : 'text-primary hover:bg-primary/10')}
               aria-label="Άνοιγμα μενού"
             >
               <Menu className="h-6 w-6" strokeWidth={1.5} />
@@ -102,7 +102,7 @@ export function Navbar() {
       {/* Mobile overlay */}
       <div
         className={cn(
-          'fixed inset-0 z-50 bg-deep-ink transition-all duration-500 ease-editorial lg:hidden',
+          'fixed inset-0 z-50 bg-deep-ink transition-all duration-500 ease-editorial xl:hidden',
           mobileOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
         )}
         role="dialog"
