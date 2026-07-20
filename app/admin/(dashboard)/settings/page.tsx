@@ -1,5 +1,7 @@
 import { getSettings } from '@/lib/queries/settings';
+import { getAdminBookingSettings } from '@/lib/queries/ticketing';
 import { SettingsForm } from '@/components/admin/SettingsForm';
+import { BookingSettingsForm } from '@/components/admin/BookingSettingsForm';
 import { saveSettings } from '../actions';
 
 export default async function AdminSettingsPage({
@@ -7,7 +9,7 @@ export default async function AdminSettingsPage({
 }: {
   searchParams: Promise<{ saved?: string }>;
 }) {
-  const [settings, sp] = await Promise.all([getSettings(), searchParams]);
+  const [settings, bookingSettings, sp] = await Promise.all([getSettings(), getAdminBookingSettings(), searchParams]);
 
   return (
     <div>
@@ -23,6 +25,7 @@ export default async function AdminSettingsPage({
       )}
 
       <SettingsForm settings={settings} action={saveSettings} />
+      <BookingSettingsForm settings={bookingSettings} />
     </div>
   );
 }
