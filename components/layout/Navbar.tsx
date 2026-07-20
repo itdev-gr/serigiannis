@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { Menu, X, Ship, MapPin, Bus, Mail, Home as HomeIcon, Newspaper, Phone } from 'lucide-react';
+import { Menu, X, Ship, MapPin, Bus, Mail, Home as HomeIcon, Newspaper, Phone, Ticket } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { cn } from '@/lib/utils';
 import { telHref } from '@/lib/phone';
@@ -12,6 +12,7 @@ const NAV_ITEMS = [
   { to: '/', label: 'Αρχική', icon: HomeIcon },
   { to: '/ekdromes', label: 'Εκδρομές', icon: MapPin },
   { to: '/enoikiaseis-poylman', label: 'Ενοικιάσεις Πούλμαν – Μίνι Βαν', icon: Bus },
+  { to: '/eisitiria', label: 'Εισιτήρια', icon: Ticket },
   { to: '/kroyazieres', label: 'Κρουαζιέρες', icon: Ship },
   { to: '/epikoinonia', label: 'Επικοινωνία', icon: Mail },
   { to: '/nea', label: 'Νέα', icon: Newspaper },
