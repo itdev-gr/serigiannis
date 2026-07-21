@@ -18,6 +18,7 @@ const STATIC_ROUTES = [
   '/kratisi',
   '/istoriko-ekdromon',
   '/oroi',
+  '/oroi-proypotheseis',
   '/politiki-aporritou',
   '/nea',
 ];

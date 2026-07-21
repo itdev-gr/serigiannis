@@ -41,7 +41,7 @@ export function StatCounter({ stat }: { stat: Stat }) {
       <div className="font-display text-6xl font-bold text-gold tabular md:text-7xl">
         <span data-value>0</span>
       </div>
-      <div className="mt-3 font-sans text-[12px] font-semibold uppercase tracking-[0.18em] text-surface/70">{stat.label}</div>
+      <div className="mt-3 font-sans text-[12px] font-semibold uppercase tracking-[0.18em] text-white">{stat.label}</div>
     </div>
   );
 }

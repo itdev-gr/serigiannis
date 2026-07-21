@@ -56,7 +56,7 @@ export default async function SchedulesPage() {
           </label>
           <Button type="submit" variant="outline">Δημιουργία δρομολογίων περιόδου</Button>
           <p className="w-full text-[12px] text-muted sm:w-auto">
-            Τα δρομολόγια δημιουργούνται αυτόματα και με κάθε αναζήτηση πελάτη — εδώ τα προ-δημιουργείτε για επεξεργασία.
+            Τα δρομολόγια δημιουργούνται αυτόματα και με κάθε αναζήτηση πελάτη. Εδώ τα προ-δημιουργείτε για επεξεργασία.
           </p>
         </form>
       </div>
@@ -83,7 +83,7 @@ export default async function SchedulesPage() {
             </div>
           </div>
         ))}
-        {trips.length === 0 && <p className="px-4 py-6 text-[14px] text-muted">Δεν υπάρχουν υλοποιημένα δρομολόγια — πατήστε «Δημιουργία δρομολογίων περιόδου».</p>}
+        {trips.length === 0 && <p className="px-4 py-6 text-[14px] text-muted">Δεν υπάρχουν υλοποιημένα δρομολόγια. Πατήστε «Δημιουργία δρομολογίων περιόδου».</p>}
       </div>
     </div>
   );

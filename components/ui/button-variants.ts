@@ -5,11 +5,11 @@ export const buttonVariants = cva(
   {
     variants: {
       variant: {
-        primary: 'bg-cta text-surface shadow-cta hover:bg-cta-hover hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0',
+        primary: 'bg-cta text-surface hover:bg-cta-hover active:translate-y-0',
         ghost: 'border border-surface/60 bg-transparent text-surface hover:bg-surface hover:text-primary',
         outline: 'border border-primary/20 bg-transparent text-primary hover:bg-primary hover:text-surface',
         dark: 'bg-primary text-surface hover:bg-primary-hover',
-        accent: 'bg-gold text-[#00296b] shadow-gold hover:bg-gold-hover hover:-translate-y-0.5 active:translate-y-0',
+        accent: 'bg-gold text-deep-ink hover:bg-gold-hover hover:text-deep-ink active:translate-y-0',
       },
       size: {
         default: 'h-11 px-6',

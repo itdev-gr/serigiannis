@@ -9,7 +9,7 @@ import { resolvePageHero } from '@/components/home/resolve-content';
 
 export const metadata: Metadata = {
   title: 'Επικοινωνία',
-  description: 'Επικοινωνήστε με τη Sergiani Travel — Π. Μελά 45, Περιστέρι. Απαντάμε την ίδια μέρα.',
+  description: 'Επικοινωνήστε με τη Sergiani Travel, Π. Μελά 45, Περιστέρι. Απαντάμε την ίδια μέρα.',
 };
 
 function tel(n: string) { return 'tel:+30' + n.replace(/\s/g, ''); }
@@ -27,9 +27,7 @@ function Youtube(props: SVGProps<SVGSVGElement>) {
 export default async function ContactPage() {
   const s = await getSettings();
   const hero = resolvePageHero(s, 'epikoinonia', {
-    eyebrow: 'Είμαστε εδώ για εσάς',
     title: 'Επικοινωνήστε μαζί μας',
-    subtitle: `${s.address} · Απαντάμε την ίδια μέρα.`,
   });
   return (
     <>
@@ -94,7 +92,7 @@ export default async function ContactPage() {
       <section className="border-t border-border">
         <div className="aspect-[16/6] w-full">
           <iframe
-            title="Sergiani Travel — τοποθεσία γραφείου"
+            title="Sergiani Travel, τοποθεσία γραφείου"
             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3145.9!2d23.6835!3d38.014!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2sPeristeri!5e0!3m2!1sen!2sgr!4v1700000000000"
             width="100%"
             height="100%"

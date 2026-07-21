@@ -1,82 +1,45 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { PageHero } from '@/components/shared/PageHero';
 import { LegalBody } from '@/components/shared/LegalBody';
+import { LegalPageLayout } from '@/components/shared/LegalPageLayout';
+import { LegalSections } from '@/components/shared/LegalSections';
 import { getSettings } from '@/lib/queries/settings';
+import { buildPrivacyPolicySections } from '@/lib/legal/privacy-policy';
 
 export const metadata: Metadata = {
   title: 'Πολιτική Απορρήτου',
   description:
-    'Πώς η Sergiani Travel συλλέγει, χρησιμοποιεί και προστατεύει τα προσωπικά σας δεδομένα, σύμφωνα με τον Γενικό Κανονισμό Προστασίας Δεδομένων (GDPR).',
+    'Πολιτική απορρήτου και συμμόρφωση GDPR της Sergiani Travel: συλλογή, επεξεργασία, cookies και δικαιώματα των υποκειμένων των δεδομένων.',
   alternates: { canonical: '/politiki-aporritou' },
 };
 
 export default async function PrivacyPolicyPage() {
-  const s = await getSettings();
-  const customBody = s.legal?.privacy?.trim();
-
-  const SECTIONS: { h: string; p: string }[] = [
-    {
-      h: 'Υπεύθυνος Επεξεργασίας',
-      p: `Υπεύθυνος επεξεργασίας των δεδομένων σας είναι η Sergiani Travel, με έδρα ${s.address}. Για κάθε θέμα σχετικά με τα προσωπικά σας δεδομένα μπορείτε να επικοινωνείτε στο ${s.email} ή στο ${s.phones[0] ?? ''}.`,
-    },
-    {
-      h: 'Ποια δεδομένα συλλέγουμε',
-      p: 'Συλλέγουμε τα στοιχεία που μας παρέχετε κατά την κράτηση ή την επικοινωνία σας: ονοματεπώνυμο, τηλέφωνο, email, καθώς και — όπου απαιτείται για την εκδρομή — αριθμό ταυτότητας/διαβατηρίου και ημερομηνία γέννησης. Μέσω της ιστοσελίδας συλλέγονται επίσης τεχνικά δεδομένα (cookies, διεύθυνση IP) για τη σωστή λειτουργία και τη βελτίωση του ιστότοπου.',
-    },
-    {
-      h: 'Σκοπός και νομική βάση',
-      p: 'Επεξεργαζόμαστε τα δεδομένα σας για την εκτέλεση της κράτησης και την παροχή των ταξιδιωτικών υπηρεσιών (εκτέλεση σύμβασης), για την απάντηση στα αιτήματά σας, για την τήρηση νομικών υποχρεώσεων (π.χ. φορολογικών) και, με τη συγκατάθεσή σας, για ενημερώσεις σχετικά με προσφορές και νέες εκδρομές.',
-    },
-    {
-      h: 'Αποδέκτες των δεδομένων',
-      p: 'Τα δεδομένα σας κοινοποιούνται μόνο στον βαθμό που είναι απαραίτητο για την εκτέλεση της εκδρομής — σε συνεργαζόμενους προμηθευτές (ξενοδοχεία, ακτοπλοϊκές/μεταφορικές εταιρείες, ασφαλιστικές) και σε παρόχους πληρωμών. Δεν πωλούμε και δεν ενοικιάζουμε τα προσωπικά σας δεδομένα σε τρίτους.',
-    },
-    {
-      h: 'Χρόνος διατήρησης',
-      p: 'Διατηρούμε τα δεδομένα σας για όσο διάστημα απαιτείται για την ολοκλήρωση της υπηρεσίας και στη συνέχεια για όσο επιβάλλει η ισχύουσα νομοθεσία (π.χ. φορολογικά παραστατικά). Έπειτα διαγράφονται ή ανωνυμοποιούνται με ασφάλεια.',
-    },
-    {
-      h: 'Cookies',
-      p: 'Ο ιστότοπος χρησιμοποιεί απαραίτητα cookies για τη λειτουργία του και, προαιρετικά, cookies στατιστικών/ανάλυσης για τη βελτίωση της εμπειρίας σας. Μπορείτε να διαχειριστείτε ή να απενεργοποιήσετε τα cookies από τις ρυθμίσεις του browser σας.',
-    },
-    {
-      h: 'Τα δικαιώματά σας',
-      p: 'Έχετε δικαίωμα πρόσβασης, διόρθωσης, διαγραφής, περιορισμού και φορητότητας των δεδομένων σας, καθώς και εναντίωσης στην επεξεργασία και ανάκλησης της συγκατάθεσής σας ανά πάσα στιγμή. Για την άσκηση των δικαιωμάτων σας επικοινωνήστε μαζί μας. Διατηρείτε επίσης το δικαίωμα καταγγελίας στην Αρχή Προστασίας Δεδομένων Προσωπικού Χαρακτήρα (www.dpa.gr).',
-    },
-    {
-      h: 'Ασφάλεια',
-      p: 'Λαμβάνουμε τα κατάλληλα τεχνικά και οργανωτικά μέτρα για την προστασία των δεδομένων σας από μη εξουσιοδοτημένη πρόσβαση, απώλεια ή κακή χρήση.',
-    },
-  ];
+  const settings = await getSettings();
+  const customBody = settings.legal?.privacy?.trim();
+  const sections = buildPrivacyPolicySections(settings);
 
   return (
     <>
       <PageHero
-        eyebrow="Προστασία Δεδομένων"
         title="Πολιτική Απορρήτου"
         breadcrumbs={[{ label: 'Αρχική', href: '/' }, { label: 'Πολιτική Απορρήτου' }]}
         heightClass="h-[40vh] min-h-[300px]"
       />
-      <section className="py-16 md:py-24">
-        <div className="container max-w-prose">
-          <p className="text-[15px] italic text-muted">
-            Το παρόν είναι ενημερωτικό κείμενο σχετικά με την επεξεργασία των προσωπικών σας δεδομένων. Για οποιαδήποτε
-            διευκρίνιση επικοινωνήστε με το γραφείο μας.
-          </p>
-          {customBody ? (
-            <LegalBody text={s.legal!.privacy!} />
-          ) : (
-            <div className="mt-10 space-y-10">
-              {SECTIONS.map((sec) => (
-                <div key={sec.h}>
-                  <h2 className="font-display text-2xl font-semibold text-primary">{sec.h}</h2>
-                  <p className="mt-3 text-[17px] leading-relaxed text-muted">{sec.p}</p>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
+      <LegalPageLayout
+        intro={
+          <>
+            Η παρούσα πολιτική περιγράφει πώς η Sergiani Travel επεξεργάζεται τα προσωπικά σας δεδομένα, σύμφωνα με τον
+            GDPR. Για τους όρους συμμετοχής σε εκδρομές δείτε και τους{' '}
+            <Link href="/oroi-proypotheseis" className="font-medium text-primary underline-offset-2 hover:underline">
+              Όρους & Προϋποθέσεις
+            </Link>
+            .
+          </>
+        }
+      >
+        {customBody ? <LegalBody text={settings.legal!.privacy!} /> : <LegalSections sections={sections} />}
+      </LegalPageLayout>
     </>
   );
 }

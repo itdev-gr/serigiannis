@@ -4,6 +4,7 @@ import { SectionHeading } from '@/components/shared/SectionHeading';
 import { TestimonialBlock } from '@/components/shared/TestimonialBlock';
 import { Stagger, StaggerItem } from '@/components/motion/Reveal';
 import { homeContent } from './content';
+import { HOME_SECTION_TITLE } from './home-section-title';
 import type { TestimonialsCopy } from './resolve-content';
 
 export function Home1Testimonials({
@@ -17,7 +18,7 @@ export function Home1Testimonials({
   return (
     <section className="py-24 md:py-32" aria-label={c.title}>
       <div className="container">
-        <SectionHeading eyebrow={c.eyebrow} title={c.title} align="center" />
+        <SectionHeading title={c.title} align="center" titleClassName={HOME_SECTION_TITLE} />
         <Stagger className="mt-14 grid gap-6 md:grid-cols-3">
           {testimonials.map((t) => (
             <StaggerItem key={t.id}>

@@ -121,7 +121,7 @@ export function LayoutEditor({ initial }: { initial: LayoutJson | null }) {
         </button>
       </div>
       <p className="mb-4 text-[13px] text-muted">
-        {seatCount} θέσεις · {onlineCount} διαθέσιμες online. Με το εργαλείο «Θέση» βάζετε/αφαιρείτε θέσεις — «Online on/off» εξαιρεί θέση από την online πώληση (π.χ. 1–8 για τα εκδοτήρια).
+        {seatCount} θέσεις · {onlineCount} διαθέσιμες online. Με το εργαλείο «Θέση» βάζετε/αφαιρείτε θέσεις. Το «Online on/off» εξαιρεί θέση από την online πώληση (π.χ. 1–8 για τα εκδοτήρια).
       </p>
 
       {decks.map((deck, di) => (

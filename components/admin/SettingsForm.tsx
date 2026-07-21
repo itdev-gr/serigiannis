@@ -55,33 +55,32 @@ export function SettingsForm({
   const pageHeroDefaults: Record<string, { label: string; eyebrow: string; title: string; subtitle: string }> = {
     ekdromes: {
       label: 'Εκδρομές',
-      eyebrow: '2026',
+      eyebrow: '',
       title: 'Εκδρομές από την Αθήνα',
-      subtitle: 'Επιλέξτε προορισμό — μονοήμερες αποδράσεις, πολυήμερα ταξίδια, κρουαζιέρες και πολλά ακόμη.',
+      subtitle: 'Επιλέξτε προορισμό, μονοήμερες αποδράσεις, πολυήμερα ταξίδια, κρουαζιέρες και πολλά ακόμη.',
     },
     kroyazieres: {
       label: 'Κρουαζιέρες',
-      eyebrow: 'Σαρωνικός · Αργοσαρωνικός',
+      eyebrow: '',
       title: 'Κρουαζιέρες από τον Πειραιά',
       subtitle: 'Μια μέρα, πολλά νησιά, χίλιες φωτογραφίες. Οργανωμένες κρουαζιέρες με άνετα πλοία και γεύμα εν πλω.',
     },
     poylman: {
       label: 'Πούλμαν',
-      eyebrow: 'Εκδρομές · Μεταφορές · Εταιρικά',
       title: 'Ενοικιάσεις Πούλμαν',
       subtitle: 'Ιδιωτικές μεταφορές με σύγχρονα πούλμαν, έμπειρους οδηγούς και ξεκάθαρες τιμές. Από την Αθήνα σε όλη την Ελλάδα.',
     },
     epikoinonia: {
       label: 'Επικοινωνία',
-      eyebrow: 'Είμαστε εδώ για εσάς',
+      eyebrow: '',
       title: 'Επικοινωνήστε μαζί μας',
-      subtitle: `${settings.address} · Απαντάμε την ίδια μέρα.`,
+      subtitle: '',
     },
     istoriko: {
       label: 'Ιστορικό',
       eyebrow: 'Από το 1995',
       title: 'Ιστορικό Εκδρομών',
-      subtitle: 'Τριάντα χρόνια ταξιδιών — ένα δείγμα από τους προορισμούς που έχουμε μοιραστεί με τους ταξιδιώτες μας.',
+      subtitle: 'Τριάντα χρόνια ταξιδιών, ένα δείγμα από τους προορισμούς που έχουμε μοιραστεί με τους ταξιδιώτες μας.',
     },
   };
   return (
@@ -130,15 +129,15 @@ export function SettingsForm({
         <fieldset className="grid gap-5">
           <legend className="mb-2 font-display text-2xl font-semibold text-primary">Περιεχόμενο Αρχικής</legend>
           <p className="-mt-1 text-[14px] text-muted">Αφήστε ένα πεδίο κενό για να χρησιμοποιηθεί το προεπιλεγμένο κείμενο.</p>
-          <Field label="Hero — Eyebrow" name="hero_eyebrow" defaultValue={settings.hero?.eyebrow ?? ''} placeholder={h.eyebrow} />
+          <Field label="Hero, Eyebrow" name="hero_eyebrow" defaultValue={settings.hero?.eyebrow ?? ''} placeholder={h.eyebrow} />
           <div className="grid gap-5 sm:grid-cols-2">
-            <Field label="Hero — Τίτλος (πάνω)" name="hero_titleTop" defaultValue={settings.hero?.titleTop ?? ''} placeholder={h.titleTop} />
-            <Field label="Hero — Τίτλος (έμφαση)" name="hero_titleEmph" defaultValue={settings.hero?.titleEmph ?? ''} placeholder={h.titleEmph} />
+            <Field label="Hero, Τίτλος (πάνω)" name="hero_titleTop" defaultValue={settings.hero?.titleTop ?? ''} placeholder={h.titleTop} />
+            <Field label="Hero, Τίτλος (έμφαση)" name="hero_titleEmph" defaultValue={settings.hero?.titleEmph ?? ''} placeholder={h.titleEmph} />
           </div>
-          <Field label="Hero — Υπότιτλος" name="hero_subtitle" defaultValue={settings.hero?.subtitle ?? ''} placeholder={h.subtitle} textarea />
-          <Field label="Σχετικά — Eyebrow" name="about_eyebrow" defaultValue={settings.about?.eyebrow ?? ''} placeholder={a.eyebrow} />
-          <Field label="Σχετικά — Τίτλος" name="about_title" defaultValue={settings.about?.title ?? ''} placeholder={a.title} />
-          <Field label="Σχετικά — Κείμενο" name="about_body" defaultValue={settings.about?.body ?? ''} placeholder={a.body} textarea />
+          <Field label="Hero, Υπότιτλος" name="hero_subtitle" defaultValue={settings.hero?.subtitle ?? ''} placeholder={h.subtitle} textarea />
+          <Field label="Σχετικά, Eyebrow" name="about_eyebrow" defaultValue={settings.about?.eyebrow ?? ''} placeholder={a.eyebrow} />
+          <Field label="Σχετικά, Τίτλος" name="about_title" defaultValue={settings.about?.title ?? ''} placeholder={a.title} />
+          <Field label="Σχετικά, Κείμενο" name="about_body" defaultValue={settings.about?.body ?? ''} placeholder={a.body} textarea />
         </fieldset>
 
         <fieldset className="grid gap-5 border-t border-border pt-8">

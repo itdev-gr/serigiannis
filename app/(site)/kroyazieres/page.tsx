@@ -12,7 +12,7 @@ import { resolvePageHero } from '@/components/home/resolve-content';
 
 export const metadata: Metadata = {
   title: 'Κρουαζιέρες από τον Πειραιά',
-  description: 'Οργανωμένες κρουαζιέρες στον Σαρωνικό και τις Σποράδες — μια μέρα, πολλά νησιά, με γεύμα εν πλω.',
+  description: 'Οργανωμένες κρουαζιέρες στον Σαρωνικό και τις Σποράδες, μια μέρα, πολλά νησιά, με γεύμα εν πλω.',
 };
 
 export default async function KroyazieresPage() {
@@ -20,7 +20,6 @@ export default async function KroyazieresPage() {
   const phone = settings.phones[0] ?? null;
   const cruises = tours.filter((t) => t.categories?.some((c) => c.slug === 'kroyazieres'));
   const hero = resolvePageHero(settings, 'kroyazieres', {
-    eyebrow: 'Σαρωνικός · Αργοσαρωνικός',
     title: 'Κρουαζιέρες από τον Πειραιά',
     subtitle: 'Μια μέρα, πολλά νησιά, χίλιες φωτογραφίες. Οργανωμένες κρουαζιέρες με άνετα πλοία και γεύμα εν πλω.',
   });
@@ -37,7 +36,7 @@ export default async function KroyazieresPage() {
       <section className="py-16 md:py-24">
         <div className="container">
           <p className="mx-auto max-w-prose text-center font-display text-[19px] italic leading-relaxed text-muted">
-            Οι κρουαζιέρες μας αναχωρούν από τον Πειραιά κάθε πρωί — ημερήσιες περιηγήσεις σε νησιά ή ταξίδια κολύμβησης, μαζί με ξεναγό, γεύμα και μουσική.
+            Οι κρουαζιέρες μας αναχωρούν από τον Πειραιά κάθε πρωί, ημερήσιες περιηγήσεις σε νησιά ή ταξίδια κολύμβησης, μαζί με ξεναγό, γεύμα και μουσική.
           </p>
           {cruises.length > 0 ? (
             <RevealOnScroll className="mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -54,7 +53,7 @@ export default async function KroyazieresPage() {
         <div className="container flex flex-col items-center gap-6 text-center md:flex-row md:justify-between md:text-left">
           <div>
             <h2 className="font-display text-3xl font-semibold">Προτιμάτε να κλείσετε τηλεφωνικά;</h2>
-            <p className="mt-2 text-surface/80">Καλέστε μας — απαντάμε την ίδια μέρα.</p>
+            <p className="mt-2 text-surface/80">Καλέστε μας, απαντάμε την ίδια μέρα.</p>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row">
             {phone && (

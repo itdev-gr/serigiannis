@@ -37,7 +37,7 @@ export default async function LegacyHomePage() {
             <SectionHeading
               eyebrow="Ξεχωριστές Επιλογές"
               title="Οι πιο δημοφιλείς εκδρομές μας"
-              subtitle="Επιλεγμένες από τους ταξιδιώτες μας — αποδράσεις με αρχή και τέλος στην Αθήνα."
+              subtitle="Επιλεγμένες από τους ταξιδιώτες μας, αποδράσεις με αρχή και τέλος στην Αθήνα."
               action={<TextLink href="/ekdromes">Όλες οι εκδρομές</TextLink>}
             />
             <Reveal className="mt-14 grid gap-6 lg:grid-cols-12">
@@ -100,7 +100,7 @@ export default async function LegacyHomePage() {
         <div className="container flex flex-col items-center justify-between gap-6 text-center md:flex-row md:text-left">
           <div>
             <h2 className="font-display text-3xl font-semibold md:text-4xl">Έτοιμοι για την επόμενη περιπέτεια;</h2>
-            <p className="mt-2 text-[17px] text-[#00296b]/80">Καλέστε μας ή στείλτε μας μήνυμα — απαντάμε την ίδια μέρα.</p>
+            <p className="mt-2 text-[17px] text-[#00296b]/80">Καλέστε μας ή στείλτε μας μήνυμα, απαντάμε την ίδια μέρα.</p>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <a href="tel:+302105712451" className="inline-flex items-center gap-3 rounded-full bg-[#00296b] px-6 py-3 font-display text-2xl font-semibold text-surface transition hover:bg-primary">

@@ -11,6 +11,11 @@ let _publicClient: SupabaseClient | null = null;
 /** Cookieless anon client for PUBLIC reads (published rows only, via RLS).
  *  Safe in generateStaticParams / ISR where there is no request context. */
 export function createPublicClient(): SupabaseClient {
+  if (!isDbConfigured()) {
+    throw new Error(
+      'Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to .env.local'
+    );
+  }
   if (!_publicClient) {
     _publicClient = createSupabaseClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,

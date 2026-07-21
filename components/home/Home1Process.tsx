@@ -1,5 +1,6 @@
 import { SectionHeading } from '@/components/shared/SectionHeading';
 import { homeContent } from './content';
+import { HOME_SECTION_TITLE } from './home-section-title';
 import type { ProcessCopy } from './resolve-content';
 
 export function Home1Process({ content = homeContent.process }: { content?: ProcessCopy }) {
@@ -7,7 +8,7 @@ export function Home1Process({ content = homeContent.process }: { content?: Proc
   return (
     <section className="bg-background py-24 md:py-32" aria-label={c.title}>
       <div className="container">
-        <SectionHeading eyebrow={c.eyebrow} title={c.title} align="center" />
+        <SectionHeading title={c.title} align="center" titleClassName={HOME_SECTION_TITLE} />
         <ol className="mt-14 grid gap-6 md:grid-cols-3">
           {c.steps.map((s) => (
             <li key={s.n} className="relative rounded-lg border border-border bg-surface p-8 shadow-card">

@@ -24,11 +24,10 @@ export default async function EisitiriaPage() {
   return (
     <>
       <PageHero
-        eyebrow="Ηλεκτρονικά Εισιτήρια"
         title="Εισιτήρια Λεωφορείων"
         subtitle="Επιλέξτε διαδρομή και ημερομηνία, διαλέξτε τις θέσεις σας πάνω στο λεωφορείο και εκδώστε τα εισιτήριά σας online."
         breadcrumbs={[{ label: 'Αρχική', href: '/' }, { label: 'Εισιτήρια' }]}
-        heightClass="h-[44vh] min-h-[340px]"
+        heightClass="h-[44vh] min-h-[360px]"
       />
       <section className="py-16 md:py-24">
         <div className="container max-w-4xl">

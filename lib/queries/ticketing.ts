@@ -1,4 +1,4 @@
-import { createPublicClient, createServerClient } from '@/lib/supabase/server';
+import { createPublicClient, createServerClient, isDbConfigured } from '@/lib/supabase/server';
 import type {
   BookingSettings,
   BusLayout,
@@ -22,6 +22,7 @@ const DEFAULT_SETTINGS: BookingSettings = {
 // ---------------------------------------------------------------- public
 
 export async function getStations(): Promise<Station[]> {
+  if (!isDbConfigured()) return [];
   const sb = createPublicClient();
   const { data, error } = await sb.from('stations').select('*').order('position');
   if (error) { console.error('getStations:', error.message); return []; }
@@ -29,6 +30,7 @@ export async function getStations(): Promise<Station[]> {
 }
 
 export async function getBookingSettings(): Promise<BookingSettings> {
+  if (!isDbConfigured()) return DEFAULT_SETTINGS;
   const sb = createPublicClient();
   const { data, error } = await sb.from('booking_settings').select('*').eq('id', 1).maybeSingle();
   if (error || !data) {
@@ -40,6 +42,7 @@ export async function getBookingSettings(): Promise<BookingSettings> {
 
 /** Published routes (for wiring the ΠΡΟΣ dropdown to real destinations). */
 export async function getPublishedRoutes(): Promise<BusRoute[]> {
+  if (!isDbConfigured()) return [];
   const sb = createPublicClient();
   const { data, error } = await sb.from('bus_routes').select('*').order('position');
   if (error) { console.error('getPublishedRoutes:', error.message); return []; }
@@ -47,6 +50,7 @@ export async function getPublishedRoutes(): Promise<BusRoute[]> {
 }
 
 export async function getTripWithLayout(tripId: string): Promise<{ trip: Trip; layout: BusLayout } | null> {
+  if (!isDbConfigured()) return null;
   const sb = createPublicClient();
   const { data: trip, error } = await sb.from('trips').select('*').eq('id', tripId).maybeSingle();
   if (error || !trip) { if (error) console.error('getTripWithLayout:', error.message); return null; }
@@ -56,6 +60,7 @@ export async function getTripWithLayout(tripId: string): Promise<{ trip: Trip; l
 }
 
 export async function getRouteFares(routeId: string): Promise<FareType[]> {
+  if (!isDbConfigured()) return [];
   const sb = createPublicClient();
   const { data, error } = await sb.from('fare_types').select('*').eq('route_id', routeId).order('position');
   if (error) { console.error('getRouteFares:', error.message); return []; }

@@ -5,11 +5,11 @@ import { SITE_URL, orgJsonLd } from '@/lib/seo';
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: 'Sergiani Travel · Ταξιδιωτικό Γραφείο από το 1995',
+    default: 'Μονοήμερες Εκδρομές από Αθήνα 2026 | Sergiani Travel',
     template: '%s · Sergiani Travel',
   },
   description:
-    'Μονοήμερες και πολυήμερες εκδρομές, κρουαζιέρες και ενοικιάσεις πούλμαν από την Αθήνα. 30 χρόνια εμπειρίας.',
+    'Μονοήμερες και πολυήμερες εκδρομές από Αθήνα, κρουαζιέρες, θαλάσσια μπάνια και ενοικιάσεις πούλμαν. Sergiani Travel - ταξίδια με πάθος από το 1995!',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

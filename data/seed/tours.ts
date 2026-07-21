@@ -10,7 +10,7 @@ const CAT_NAME: Record<string, string> = {
   'thalassia-mpania': 'Θαλάσσια Μπάνια',
   kroyazieres: 'Κρουαζιέρες',
   pezopories: 'Πεζοπορίες',
-  eksoterikou: 'Εξωτερικού',
+  eksoterikou: 'Εκδρομές Εξωτερικού',
 };
 
 type SeedInput = {
@@ -40,7 +40,7 @@ export const seedTours: Tour[] = [
   mk(3, { slug: 'lichadonisia-kavos', title: 'Λιχαδονήσια · Κάβος', cat: 'monoimeres', price: 25, original: 30, duration: 'Λεωφορείο & Πλοίο', dates: '18/7, 26/7, 2/8, 9/8/2026', desc: 'Εξωτικές παραλίες στα Λιχαδονήσια με ολιγοήμερη περιήγηση.', photo: 'https://images.unsplash.com/photo-1590523278191-995cbcda646b?w=1600&q=80', alt: 'Λιχαδονήσια από ψηλά' }),
   mk(4, { slug: 'ydra', title: 'Ύδρα · Το Νησί του Μιαούλη', cat: 'monoimeres', price: 25, duration: 'Μονοήμερη', dates: '27/6, 12/7/2026', desc: 'Το νησί των καπετάνιων, της τέχνης και της αρχοντιάς.', featured: true, photo: 'https://images.unsplash.com/photo-1601581875039-e899893d520c?w=1600&q=80', alt: 'Λιμάνι της Ύδρας' }),
   mk(5, { slug: 'spetses', title: 'Σπέτσες', cat: 'monoimeres', price: 25, duration: 'Μονοήμερη', dates: '12/7/2026', desc: 'Το νησί των αρωμάτων και του Αργοσαρωνικού.', photo: 'https://images.unsplash.com/photo-1602940659805-770d1b3b9911?w=1600&q=80', alt: 'Παραλία Σπετσών' }),
-  mk(6, { slug: 'meteora', title: 'Μετέωρα', cat: 'monoimeres', price: 65, duration: 'Μονοήμερη', dates: 'Κάθε Σάββατο', desc: 'Τα μοναστήρια στους ουρανούς — ένα ταξίδι στην πνευματικότητα.', featured: true, photo: 'https://images.unsplash.com/photo-1548013146-72479768bada?w=1600&q=80', alt: 'Μοναστήρια στα Μετέωρα' }),
+  mk(6, { slug: 'meteora', title: 'Μετέωρα', cat: 'monoimeres', price: 65, duration: 'Μονοήμερη', dates: 'Κάθε Σάββατο', desc: 'Τα μοναστήρια στους ουρανούς, ένα ταξίδι στην πνευματικότητα.', featured: true, photo: 'https://images.unsplash.com/photo-1548013146-72479768bada?w=1600&q=80', alt: 'Μοναστήρια στα Μετέωρα' }),
   mk(7, { slug: 'delphi', title: 'Δελφοί', cat: 'monoimeres', price: 45, duration: 'Μονοήμερη', dates: 'Κάθε Κυριακή', desc: 'Ο ομφαλός της γης, με ξενάγηση στον αρχαιολογικό χώρο.', photo: 'https://picsum.photos/seed/delphi/1600/1200', alt: 'Αρχαία Δελφοί' }),
   mk(8, { slug: 'nafplio', title: 'Ναύπλιο', cat: 'monoimeres', price: 30, duration: 'Μονοήμερη', dates: 'Κάθε Σάββατο', desc: 'Η πρώτη πρωτεύουσα, με βόλτα στο ενετικό λιμάνι.', photo: 'https://picsum.photos/seed/nafplio/1600/1200', alt: 'Παλαμήδι Ναυπλίου' }),
   mk(9, { slug: 'andros', title: 'Άνδρος', cat: 'monoimeres', price: 35, duration: 'Μονοήμερη', dates: '19/7, 2/8/2026', desc: 'Το νησί των πλοιοκτητών, με μοναδικές παραλίες.', photo: 'https://picsum.photos/seed/andros/1600/1200', alt: 'Χώρα Άνδρου' }),

@@ -36,19 +36,19 @@ export type PromoCopy = {
 export type ProcessStep = { n: string; title: string; text: string };
 
 export type ProcessCopy = {
-  eyebrow: string;
+  eyebrow?: string;
   title: string;
   steps: readonly ProcessStep[];
 };
 
 export type DestinationsCopy = {
-  eyebrow: string;
   title: string;
-  subtitle: string;
+  eyebrow?: string;
+  subtitle?: string;
 };
 
 export type ListingCopy = {
-  eyebrow: string;
+  eyebrow?: string;
   title: string;
   subtitle: string;
   action: string;
@@ -56,7 +56,7 @@ export type ListingCopy = {
 };
 
 export type TestimonialsCopy = {
-  eyebrow: string;
+  eyebrow?: string;
   title: string;
 };
 
@@ -82,7 +82,7 @@ export type PoylmanRoute = { from: string; to: string; hours: string };
 const poylmanValuePropsDefault: PoylmanValueProp[] = [
   { title: 'Έμπειροι Οδηγοί', description: 'Πιστοποιημένοι οδηγοί με πολυετή εμπειρία σε τουριστικές μεταφορές.' },
   { title: 'Σύγχρονος Στόλος', description: 'Νεότερα πούλμαν με air-condition, mic, wifi και χώρο για αποσκευές.' },
-  { title: 'Καθ’ όλη την Ελλάδα', description: 'Από τη Χαλκιδική μέχρι τη Μάνη — καλύπτουμε κάθε προορισμό.' },
+  { title: 'Καθ’ όλη την Ελλάδα', description: 'Από τη Χαλκιδική μέχρι τη Μάνη, καλύπτουμε κάθε προορισμό.' },
   { title: '24ωρη Εξυπηρέτηση', description: 'Είμαστε διαθέσιμοι όλο το εικοσιτετράωρο για κρατήσεις και αλλαγές.' },
 ];
 

@@ -41,7 +41,7 @@ function TicketCard({ ticket, legLabel }: { ticket: OrderTicket; legLabel: strin
       </dl>
       {ticket.open_return && (
         <p className="mt-3 rounded bg-gold/15 px-3 py-2 text-[13px] text-deep-ink">
-          Ανοιχτή επιστροφή — εξαργυρώνεται σε δρομολόγιο της επιλογής σας
+          Ανοιχτή επιστροφή, εξαργυρώνεται σε δρομολόγιο της επιλογής σας
           {ticket.open_return_expires_on &&
             ` έως ${new Date(`${ticket.open_return_expires_on}T12:00:00`).toLocaleDateString('el-GR')}`}
           . Καλέστε μας για να κλείσετε θέση.
@@ -109,7 +109,7 @@ export default async function EpivevaiosiPage({
         </div>
 
         <p className="mt-6 text-center text-[13px] leading-relaxed text-muted">
-          Φυλάξτε αυτή τη σελίδα ή το email επιβεβαίωσης — ο κωδικός κάθε εισιτηρίου ζητείται κατά την επιβίβαση.
+          Φυλάξτε αυτή τη σελίδα ή το email επιβεβαίωσης, ο κωδικός κάθε εισιτηρίου ζητείται κατά την επιβίβαση.
           Ακύρωση έως 8 ώρες πριν την αναχώρηση: επιστροφή 70% · εντός 8 ωρών: 50%.
         </p>
         <p className="mt-4 text-center">

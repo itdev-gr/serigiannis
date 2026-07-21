@@ -8,15 +8,14 @@ import { resolvePageHero } from '@/components/home/resolve-content';
 
 export const metadata: Metadata = {
   title: 'Εκδρομές από την Αθήνα',
-  description: 'Όλες οι οργανωμένες εκδρομές της Sergiani Travel — μονοήμερες, πολυήμερες, κρουαζιέρες, θαλάσσια μπάνια και πεζοπορίες από την Αθήνα.',
+  description: 'Όλες οι οργανωμένες εκδρομές της Sergiani Travel, μονοήμερες, πολυήμερες, κρουαζιέρες, θαλάσσια μπάνια και πεζοπορίες από την Αθήνα.',
 };
 
 export default async function EkdromesPage() {
   const [tours, categories, settings] = await Promise.all([getTours(), getCategories(), getSettings()]);
   const hero = resolvePageHero(settings, 'ekdromes', {
-    eyebrow: '2026',
     title: 'Εκδρομές από την Αθήνα',
-    subtitle: 'Επιλέξτε προορισμό — μονοήμερες αποδράσεις, πολυήμερα ταξίδια, κρουαζιέρες και πολλά ακόμη.',
+    subtitle: 'Επιλέξτε προορισμό, μονοήμερες αποδράσεις, πολυήμερα ταξίδια, κρουαζιέρες και πολλά ακόμη.',
   });
   return (
     <>

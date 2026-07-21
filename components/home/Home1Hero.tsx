@@ -10,17 +10,13 @@ import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { homeContent } from './content';
 import type { HeroCopy } from './resolve-content';
 import { buildSearchHref } from './home-search';
+import { cn } from '@/lib/utils';
 
 // Real hero images from sergianitravel.gr (self-hosted in /public/hero).
 const HERO_IMAGES = [
-  { src: '/hero/psatha-thalassia-mpania.png', alt: 'Θαλάσσια μπάνια στην παραλία Ψάθα' },
-  { src: '/hero/santorini-pasxa.png', alt: 'Πάσχα στη Σαντορίνη' },
-  { src: '/hero/pilio.png', alt: 'Διήμερη εκδρομή στο Πήλιο' },
-  { src: '/hero/andros.png', alt: 'Μονοήμερη εκδρομή στην Άνδρο' },
-  { src: '/hero/antikyra.png', alt: 'Εκδρομή στην Αντίκυρα' },
-  { src: '/hero/protomagia-bonitsa.png', alt: 'Πρωτομαγιά στην Μπόνιτσα' },
-  { src: '/hero/iraio.png', alt: 'Θαλάσσια μπάνια στο Ηραίο' },
-  { src: '/hero/payliani.png', alt: 'Μονοήμερη εκδρομή στην Παύλιανη' },
+  { src: '/hero/hero-1.jpg', alt: 'Χαλκίδα, ηλιοβασίλεμα' },
+  { src: '/hero/hero-2.jpg', alt: 'Γέφυρα και φυσικό τοπίο' },
+  { src: '/hero/hero-3.jpg', alt: 'Παραλία και θάλασσα' },
 ];
 
 const ROTATE_MS = 5000;
@@ -45,7 +41,7 @@ export function Home1Hero({
   }, [reduced]);
 
   return (
-    <section className="relative flex min-h-[92vh] w-full items-center overflow-hidden bg-deep-ink">
+    <section className="relative flex h-[72svh] min-h-[520px] max-h-[680px] w-full items-center justify-center overflow-hidden bg-deep-ink md:h-[100svh] md:max-h-none md:min-h-[100svh]">
       {/* Rotating background slideshow */}
       {HERO_IMAGES.map((img, i) => (
         <div
@@ -63,21 +59,33 @@ export function Home1Hero({
           />
         </div>
       ))}
-      <div className="absolute inset-0 bg-gradient-to-b from-deep-ink/60 via-deep-ink/45 to-deep-ink/90" />
+      <div className="absolute inset-0 bg-gradient-to-b from-deep-ink/70 via-deep-ink/45 to-deep-ink/90" />
 
-      <div className="container relative z-10 py-32 text-center text-surface">
-        <p className="mx-auto mb-6 inline-flex items-center gap-3 rounded-full border border-surface/25 bg-surface/10 px-4 py-2 font-sans text-[11px] font-semibold uppercase tracking-[0.2em] backdrop-blur-sm">
-          <span className="h-1.5 w-1.5 rounded-full bg-gold" />
-          {c.eyebrow}
-        </p>
-        <h1 className="mx-auto max-w-4xl font-display text-display-hero leading-[1.02] text-balance">
-          {c.titleTop}<br />
-          <span className="italic text-gold">{c.titleEmph}</span>
+      <div className="container relative z-10 flex w-full flex-col items-center justify-center px-4 py-10 text-center text-surface sm:py-16 md:min-h-0 md:py-20">
+        <h1
+          className={cn(
+            'mx-auto w-full max-w-6xl text-balance text-center font-display font-semibold tracking-tight text-white',
+            c.titleEmph.trim() !== '' &&
+              'lg:flex lg:w-fit lg:max-w-full lg:flex-row lg:flex-wrap lg:items-center lg:justify-center lg:gap-x-2.5 lg:whitespace-nowrap lg:text-[clamp(1.2rem,1.85vw,2.35rem)] xl:text-[clamp(1.35rem,2.1vw,2.65rem)]'
+          )}
+        >
+          {c.titleTop.trim() !== '' && (
+            <span className="block text-[clamp(1.35rem,6.5vw,1.85rem)] leading-[1.15] lg:inline lg:text-[length:inherit] lg:leading-[1.12]">
+              {c.titleTop}
+            </span>
+          )}
+          {c.titleEmph.trim() !== '' && (
+            <span className="mt-2 block text-[clamp(0.9375rem,3.8vw,1.125rem)] font-medium leading-snug text-white/90 lg:mt-0 lg:inline lg:font-semibold lg:text-[length:inherit] lg:text-white">
+              {c.titleEmph}
+            </span>
+          )}
         </h1>
-        <p className="mx-auto mt-6 max-w-2xl text-[19px] leading-relaxed text-surface/85">{c.subtitle}</p>
+        {c.subtitle.trim() !== '' && (
+          <p className="mx-auto mt-6 max-w-2xl text-[19px] leading-relaxed text-white">{c.subtitle}</p>
+        )}
 
         <form
-          className="mx-auto mt-10 flex w-full max-w-2xl flex-col gap-3 rounded-2xl bg-surface/95 p-3 shadow-card-hover backdrop-blur sm:flex-row sm:items-center"
+          className={`mx-auto flex w-full max-w-2xl flex-col gap-3 rounded-2xl bg-surface/95 p-3 shadow-card-hover backdrop-blur sm:flex-row sm:items-center ${c.subtitle.trim() !== '' ? 'mt-10' : 'mt-8'}`}
           onSubmit={(e) => {
             e.preventDefault();
             router.push(buildSearchHref({ category }));
@@ -105,8 +113,6 @@ export function Home1Hero({
             <Link href="/kratisi">Κλείστε Online Θέση</Link>
           </Button>
         </div>
-
-        <p className="mt-6 font-sans text-[13px] uppercase tracking-[0.14em] text-surface/70">{c.bookedNote}</p>
 
         {/* Slide indicators */}
         <div className="mt-9 flex justify-center gap-2" role="tablist" aria-label="Εικόνες προορισμών">

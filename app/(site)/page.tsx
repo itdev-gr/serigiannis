@@ -13,12 +13,18 @@ import { Home1Promo } from '@/components/home/Home1Promo';
 import { Home1Process } from '@/components/home/Home1Process';
 import { Home1Testimonials } from '@/components/home/Home1Testimonials';
 import { Home1News } from '@/components/home/Home1News';
-import { Home1Cta } from '@/components/home/Home1Cta';
+
+const HOME_TITLE = 'Μονοήμερες Εκδρομές από Αθήνα 2026 | Sergiani Travel';
+const HOME_DESCRIPTION =
+  'Μονοήμερες και πολυήμερες εκδρομές από Αθήνα, κρουαζιέρες, θαλάσσια μπάνια και ενοικιάσεις πούλμαν. Sergiani Travel - ταξίδια με πάθος από το 1995!';
 
 export const metadata: Metadata = {
-  title: 'Sergiani Travel · Εκδρομές, Κρουαζιέρες & Πούλμαν από την Αθήνα',
-  description:
-    'Μονοήμερες και πολυήμερες εκδρομές, κρουαζιέρες και ενοικιάσεις πούλμαν από την Αθήνα. 30 χρόνια εμπειρίας, άνετα πούλμαν, ξεκάθαρες τιμές.',
+  title: { absolute: HOME_TITLE },
+  description: HOME_DESCRIPTION,
+  openGraph: {
+    title: HOME_TITLE,
+    description: HOME_DESCRIPTION,
+  },
   alternates: { canonical: '/' },
 };
 
@@ -46,7 +52,6 @@ export default async function HomePage() {
       <Home1Process content={copy.process} />
       <Home1Testimonials testimonials={homeTestimonials} content={copy.testimonials} />
       <Home1News tours={news.length ? news : allTours.slice(0, 3)} content={copy.news} />
-      <Home1Cta settings={settings} content={copy.cta} />
     </>
   );
 }

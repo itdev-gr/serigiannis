@@ -27,8 +27,8 @@ const config: Config = {
           hover: '#00296b',
         },
         gold: {
-          DEFAULT: '#fdc500',
-          hover: '#e6b000',
+          DEFAULT: '#f99a00',
+          hover: '#df8500',
         },
         amber: '#f99a00',
         background: '#f4f7fb',
@@ -60,7 +60,7 @@ const config: Config = {
         card: '0 1px 2px rgba(0, 41, 107, 0.05)',
         'card-hover': '0 20px 40px -12px rgba(0, 41, 107, 0.18)',
         cta: '0 8px 20px -6px rgba(0, 81, 157, 0.35)',
-        gold: '0 8px 20px -6px rgba(253, 197, 0, 0.4)',
+        gold: '0 8px 20px -6px rgba(249, 154, 0, 0.4)',
       },
       backgroundImage: {
         'mesh-blue':

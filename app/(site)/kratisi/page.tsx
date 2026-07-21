@@ -24,11 +24,10 @@ export default async function KratisiPage({ searchParams }: { searchParams: Prom
   return (
     <>
       <PageHero
-        eyebrow="Κρατήσεις"
         title="Κλείστε Online Θέση"
         subtitle="Συμπληρώστε τη φόρμα και θα επικοινωνήσουμε μαζί σας για την επιβεβαίωση της κράτησης."
-        breadcrumbs={[{ label: 'Αρχική', href: '/' }, { label: 'Κράτηση' }]}
         heightClass="h-[44vh] min-h-[340px]"
+        align="center"
       />
       <section className="py-16 md:py-24">
         <div className="container max-w-2xl">

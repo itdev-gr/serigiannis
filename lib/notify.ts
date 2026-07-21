@@ -11,12 +11,12 @@ export async function sendLeadNotification(lead: LeadEmail, toEmail: string): Pr
     ['Τύπος', label], ['Όνομα', lead.name], ['Τηλέφωνο', lead.phone], ['Email', lead.email],
     ['Εκδρομή', lead.tourTitle], ['Θέμα', lead.subject], ['Μήνυμα', lead.message],
   ].filter(([, v]) => v).map(([k, v]) => `<tr><td style="padding:4px 12px 4px 0;color:#5b6b82">${k}</td><td style="padding:4px 0">${String(v).replace(/</g,'&lt;')}</td></tr>`).join('');
-  const html = `<div style="font-family:sans-serif"><h2 style="color:#00296b">Νέο αίτημα — ${label}</h2><table>${rows}</table><p style="color:#5b6b82;font-size:13px">Δείτε το στο <a href="https://serigiannis.vercel.app/admin/requests">/admin/requests</a>.</p></div>`;
+  const html = `<div style="font-family:sans-serif"><h2 style="color:#00296b">Νέο αίτημα, ${label}</h2><table>${rows}</table><p style="color:#5b6b82;font-size:13px">Δείτε το στο <a href="https://serigiannis.vercel.app/admin/requests">/admin/requests</a>.</p></div>`;
   try {
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ from, to: [toEmail], subject: `Νέο αίτημα (${label}) — ${lead.name}`, html }),
+      body: JSON.stringify({ from, to: [toEmail], subject: `Νέο αίτημα (${label}), ${lead.name}`, html }),
     });
     if (!res.ok) console.error('sendLeadNotification:', res.status, await res.text());
   } catch (e) { console.error('sendLeadNotification:', e); }

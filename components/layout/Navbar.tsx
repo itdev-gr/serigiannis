@@ -11,11 +11,11 @@ import { telHref } from '@/lib/phone';
 const NAV_ITEMS = [
   { to: '/', label: 'Αρχική', icon: HomeIcon },
   { to: '/ekdromes', label: 'Εκδρομές', icon: MapPin },
-  { to: '/enoikiaseis-poylman', label: 'Ενοικιάσεις Πούλμαν – Μίνι Βαν', icon: Bus },
+  { to: '/enoikiaseis-poylman', label: 'Ενοικιάσεις Πούλμαν και Μίνι Βαν', icon: Bus },
   { to: '/eisitiria', label: 'Εισιτήρια', icon: Ticket },
   { to: '/kroyazieres', label: 'Κρουαζιέρες', icon: Ship },
-  { to: '/epikoinonia', label: 'Επικοινωνία', icon: Mail },
   { to: '/nea', label: 'Νέα', icon: Newspaper },
+  { to: '/epikoinonia', label: 'Επικοινωνία', icon: Mail },
 ];
 
 function isActive(pathname: string, to: string): boolean {
@@ -23,76 +23,105 @@ function isActive(pathname: string, to: string): boolean {
   return pathname === to || pathname.startsWith(to + '/');
 }
 
+function phoneDigits(phone: string): string {
+  return phone.replace(/\s+/g, '');
+}
+
 export function Navbar({ phones = [], phone24h = null }: { phones?: string[]; phone24h?: string | null }) {
-  const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 60);
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
+  const isHome = pathname === '/';
+  const [heroHeaderSolid, setHeroHeaderSolid] = useState(() => pathname !== '/');
+  const solidHeader = !isHome || heroHeaderSolid;
+  const collapseTopBar = isHome && heroHeaderSolid;
+  const topBarPhones =
+    phone24h != null
+      ? phones.filter((p) => phoneDigits(p) !== phoneDigits(phone24h))
+      : phones;
 
   useEffect(() => {
     setMobileOpen(false);
-    setScrolled(window.scrollY > 60);
   }, [pathname]);
 
-  // Every page has a full-bleed dark hero on top, so use dark nav styling
-  // (transparent + white text) at scroll=0 across the whole site.
-  const dark = !scrolled;
+  useEffect(() => {
+    if (!isHome) {
+      setHeroHeaderSolid(true);
+      return;
+    }
+    setHeroHeaderSolid(false);
+    const onScroll = () => setHeroHeaderSolid(window.scrollY > 32);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [isHome]);
 
   return (
     <>
       <header
         className={cn(
-          'fixed inset-x-0 top-0 z-40 transition-all duration-300 ease-editorial',
-          scrolled ? 'bg-surface/85 backdrop-blur-md border-b border-border' : 'bg-transparent',
-          scrolled ? 'py-3' : 'py-5'
+          'fixed inset-x-0 top-0 z-40 w-full pb-3 transition-[background-color,border-color,box-shadow] duration-300 ease-editorial',
+          solidHeader
+            ? 'border-b border-border bg-surface shadow-sm'
+            : 'border-b border-white/15 bg-transparent'
         )}
       >
-        {!scrolled && (
-          <div className="border-b border-surface/15">
-            <div className="container flex h-9 items-center justify-between gap-4 font-sans text-[13px] text-surface/85">
-              <div className="hidden items-center gap-5 sm:flex">
-                {phones.map((p) => (
-                  <a key={p} href={telHref(p)} className="flex items-center gap-1.5 hover:text-surface">
-                    <Phone className="h-3.5 w-3.5" strokeWidth={1.75} /> {p}
+        <div
+          className={cn(
+            'hidden w-full transition-[grid-template-rows,opacity,border-color] duration-300 ease-editorial sm:grid',
+            collapseTopBar ? 'grid-rows-[0fr] opacity-0' : 'grid-rows-[1fr] opacity-100',
+            !collapseTopBar && (solidHeader ? 'border-b border-border' : 'border-b border-white/15')
+          )}
+        >
+          <div className="overflow-hidden">
+            <div className="px-4 pb-3 pt-2 sm:px-6 lg:px-8">
+              <div className="flex h-10 w-full items-center justify-between gap-4 font-sans text-[14px] md:text-[15px]">
+                <div className="flex items-center gap-6">
+                  {topBarPhones.map((p) => (
+                    <a
+                      key={p}
+                      href={telHref(p)}
+                      className={cn(
+                        'flex items-center gap-2 font-bold transition-colors',
+                        solidHeader ? 'text-primary hover:text-primary-hover' : 'text-white hover:text-gold'
+                      )}
+                    >
+                      <Phone className="h-4 w-4 shrink-0 md:h-[18px] md:w-[18px]" strokeWidth={1.75} /> {p}
+                    </a>
+                  ))}
+                </div>
+                {phone24h && (
+                  <a
+                    href={telHref(phone24h)}
+                    className={cn(
+                      'flex items-center gap-2 font-bold transition-colors',
+                      solidHeader ? 'text-primary hover:text-primary-hover' : 'text-white hover:text-gold'
+                    )}
+                  >
+                    <Phone className="h-4 w-4 shrink-0 md:h-[18px] md:w-[18px]" strokeWidth={1.75} /> 24ωρο: {phone24h}
                   </a>
-                ))}
+                )}
               </div>
-              {phone24h && (
-                <a href={telHref(phone24h)} className="flex items-center gap-1.5 font-semibold text-gold hover:text-surface">
-                  <Phone className="h-3.5 w-3.5" strokeWidth={1.75} /> 24ωρο: {phone24h}
-                </a>
-              )}
             </div>
           </div>
-        )}
-        <div className="container flex items-center justify-between gap-4">
-          <Link href="/" className="flex items-center" aria-label="Sergiani Travel — αρχική">
-            {/* Both variants stay mounted so the scroll swap never flashes. */}
+        </div>
+        <div
+          className={cn(
+            'flex w-full items-center justify-between gap-4 px-4 sm:px-6 lg:px-8',
+            collapseTopBar ? 'pt-2' : 'pt-4'
+          )}
+        >
+          <Link href="/" className="flex shrink-0 items-center" aria-label="Sergiani Travel, αρχική">
             <Image
-              src="/brand/logo-white.svg"
+              src={solidHeader ? '/brand/logo.svg' : '/brand/logo-white.svg'}
               alt="Sergiani Travel"
               width={152}
               height={48}
               priority
-              className={cn('h-10 w-auto transition-all duration-300 md:h-12', !dark && 'hidden')}
-            />
-            <Image
-              src="/brand/logo.svg"
-              alt="Sergiani Travel"
-              width={152}
-              height={48}
-              priority
-              className={cn('h-10 w-auto transition-all duration-300 md:h-12', dark && 'hidden')}
+              className="h-10 w-auto md:h-12"
             />
           </Link>
 
-          <nav className="hidden items-center gap-1 xl:flex" aria-label="Κύρια πλοήγηση">
+          <nav className="hidden min-w-0 flex-1 items-center justify-center gap-1 xl:flex" aria-label="Κύρια πλοήγηση">
             {NAV_ITEMS.map(({ to, label }) => {
               const active = isActive(pathname, to);
               return (
@@ -101,9 +130,10 @@ export function Navbar({ phones = [], phone24h = null }: { phones?: string[]; ph
                   href={to}
                   aria-current={active ? 'page' : undefined}
                   className={cn(
-                    'whitespace-nowrap rounded-full px-3 py-2 font-sans text-[13px] font-medium uppercase tracking-[0.1em] transition-all',
-                    dark ? 'text-surface/85 hover:bg-surface/10 hover:text-surface' : 'text-primary hover:bg-primary/5',
-                    active && (dark ? 'bg-surface/15 text-surface' : 'bg-primary/10 text-primary')
+                    'whitespace-nowrap px-3 py-2.5 font-sans text-[15px] font-medium uppercase tracking-[0.08em] transition-colors duration-200',
+                    solidHeader ? 'text-black hover:text-primary' : 'text-white hover:text-white/85',
+                    active && solidHeader && 'text-primary',
+                    active && !solidHeader && 'text-white'
                   )}
                 >
                   {label}
@@ -112,17 +142,25 @@ export function Navbar({ phones = [], phone24h = null }: { phones?: string[]; ph
             })}
           </nav>
 
-          <div className="flex items-center gap-2">
-            <Button asChild variant={dark ? 'ghost' : 'primary'} size="sm" className="hidden md:inline-flex">
+          <div className="flex shrink-0 items-center gap-2">
+            <Button
+              asChild
+              variant={solidHeader ? 'primary' : 'accent'}
+              size="sm"
+              className={cn('hidden md:inline-flex', !solidHeader && 'shadow-none')}
+            >
               <Link href="/kratisi">Κλείστε Online Θέση</Link>
             </Button>
             <button
               type="button"
               onClick={() => setMobileOpen(true)}
-              className={cn('grid h-11 w-11 place-items-center rounded-full xl:hidden', dark ? 'text-surface hover:bg-surface/10' : 'text-primary hover:bg-primary/10')}
+              className={cn(
+                'grid h-[3.25rem] w-[3.25rem] place-items-center rounded-full transition-colors xl:hidden',
+                solidHeader ? 'text-black hover:bg-black/5' : 'text-white hover:bg-white/10'
+              )}
               aria-label="Άνοιγμα μενού"
             >
-              <Menu className="h-6 w-6" strokeWidth={1.5} />
+              <Menu className="h-8 w-8" strokeWidth={1.75} />
             </button>
           </div>
         </div>
@@ -139,7 +177,7 @@ export function Navbar({ phones = [], phone24h = null }: { phones?: string[]; ph
         aria-hidden={!mobileOpen}
       >
         <div className="flex items-center justify-between px-6 py-5">
-          <Link href="/" aria-label="Sergiani Travel — αρχική">
+          <Link href="/" aria-label="Sergiani Travel, αρχική">
             <Image src="/brand/logo-white.svg" alt="Sergiani Travel" width={152} height={48} className="h-10 w-auto" />
           </Link>
           <button
@@ -169,9 +207,12 @@ export function Navbar({ phones = [], phone24h = null }: { phones?: string[]; ph
               </Link>
             );
           })}
-          <Button asChild size="lg" className="mt-8">
-            <Link href="/kratisi">Κλείστε Online Θέση</Link>
-          </Button>
+          <Link
+            href="/kratisi"
+            className="mt-8 inline-flex h-14 w-full items-center justify-center rounded-md bg-surface font-sans text-[16px] font-semibold tracking-[0.02em] text-primary transition-colors hover:bg-surface/90"
+          >
+            Κλείστε Online Θέση
+          </Link>
         </nav>
       </div>
     </>

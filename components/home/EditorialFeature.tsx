@@ -46,7 +46,7 @@ export function EditorialFeature() {
         </div>
         <div data-editorial-text className="max-w-lg">
           <p className="font-sans text-[13px] font-semibold uppercase tracking-[0.18em] text-cta">Αυτό το Σαββατοκύριακο</p>
-          <h2 className="mt-4 font-display text-display-section italic text-primary">Ύδρα — το νησί του Μιαούλη</h2>
+          <h2 className="mt-4 font-display text-display-section italic text-primary">Ύδρα, το νησί του Μιαούλη</h2>
           <p className="mt-6 text-[17px] leading-relaxed text-muted">
             Η Ύδρα δεν έχει αυτοκίνητα. Έχει μόνο πέτρα, φως, θάλασσα και ιστορία. Ένα ταξίδι που μοιάζει με ταινία. Καθημερινές αναχωρήσεις από τον Πειραιά, μαζί με τον έμπειρο συνοδό μας.
           </p>

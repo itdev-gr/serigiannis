@@ -33,7 +33,7 @@ const tour = (o: Partial<Tour>): Tour => ({
 describe('Home1Hero', () => {
   it('renders the hero heading and a destination option per category', () => {
     render(<Home1Hero categories={cats} />);
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('κάθε εβδομάδα');
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Μονοήμερες εκδρομές από Αθήνα');
     expect(screen.getByRole('option', { name: 'Μονοήμερες' })).toBeInTheDocument();
     expect(screen.getByRole('option', { name: 'Κρουαζιέρες' })).toBeInTheDocument();
     expect(screen.getByRole('option', { name: 'Όλες οι εκδρομές' })).toBeInTheDocument();

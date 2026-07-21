@@ -16,7 +16,7 @@ export function Stepper({ current }: { current: 1 | 2 | 3 | 4 }) {
           >
             <span
               className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full font-display text-sm font-semibold ${
-                active ? 'bg-gold text-deep-ink' : done ? 'bg-primary text-surface' : 'bg-background text-muted'
+                active ? 'bg-gold text-white' : done ? 'bg-primary text-surface' : 'bg-background text-muted'
               }`}
             >
               {n}

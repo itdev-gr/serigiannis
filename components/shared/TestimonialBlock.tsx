@@ -9,7 +9,6 @@ export function TestimonialBlock({ item }: { item: Testimonial }) {
       </blockquote>
       <figcaption className="mt-auto border-t border-border pt-5">
         <div className="font-sans text-[15px] font-semibold text-primary">{item.name}</div>
-        <div className="font-sans text-[12px] uppercase tracking-[0.14em] text-muted">{item.city}</div>
       </figcaption>
     </figure>
   );

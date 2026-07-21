@@ -71,22 +71,22 @@ export function ContactForm() {
         <input {...register('hp')} type="text" name="hp" tabIndex={-1} autoComplete="off" aria-hidden="true" className="absolute left-[-9999px] top-0 h-0 w-0 opacity-0" />
         <div className="grid gap-5 md:grid-cols-2">
           <Field label="Ονοματεπώνυμο *" error={errors.name?.message}>
-            <input {...register('name')} className={inputCls} placeholder="π.χ. Μαρία Παπαδοπούλου" />
+            <input {...register('name')} className={inputCls} />
           </Field>
           <Field label="Email *" error={errors.email?.message}>
-            <input {...register('email')} type="email" className={inputCls} placeholder="π.χ. maria@example.com" />
+            <input {...register('email')} type="email" className={inputCls} />
           </Field>
         </div>
         <div className="grid gap-5 md:grid-cols-2">
           <Field label="Τηλέφωνο *" error={errors.phone?.message}>
-            <input {...register('phone')} type="tel" className={inputCls} placeholder="π.χ. 69X XXX XXXX" />
+            <input {...register('phone')} type="tel" className={inputCls} />
           </Field>
           <Field label="Θέμα *" error={errors.subject?.message}>
-            <input {...register('subject')} className={inputCls} placeholder="π.χ. Κράτηση για Μετέωρα" />
+            <input {...register('subject')} className={inputCls} />
           </Field>
         </div>
         <Field label="Μήνυμα">
-          <textarea {...register('message')} rows={5} className={inputCls} placeholder="Πείτε μας πώς μπορούμε να σας εξυπηρετήσουμε…" />
+          <textarea {...register('message')} rows={5} className={inputCls} />
         </Field>
         {error && <p className="text-[14px] text-cta">{error}</p>}
         <Button type="submit" size="lg" disabled={isSubmitting}>

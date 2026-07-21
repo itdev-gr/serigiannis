@@ -74,12 +74,12 @@ function Cell({
       style={style}
       disabled={unavailable && !selected}
       aria-pressed={selected}
-      aria-label={`Θέση ${cell.seat}${taken || offline ? ' — μη διαθέσιμη' : ''}`}
+      aria-label={`Θέση ${cell.seat}${taken || offline ? ', μη διαθέσιμη' : ''}`}
       onClick={() => onToggle(cell.seat!)}
       className={cn(
         'flex aspect-square min-w-8 items-center justify-center rounded-md border font-sans text-[13px] font-semibold transition',
         selected
-          ? 'border-gold-hover bg-gold text-deep-ink shadow-gold'
+          ? 'border-gold-hover bg-gold text-white shadow-gold'
           : taken || offline
             ? 'cursor-not-allowed border-cta/30 bg-cta/20 text-cta/70'
             : disabled

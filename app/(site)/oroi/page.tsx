@@ -1,6 +1,9 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { PageHero } from '@/components/shared/PageHero';
 import { LegalBody } from '@/components/shared/LegalBody';
+import { LegalPageLayout } from '@/components/shared/LegalPageLayout';
+import { LegalSimpleSections } from '@/components/shared/LegalSections';
 import { getSettings } from '@/lib/queries/settings';
 
 export const metadata: Metadata = {
@@ -9,11 +12,11 @@ export const metadata: Metadata = {
 };
 
 const SECTIONS = [
-  { h: 'Κρατήσεις', p: 'Η κράτηση θεωρείται έγκυρη με την καταβολή προκαταβολής και την επιβεβαίωση από το γραφείο μας. Οι θέσεις είναι περιορισμένες και τηρείται σειρά προτεραιότητας.' },
-  { h: 'Πληρωμές', p: 'Δεκτές πληρωμές με μετρητά, POS, IRIS ή πιστωτική/χρεωστική κάρτα. Η εξόφληση γίνεται πριν την αναχώρηση, εκτός αν συμφωνηθεί διαφορετικά.' },
-  { h: 'Ακυρώσεις', p: 'Οι ακυρώσεις γίνονται δεκτές έως ορισμένο χρονικό διάστημα πριν την αναχώρηση. Οι όροι επιστροφής χρημάτων εξαρτώνται από τον χρόνο ακύρωσης και το είδος της εκδρομής.' },
-  { h: 'Ευθύνη', p: 'Το γραφείο ενεργεί ως μεσολαβητής μεταξύ των ταξιδιωτών και των προμηθευτών υπηρεσιών και λαμβάνει κάθε μέτρο για την ομαλή διεξαγωγή των εκδρομών.' },
-  { h: 'Προσωπικά Δεδομένα', p: 'Τα προσωπικά σας δεδομένα χρησιμοποιούνται αποκλειστικά για την εξυπηρέτηση της κράτησής σας, σύμφωνα με την ισχύουσα νομοθεσία περί προστασίας δεδομένων.' },
+  { title: 'Κρατήσεις', body: 'Η κράτηση θεωρείται έγκυρη με την καταβολή προκαταβολής και την επιβεβαίωση από το γραφείο μας. Οι θέσεις είναι περιορισμένες και τηρείται σειρά προτεραιότητας.' },
+  { title: 'Πληρωμές', body: 'Δεκτές πληρωμές με μετρητά, POS, IRIS ή πιστωτική/χρεωστική κάρτα. Η εξόφληση γίνεται πριν την αναχώρηση, εκτός αν συμφωνηθεί διαφορετικά.' },
+  { title: 'Ακυρώσεις', body: 'Οι ακυρώσεις γίνονται δεκτές έως ορισμένο χρονικό διάστημα πριν την αναχώρηση. Οι όροι επιστροφής χρημάτων εξαρτώνται από τον χρόνο ακύρωσης και το είδος της εκδρομής.' },
+  { title: 'Ευθύνη', body: 'Το γραφείο ενεργεί ως μεσολαβητής μεταξύ των ταξιδιωτών και των προμηθευτών υπηρεσιών και λαμβάνει κάθε μέτρο για την ομαλή διεξαγωγή των εκδρομών.' },
+  { title: 'Προσωπικά Δεδομένα', body: 'Τα προσωπικά σας δεδομένα χρησιμοποιούνται αποκλειστικά για την εξυπηρέτηση της κράτησής σας, σύμφωνα με την ισχύουσα νομοθεσία περί προστασίας δεδομένων.' },
 ];
 
 export default async function TermsPage() {
@@ -23,30 +26,24 @@ export default async function TermsPage() {
   return (
     <>
       <PageHero
-        eyebrow="Ενημέρωση"
         title="Όροι Συμμετοχής"
         breadcrumbs={[{ label: 'Αρχική', href: '/' }, { label: 'Όροι Συμμετοχής' }]}
         heightClass="h-[40vh] min-h-[300px]"
       />
-      <section className="py-16 md:py-24">
-        <div className="container max-w-prose">
-          <p className="text-[15px] italic text-muted">
-            Οι παρακάτω όροι είναι ενδεικτικοί. Για τους πλήρεις και επίσημους όρους συμμετοχής, επικοινωνήστε με το γραφείο μας.
-          </p>
-          {customBody ? (
-            <LegalBody text={settings.legal!.terms!} />
-          ) : (
-            <div className="mt-10 space-y-10">
-              {SECTIONS.map((s) => (
-                <div key={s.h}>
-                  <h2 className="font-display text-2xl font-semibold text-primary">{s.h}</h2>
-                  <p className="mt-3 text-[17px] leading-relaxed text-muted">{s.p}</p>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
+      <LegalPageLayout
+        intro={
+          <>
+            Οι παρακάτω όροι είναι ενδεικτικοί. Για τους πλήρεις όρους συμμετοχής και τις λεπτομέρειες κάθε εκδρομής,
+            επικοινωνήστε με το γραφείο μας. Για την πλήρη έκδοση δείτε τους{' '}
+            <Link href="/oroi-proypotheseis" className="font-medium text-primary underline-offset-2 hover:underline">
+              Όρους & Προϋποθέσεις
+            </Link>
+            .
+          </>
+        }
+      >
+        {customBody ? <LegalBody text={settings.legal!.terms!} /> : <LegalSimpleSections sections={SECTIONS} />}
+      </LegalPageLayout>
     </>
   );
 }

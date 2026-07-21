@@ -138,7 +138,7 @@ export function CheckoutForm({ bundle, token, offline }: { bundle: Extract<Order
           <Field label="Ταχυδρομικός Κώδικας *" error={errors.postal_code?.message}><input {...register('postal_code')} className={inputCls} /></Field>
           <Field label="Περιφέρεια *" error={errors.region?.message}>
             <select {...register('region')} className={inputCls}>
-              <option value="">— Επιλέξτε —</option>
+              <option value="">Επιλέξτε</option>
               {REGIONS.map((r) => <option key={r} value={r}>{r}</option>)}
             </select>
           </Field>
@@ -173,7 +173,7 @@ export function CheckoutForm({ bundle, token, offline }: { bundle: Extract<Order
                 <select {...register(`passengers.${i}.fare_type_id`)} className={inputCls}>
                   {fares.map((f) => (
                     <option key={f.id} value={f.id}>
-                      {f.name} — {formatCents(farePriceForKind(f, kind))}
+                      {f.name}, {formatCents(farePriceForKind(f, kind))}
                     </option>
                   ))}
                 </select>
@@ -198,7 +198,7 @@ export function CheckoutForm({ bundle, token, offline }: { bundle: Extract<Order
         ))}
         {kind === 'open_return' && (
           <p className="mt-2 text-[14px] text-muted">
-            + Ανοιχτή επιστροφή (χωρίς καθορισμένο δρομολόγιο — ισχύει για 3 μήνες)
+            + Ανοιχτή επιστροφή (χωρίς καθορισμένο δρομολόγιο, ισχύει για 3 μήνες)
           </p>
         )}
         <div className="mt-4 flex items-center justify-between border-t border-border pt-4">
@@ -221,7 +221,7 @@ export function CheckoutForm({ bundle, token, offline }: { bundle: Extract<Order
         <p className="mt-4 rounded-md bg-primary/5 px-4 py-3 text-[13px] leading-relaxed text-muted">
           {offline
             ? 'Με την ολοκλήρωση της κράτησης εκδίδονται τα εισιτήριά σας και εξοφλούνται στο γραφείο μας ή στο λεωφορείο πριν την αναχώρηση. Θα λάβετε email με τους κωδικούς των εισιτηρίων σας.'
-            : 'Πρόκειται να μεταβείτε στο ασφαλές περιβάλλον πληρωμών. Μετά την ολοκλήρωση της πληρωμής σας μην κλείσετε τον περιηγητή σας — θα επιστρέψετε αυτόματα για την έκδοση των εισιτηρίων σας.'}
+            : 'Πρόκειται να μεταβείτε στο ασφαλές περιβάλλον πληρωμών. Μετά την ολοκλήρωση της πληρωμής σας μην κλείσετε τον περιηγητή σας. Θα επιστρέψετε αυτόματα για την έκδοση των εισιτηρίων σας.'}
         </p>
       </section>
 

@@ -9,7 +9,7 @@ const ERROR_TEXT: Record<string, string> = {
   not_found: 'Το εισιτήριο δεν βρέθηκε.',
   cancelled: 'Το εισιτήριο είναι ΑΚΥΡΩΜΕΝΟ.',
   already_used: 'Το εισιτήριο έχει ήδη χρησιμοποιηθεί.',
-  open_return_unredeemed: 'Ανοιχτή επιστροφή — πρέπει πρώτα να οριστεί δρομολόγιο και θέση.',
+  open_return_unredeemed: 'Ανοιχτή επιστροφή: πρέπει πρώτα να οριστεί δρομολόγιο και θέση.',
   db: 'Σφάλμα συστήματος. Δοκιμάστε ξανά.',
 };
 
@@ -58,7 +58,7 @@ export default function ValidatePage() {
             <OctagonX className="mx-auto mb-3 h-14 w-14 text-cta" />
           )}
           <p className="font-display text-2xl font-semibold text-body">
-            {result.ok ? 'ΕΓΚΥΡΟ — Καλό ταξίδι!' : ERROR_TEXT[result.error ?? 'db'] ?? ERROR_TEXT.db}
+            {result.ok ? 'ΕΓΚΥΡΟ. Καλό ταξίδι!' : ERROR_TEXT[result.error ?? 'db'] ?? ERROR_TEXT.db}
           </p>
           {result.ticket && (
             <div className="mt-4 text-[15px] text-body">

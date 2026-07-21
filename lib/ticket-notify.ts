@@ -47,7 +47,7 @@ export async function notifyTicketOrder(accessToken: string): Promise<void> {
 
   const html = `
   <div style="font-family:sans-serif;max-width:640px">
-    <h2 style="color:#00296b">Τα εισιτήριά σας — ${esc(order.public_code)}</h2>
+    <h2 style="color:#00296b">Τα εισιτήριά σας, ${esc(order.public_code)}</h2>
     <p style="color:#16233b">${esc(KIND_LABEL[order.kind])} · ${esc(ORDER_STATUS_LABEL[order.status] ?? order.status)}
       · Σύνολο: <strong>${esc(formatCents(order.amount_total_cents))}</strong></p>
     ${order.status === 'offline' ? '<p style="color:#5b6b82">Η εξόφληση γίνεται στο γραφείο μας ή στο λεωφορείο πριν την αναχώρηση.</p>' : ''}
@@ -79,7 +79,7 @@ export async function notifyTicketOrder(accessToken: string): Promise<void> {
         body: JSON.stringify({
           from,
           to: [order.email],
-          subject: `Τα εισιτήριά σας — ${order.public_code}`,
+          subject: `Τα εισιτήριά σας, ${order.public_code}`,
           html,
           attachments,
         }),
@@ -97,7 +97,7 @@ export async function notifyTicketOrder(accessToken: string): Promise<void> {
     if (s.email) {
       const officeHtml = `
       <div style="font-family:sans-serif">
-        <h2 style="color:#00296b">Νέα κράτηση εισιτηρίων — ${esc(order.public_code)}</h2>
+        <h2 style="color:#00296b">Νέα κράτηση εισιτηρίων, ${esc(order.public_code)}</h2>
         <p>${esc(order.customer_name)} · ${esc(order.phone)} · ${esc(order.email)}</p>
         <p>${esc(KIND_LABEL[order.kind])} · ${tickets.length} εισιτήρια · ${esc(formatCents(order.amount_total_cents))}
           · ${esc(ORDER_STATUS_LABEL[order.status] ?? order.status)}</p>
@@ -110,7 +110,7 @@ export async function notifyTicketOrder(accessToken: string): Promise<void> {
         body: JSON.stringify({
           from,
           to: [s.email],
-          subject: `Νέα κράτηση εισιτηρίων — ${order.public_code} (${order.customer_name})`,
+          subject: `Νέα κράτηση εισιτηρίων, ${order.public_code} (${order.customer_name})`,
           html: officeHtml,
         }),
       });

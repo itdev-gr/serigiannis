@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { Stepper } from '@/components/ticketing/Stepper';
 import { SeatSelection, type SeatLegData } from '@/components/ticketing/SeatSelection';
 import { getTakenSeats } from '@/app/(site)/eisitiria/actions';
-import { createPublicClient } from '@/lib/supabase/server';
+import { createPublicClient, isDbConfigured } from '@/lib/supabase/server';
 import type { LayoutJson, TripKind } from '@/types/ticketing';
 
 export const metadata: Metadata = {
@@ -12,6 +12,7 @@ export const metadata: Metadata = {
 };
 
 async function loadLeg(tripId: string, title: string): Promise<SeatLegData | null> {
+  if (!isDbConfigured()) return null;
   const sb = createPublicClient();
   const { data: trip } = await sb
     .from('trips')

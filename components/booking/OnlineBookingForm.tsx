@@ -98,7 +98,7 @@ export function OnlineBookingForm({
           {total != null
             ? `Σύνολο: ${seats} × ${pricePerSeat}€ = ${total}€`
             : `Τιμή: ${pricePerSeat}€ / θέση`}
-          <span className="ml-2 font-normal text-muted">(ενδεικτικό — επιβεβαίωση από το γραφείο)</span>
+          <span className="ml-2 font-normal text-muted">(ενδεικτικό, επιβεβαίωση από το γραφείο)</span>
         </p>
       )}
       <Field label="Σημειώσεις"><textarea rows={3} {...register('notes')} className={inputCls} /></Field>

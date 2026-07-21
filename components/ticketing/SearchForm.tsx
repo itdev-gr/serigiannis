@@ -80,7 +80,7 @@ export function SearchForm({
         <label className="block">
           <span className="mb-1.5 block font-sans text-[13px] font-medium uppercase tracking-[0.1em] text-primary">Από *</span>
           <select className={inputCls} value={from} onChange={(e) => { setFrom(e.target.value); setTo(''); }}>
-            <option value="">— Επιλέξτε αφετηρία —</option>
+            <option value="">Επιλέξτε αφετηρία</option>
             {stations.map((s) => (
               <option key={s.id} value={s.id}>
                 {s.name}{s.code ? ` (${s.code})` : ''}
@@ -91,7 +91,7 @@ export function SearchForm({
         <label className="block">
           <span className="mb-1.5 block font-sans text-[13px] font-medium uppercase tracking-[0.1em] text-primary">Προς *</span>
           <select className={inputCls} value={to} onChange={(e) => setTo(e.target.value)} disabled={!from}>
-            <option value="">{from ? '— Επιλέξτε προορισμό —' : '— Πρώτα επιλέξτε αφετηρία —'}</option>
+            <option value="">{from ? 'Επιλέξτε προορισμό' : 'Πρώτα επιλέξτε αφετηρία'}</option>
             {destinations.map((s) => (
               <option key={s.id} value={s.id}>
                 {s.name}{s.code ? ` (${s.code})` : ''}

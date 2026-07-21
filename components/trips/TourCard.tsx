@@ -33,7 +33,7 @@ export function TourCard({ tour }: { tour: Tour }) {
       <div className="flex flex-1 flex-col p-6">
         <h3 className="font-display text-[22px] font-semibold leading-tight text-primary">{tour.title}</h3>
         {tour.summary && <p className="mt-2 text-[15px] leading-relaxed text-muted line-clamp-2">{tour.summary}</p>}
-        <div className="mt-5 flex flex-wrap items-center gap-4 text-[13px] text-muted">
+        <div className="mt-5 flex flex-wrap items-center gap-4 text-[13px] font-medium text-body">
           {tour.duration_label && (
             <span className="inline-flex items-center gap-1.5"><Clock className="h-3.5 w-3.5" strokeWidth={1.75} />{tour.duration_label}</span>
           )}

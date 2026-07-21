@@ -6,6 +6,8 @@ import { StatCounter } from '@/components/shared/StatCounter';
 import { Button } from '@/components/ui/Button';
 import { homeContent } from './content';
 import type { AboutCopy } from './resolve-content';
+import { HOME_SECTION_TITLE } from './home-section-title';
+import { cn } from '@/lib/utils';
 
 export function Home1About({ content = homeContent.about, stats = defaultStats }: { content?: AboutCopy; stats?: Stat[] }) {
   const c = content;
@@ -13,9 +15,11 @@ export function Home1About({ content = homeContent.about, stats = defaultStats }
     <section className="bg-deep-ink py-24 text-surface md:py-32" aria-label={c.title}>
       <div className="container grid gap-16 md:grid-cols-12 md:items-start">
         <div className="md:col-span-5">
-          <p className="font-sans text-[13px] font-semibold uppercase tracking-[0.18em] text-gold">{c.eyebrow}</p>
-          <h2 className="mt-4 font-display text-display-section text-surface">{c.title}</h2>
-          <p className="mt-6 text-[17px] leading-relaxed text-surface/80">{c.body}</p>
+          {c.eyebrow.trim() !== '' && (
+            <p className="font-sans text-[13px] font-semibold uppercase tracking-[0.18em] text-gold">{c.eyebrow}</p>
+          )}
+          <h2 className={cn('font-display text-surface', HOME_SECTION_TITLE, c.eyebrow.trim() !== '' ? 'mt-4' : '')}>{c.title}</h2>
+          <p className="mt-6 text-[17px] leading-relaxed text-white">{c.body}</p>
           <div className="mt-8">
             <Button asChild variant="ghost">
               <Link href={c.ctaHref}>{c.cta}</Link>
@@ -32,7 +36,7 @@ export function Home1About({ content = homeContent.about, stats = defaultStats }
                 <ShieldCheck className="mt-1 h-6 w-6 shrink-0 text-gold" strokeWidth={1.5} aria-hidden="true" />
                 <div>
                   <h3 className="font-display text-[19px] font-semibold text-surface">{item.title}</h3>
-                  <p className="mt-1 text-[15px] leading-relaxed text-surface/70">{item.text}</p>
+                  <p className="mt-1 text-[15px] leading-relaxed text-white">{item.text}</p>
                 </div>
               </li>
             ))}
