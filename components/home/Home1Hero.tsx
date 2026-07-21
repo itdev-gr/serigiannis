@@ -74,6 +74,12 @@ export function Home1Hero({
               {c.titleTop}
             </span>
           )}
+          {c.titleTop.trim() !== '' && c.titleEmph.trim() !== '' && (
+            <span className="hidden lg:inline text-white/90" aria-hidden>
+              {' '}
+              –{' '}
+            </span>
+          )}
           {c.titleEmph.trim() !== '' && (
             <span className="mt-2 block text-[clamp(0.9375rem,3.8vw,1.125rem)] font-medium leading-snug text-white/90 lg:mt-0 lg:inline lg:font-semibold lg:text-[length:inherit] lg:text-white">
               {c.titleEmph}
