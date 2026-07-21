@@ -66,20 +66,20 @@ function CategoryRow({
   return (
     <label
       className={cn(
-        'flex cursor-pointer items-center gap-3 py-2.5',
+        'flex cursor-pointer items-center gap-2 py-1.5',
         disabled && 'cursor-default opacity-90'
       )}
     >
       <span
         className={cn(
-          'grid h-5 w-5 shrink-0 place-items-center rounded-full border-2 transition-colors',
+          'grid h-4 w-4 shrink-0 place-items-center rounded-full border-2 transition-colors',
           checked ? 'border-gold bg-gold' : 'border-white/55 bg-transparent',
           disabled && checked && 'border-white/45 bg-white/25'
         )}
         aria-hidden
       >
         {checked && (
-          <svg viewBox="0 0 12 12" className="h-3 w-3 text-white" fill="none" stroke="currentColor" strokeWidth={2}>
+          <svg viewBox="0 0 12 12" className="h-2.5 w-2.5 text-deep-ink" fill="none" stroke="currentColor" strokeWidth={2}>
             <path d="M2 6l3 3 5-5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         )}
@@ -91,14 +91,14 @@ function CategoryRow({
         disabled={disabled}
         onChange={onChange}
       />
-      <span className="font-sans text-[13px] font-semibold uppercase tracking-[0.06em] text-white">{label}</span>
+      <span className="font-sans text-[10px] font-semibold uppercase tracking-[0.05em] text-white">{label}</span>
     </label>
   );
 }
 
 export function CookieConsent() {
   const [visible, setVisible] = useState(false);
-  const [showDetails, setShowDetails] = useState(true);
+  const [showDetails, setShowDetails] = useState(false);
   const [categories, setCategories] = useState<ConsentState>(defaultOptional);
 
   useEffect(() => {
@@ -118,86 +118,80 @@ export function CookieConsent() {
   }
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-end justify-center p-4 sm:items-center sm:p-6" role="presentation">
-      <div className="absolute inset-0 bg-deep-ink/50 backdrop-blur-[2px]" aria-hidden onClick={() => closeWith(defaultOptional, 'declined')} />
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="cookie-consent-title"
-        className="relative z-10 w-full max-w-md overflow-hidden rounded-2xl border border-white/15 bg-gradient-to-br from-sea via-primary to-deep-ink text-white shadow-2xl"
+    <div
+      role="dialog"
+      aria-labelledby="cookie-consent-title"
+      className="fixed bottom-4 left-4 z-[100] w-[min(100%,22rem)] max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-white/15 bg-gradient-to-br from-sea via-primary to-deep-ink text-white shadow-2xl sm:bottom-5 sm:left-5"
+    >
+      <button
+        type="button"
+        onClick={() => closeWith(defaultOptional, 'declined')}
+        className="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-full text-white/80 transition hover:bg-white/10 hover:text-white"
+        aria-label="Κλείσιμο"
       >
-        <button
-          type="button"
-          onClick={() => closeWith(defaultOptional, 'declined')}
-          className="absolute right-4 top-4 grid h-9 w-9 place-items-center rounded-full text-white/80 transition hover:bg-white/10 hover:text-white"
-          aria-label="Κλείσιμο"
-        >
-          <X className="h-5 w-5" strokeWidth={1.75} />
-        </button>
+        <X className="h-4 w-4" strokeWidth={1.75} />
+      </button>
 
-        <div className="px-6 pb-6 pt-8 sm:px-8 sm:pb-8 sm:pt-10">
-          <h2 id="cookie-consent-title" className="pr-10 font-display text-2xl font-semibold leading-tight text-white">
-            Αυτός ο ιστότοπος χρησιμοποιεί cookies
-          </h2>
-          <p className="mt-4 text-[15px] leading-relaxed text-white/85">
-            Χρησιμοποιούμε cookies για την εξατομίκευση περιεχομένου και διαφημίσεων και για την ανάλυση της
-            επισκεψιμότητάς μας. Μοιραζόμαστε επίσης πληροφορίες σχετικά με τη χρήση του ιστότοπού μας με συνεργάτες
-            διαφήμισης και αναλυτικών στοιχείων.{' '}
-            <Link href="/politiki-aporritou" className="font-medium text-gold hover:text-gold-hover">
-              Διαβάστε περισσότερα
-            </Link>
-          </p>
+      <div className="px-4 pb-4 pt-5">
+        <h2 id="cookie-consent-title" className="pr-8 font-display text-[17px] font-semibold leading-snug text-white">
+          Αυτός ο ιστότοπος χρησιμοποιεί cookies
+        </h2>
+        <p className="mt-2 text-[13px] leading-relaxed text-white/85">
+          Χρησιμοποιούμε cookies για λειτουργία, στατιστικά και marketing.{' '}
+          <Link href="/politiki-aporritou" className="font-medium text-gold hover:text-gold-hover">
+            Διαβάστε περισσότερα
+          </Link>
+        </p>
 
-          {showDetails && (
-            <div className="mt-5 border-t border-white/20 pt-4">
-              {CATEGORIES.map(({ id, label, required }) => (
-                <CategoryRow
-                  key={id}
-                  label={label}
-                  checked={categories[id]}
-                  disabled={required}
-                  onChange={required ? undefined : () => toggle(id)}
-                />
-              ))}
-            </div>
-          )}
-
-          <div className="mt-6 grid grid-cols-2 gap-3">
-            <button
-              type="button"
-              onClick={() => closeWith(allAccepted, 'accepted')}
-              className="rounded-xl bg-gold px-4 py-3.5 font-sans text-[13px] font-bold uppercase tracking-[0.08em] text-deep-ink transition hover:bg-gold-hover"
-            >
-              Αποδοχή όλων
-            </button>
-            <button
-              type="button"
-              onClick={() => closeWith(defaultOptional, 'declined')}
-              className="rounded-xl border-2 border-white/40 bg-transparent px-4 py-3.5 font-sans text-[13px] font-bold uppercase tracking-[0.08em] text-white transition hover:border-white hover:bg-white/5"
-            >
-              Απόρριψη όλων
-            </button>
+        {showDetails && (
+          <div className="mt-3 max-h-40 overflow-y-auto border-t border-white/20 pt-3">
+            {CATEGORIES.map(({ id, label, required }) => (
+              <CategoryRow
+                key={id}
+                label={label}
+                checked={categories[id]}
+                disabled={required}
+                onChange={required ? undefined : () => toggle(id)}
+              />
+            ))}
           </div>
+        )}
 
+        <div className="mt-3 grid grid-cols-2 gap-2">
           <button
             type="button"
-            onClick={() => setShowDetails((v) => !v)}
-            className="mt-5 flex w-full items-center justify-center gap-2 font-sans text-[12px] font-semibold uppercase tracking-[0.12em] text-white/90 transition hover:text-white"
+            onClick={() => closeWith(allAccepted, 'accepted')}
+            className="rounded-lg bg-gold px-3 py-2 font-sans text-[11px] font-bold uppercase tracking-[0.06em] text-deep-ink transition hover:bg-gold-hover"
           >
-            <Settings className="h-4 w-4" strokeWidth={1.75} />
-            {showDetails ? 'Απόκρυψη λεπτομερειών' : 'Εμφάνιση λεπτομερειών'}
+            Αποδοχή όλων
           </button>
-
-          {showDetails && (
-            <button
-              type="button"
-              onClick={() => closeWith(categories, 'custom')}
-              className="mt-3 w-full rounded-xl border border-white/20 py-3 font-sans text-[13px] font-semibold text-white transition hover:bg-white/5"
-            >
-              Αποθήκευση επιλογών
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={() => closeWith(defaultOptional, 'declined')}
+            className="rounded-lg border border-white/40 bg-transparent px-3 py-2 font-sans text-[11px] font-bold uppercase tracking-[0.06em] text-white transition hover:border-white hover:bg-white/5"
+          >
+            Απόρριψη όλων
+          </button>
         </div>
+
+        <button
+          type="button"
+          onClick={() => setShowDetails((v) => !v)}
+          className="mt-2.5 flex w-full items-center justify-center gap-1.5 font-sans text-[10px] font-semibold uppercase tracking-[0.1em] text-white/90 transition hover:text-white"
+        >
+          <Settings className="h-3.5 w-3.5" strokeWidth={1.75} />
+          {showDetails ? 'Απόκρυψη λεπτομερειών' : 'Εμφάνιση λεπτομερειών'}
+        </button>
+
+        {showDetails && (
+          <button
+            type="button"
+            onClick={() => closeWith(categories, 'custom')}
+            className="mt-2 w-full rounded-lg border border-white/20 py-2 font-sans text-[11px] font-semibold text-white transition hover:bg-white/5"
+          >
+            Αποθήκευση επιλογών
+          </button>
+        )}
       </div>
     </div>
   );
