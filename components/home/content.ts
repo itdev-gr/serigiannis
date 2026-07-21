@@ -14,7 +14,9 @@ export const homeContent = {
     allOption: 'Όλες οι εκδρομές',
   },
   destinations: {
+    eyebrow: '',
     title: 'Βρες το ταξίδι που σου ταιριάζει',
+    subtitle: '',
   },
   about: {
     eyebrow: '',
@@ -31,6 +33,7 @@ export const homeContent = {
     ],
   },
   listing: {
+    eyebrow: '',
     title: 'Οι πιο δημοφιλείς εκδρομές μας',
     subtitle: 'Επιλεγμένες από τους ταξιδιώτες μας, αποδράσεις με αρχή και τέλος στην Αθήνα.',
     action: 'Όλες οι εκδρομές',
@@ -44,6 +47,7 @@ export const homeContent = {
     ctaHref: '/enoikiaseis-poylman',
   },
   process: {
+    eyebrow: '',
     title: 'Τρία βήματα για την επόμενη απόδρασή σας',
     steps: [
       { n: '01', title: 'Επιλέξτε εκδρομή', text: 'Δείτε τους προορισμούς και τις ημερομηνίες αναχώρησης.' },
@@ -52,6 +56,7 @@ export const homeContent = {
     ],
   },
   testimonials: {
+    eyebrow: '',
     title: 'Ταξιδιώτες που μας εμπιστεύτηκαν',
   },
   news: {
