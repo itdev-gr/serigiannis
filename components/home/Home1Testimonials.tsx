@@ -16,7 +16,7 @@ export function Home1Testimonials({
 }) {
   const c = content;
   return (
-    <section className="py-24 md:py-32" aria-label={c.title}>
+    <section className="pt-12 pb-24 md:pt-16 md:pb-32" aria-label={c.title}>
       <div className="container">
         <SectionHeading title={c.title} align="center" titleClassName={HOME_SECTION_TITLE} />
         <Stagger className="mt-14 grid gap-6 md:grid-cols-3">

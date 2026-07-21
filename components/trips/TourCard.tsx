@@ -11,7 +11,7 @@ export function TourCard({ tour }: { tour: Tour }) {
   return (
     <Link
       href={`/tour/${tour.slug}`}
-      className="group relative flex flex-col overflow-hidden rounded-lg border border-border bg-surface shadow-card transition-all duration-300 ease-editorial hover:-translate-y-1 hover:shadow-card-hover"
+      className="group relative flex h-full flex-col overflow-hidden rounded-lg border border-border bg-surface shadow-card transition-all duration-300 ease-editorial hover:-translate-y-1 hover:shadow-card-hover"
     >
       <div className="relative aspect-[4/3] overflow-hidden bg-primary/5">
         <div className="absolute inset-0 transition-transform duration-700 ease-editorial group-hover:scale-105">
@@ -41,7 +41,7 @@ export function TourCard({ tour }: { tour: Tour }) {
             <span className="inline-flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" strokeWidth={1.75} />{tour.departure_note}</span>
           )}
         </div>
-        <div className="mt-6 flex items-center justify-between border-t border-border pt-5">
+        <div className="mt-auto flex items-center justify-between border-t border-border pt-5">
           <span className="font-sans text-[13px] font-semibold uppercase tracking-[0.12em] text-primary group-hover:text-cta">Λεπτομέρειες</span>
           <ArrowUpRight className="h-4 w-4 text-primary transition-all group-hover:translate-x-1 group-hover:-translate-y-1 group-hover:text-cta" strokeWidth={1.75} />
         </div>
