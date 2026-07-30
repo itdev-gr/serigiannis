@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import type { Post } from '@/types/db';
+import type { AdminRoute } from '@/lib/queries/ticketing';
+import { routeLabel } from '@/lib/ticketing';
 import { Button } from '@/components/ui/Button';
 import { adminInput, adminLabel } from '@/components/admin/ui';
 
@@ -11,9 +13,11 @@ const STATUSES = [
 
 export function PostForm({
   post,
+  routes = [],
   action,
 }: {
   post?: Post | null;
+  routes?: AdminRoute[];
   action: (formData: FormData) => void | Promise<void>;
 }) {
   return (
@@ -54,6 +58,17 @@ export function PostForm({
           <input name="published_on" type="date" defaultValue={post?.published_at ? post.published_at.slice(0, 10) : ''} className={adminInput} />
         </label>
       </div>
+
+      <label className="block">
+        <span className={adminLabel}>Σύνδεση με εκδρομή (προαιρετικό)</span>
+        <select name="route_id" defaultValue={post?.route_id ?? ''} className={adminInput}>
+          <option value="">— Χωρίς σύνδεση —</option>
+          {routes.map((r) => <option key={r.id} value={r.id}>{routeLabel(r)}</option>)}
+        </select>
+        <span className="mt-1.5 block text-[13px] text-muted">
+          Αν έχει συνδεθεί εκδρομή, η ημερομηνία/τιμή του συστήματος κρατήσεων υπερισχύουν στο κουμπί κράτησης.
+        </span>
+      </label>
 
       <label className="block">
         <span className={adminLabel}>Κατάσταση</span>

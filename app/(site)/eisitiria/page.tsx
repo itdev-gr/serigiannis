@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import { PageHero } from '@/components/shared/PageHero';
 import { PaymentMethods } from '@/components/shared/PaymentMethods';
 import { Stepper } from '@/components/ticketing/Stepper';
@@ -29,7 +30,9 @@ export default async function EisitiriaPage() {
       <section className="py-16 md:py-24">
         <div className="container max-w-4xl">
           <Stepper current={1} />
-          <ExcursionSearchForm excursions={excursions} />
+          <Suspense fallback={<div className="rounded-lg border border-border bg-surface p-6 shadow-card" />}>
+            <ExcursionSearchForm excursions={excursions} />
+          </Suspense>
           <p className="mt-6 text-center text-[13px] text-muted">
             Κρατήσεις έως {settings.sales_window_days} ημέρες πριν την αναχώρηση. Οι θέσεις σας δεσμεύονται
             για {settings.hold_minutes}′ κατά την ολοκλήρωση της αγοράς.

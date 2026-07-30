@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { groupRouteDates, parseBoardingPoints, slugify } from '@/lib/excursions';
+import { groupRouteDates, parseBoardingPoints, resolveInitialRoute, slugify } from '@/lib/excursions';
 
 describe('groupRouteDates', () => {
   it('groups, dedupes and sorts dates per route', () => {
@@ -28,6 +28,23 @@ describe('parseBoardingPoints', () => {
 
   it('empty string -> empty array', () => {
     expect(parseBoardingPoints('')).toEqual([]);
+  });
+});
+
+describe('resolveInitialRoute', () => {
+  const excursions = [{ id: 'a' }, { id: 'b' }];
+
+  it('returns the param when it matches a real excursion id', () => {
+    expect(resolveInitialRoute(excursions, 'b')).toBe('b');
+  });
+
+  it('returns empty string when the param matches no excursion', () => {
+    expect(resolveInitialRoute(excursions, 'zzz')).toBe('');
+  });
+
+  it('returns empty string for a null/empty param', () => {
+    expect(resolveInitialRoute(excursions, null)).toBe('');
+    expect(resolveInitialRoute(excursions, '')).toBe('');
   });
 });
 

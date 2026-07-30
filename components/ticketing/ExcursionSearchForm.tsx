@@ -1,7 +1,8 @@
 'use client';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
+import { resolveInitialRoute } from '@/lib/excursions';
 import type { Excursion } from '@/types/ticketing';
 
 const inputCls =
@@ -15,7 +16,12 @@ function fmtDate(iso: string): string {
 
 export function ExcursionSearchForm({ excursions }: { excursions: Excursion[] }) {
   const router = useRouter();
-  const [routeId, setRouteId] = useState('');
+  const searchParams = useSearchParams();
+  // Deep-link preselect (?ekdromi=…) — only when it matches a real excursion.
+  // Lazy initializer: seeds the initial state once; never re-synced afterwards.
+  const [routeId, setRouteId] = useState(() =>
+    resolveInitialRoute(excursions, searchParams.get('ekdromi'))
+  );
   const [date, setDate] = useState('');
   const [bp, setBp] = useState('');
   const [pax, setPax] = useState(1);

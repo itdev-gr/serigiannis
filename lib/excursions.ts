@@ -12,6 +12,14 @@ export function groupRouteDates(rows: RouteDateRow[]): Map<string, string[]> {
   return map;
 }
 
+/** Resolve the wizard's initial excursion id from a deep-link param
+ *  (?ekdromi=…). Returns the param only when it matches a real excursion id,
+ *  otherwise '' so the select stays on "— Επιλέξτε εκδρομή —". */
+export function resolveInitialRoute(excursions: { id: string }[], param: string | null): string {
+  if (!param) return '';
+  return excursions.some((x) => x.id === param) ? param : '';
+}
+
 /** Admin textarea (one boarding point per line) -> clean array. */
 export function parseBoardingPoints(text: string): string[] {
   return text

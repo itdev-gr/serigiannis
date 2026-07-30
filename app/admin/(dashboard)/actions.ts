@@ -375,6 +375,7 @@ export async function upsertPost(formData: FormData) {
     status,
     trip_date: (String(formData.get('trip_date') || '').trim() || null) as string | null,
     price: priceRaw ? Number(priceRaw) : null,
+    route_id: (String(formData.get('route_id') || '').trim() || null) as string | null,
     // If the lookup failed, only an explicit form date may touch published_at —
     // otherwise leave the column as-is rather than risk re-dating the post.
     ...(existingLookupFailed && !submittedPublishedOn

@@ -81,7 +81,7 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
               </div>
             )}
             <Button asChild variant="accent" className="ml-auto">
-              <Link href="/eisitiria">Κλείστε Online Θέση</Link>
+              <Link href={post.route_id ? `/eisitiria?ekdromi=${post.route_id}` : '/eisitiria'}>Κλείστε Online Θέση</Link>
             </Button>
           </div>
           <PostBody body={post.body} />
