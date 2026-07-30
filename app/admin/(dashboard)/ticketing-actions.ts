@@ -475,7 +475,6 @@ export async function saveBookingSettings(formData: FormData) {
     refund_cutoff_hours: num(formData, 'refund_cutoff_hours') ?? 8,
     refund_pct_early: num(formData, 'refund_pct_early') ?? 70,
     refund_pct_late: num(formData, 'refund_pct_late') ?? 50,
-    open_return_months: num(formData, 'open_return_months') ?? 3,
   };
   const { error } = await sb.from('booking_settings').update(row).eq('id', 1);
   if (error) console.error('saveBookingSettings:', error.message);

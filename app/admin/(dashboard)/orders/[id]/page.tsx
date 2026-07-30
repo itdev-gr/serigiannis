@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getAdminOrder } from '@/lib/queries/ticketing';
+import { getAdminOrder, getAdminTrips } from '@/lib/queries/ticketing';
 import { cancelTicket, markOrderPaid, moveTicket, renameTicket, saveOrderNotes } from '../../ticketing-actions';
 import { Button } from '@/components/ui/Button';
 import { ConfirmForm } from '@/components/admin/ConfirmForm';
@@ -18,7 +18,9 @@ export default async function OrderDetailPage({
   searchParams: Promise<{ saved?: string; error?: string }>;
 }) {
   const { id } = await params;
-  const [data, sp] = await Promise.all([getAdminOrder(id), searchParams]);
+  const from = new Date().toISOString().slice(0, 10);
+  const to = new Date(Date.now() + 30 * 86_400_000).toISOString().slice(0, 10);
+  const [data, sp, upcomingTrips] = await Promise.all([getAdminOrder(id), searchParams, getAdminTrips(from, to)]);
   if (!data) notFound();
   const { order, tickets } = data;
 
@@ -41,9 +43,9 @@ export default async function OrderDetailPage({
           <p className="text-[14px] text-muted">{order.phone} {order.email && `· ${order.email}`}</p>
           {order.boarding_point && <p className="text-[13px] text-muted">Σημείο συνάντησης: {order.boarding_point}</p>}
           <p className="mt-1 text-[13px] text-muted">
-            {KIND_LABEL[order.kind as TripKind] ?? order.kind}
-            {order.created_by_admin && ' · τηλεφωνική κράτηση'}
-            {' · '}{new Date(order.created_at).toLocaleString('el-GR')}
+            {order.kind !== 'oneway' && `${KIND_LABEL[order.kind as TripKind] ?? order.kind} · `}
+            {order.created_by_admin && 'τηλεφωνική κράτηση · '}
+            {new Date(order.created_at).toLocaleString('el-GR')}
           </p>
         </div>
         <div className="sm:text-right">
@@ -96,10 +98,26 @@ export default async function OrderDetailPage({
                 <form action={moveTicket} className="flex items-end gap-2">
                   <input type="hidden" name="ticket_id" value={t.id} />
                   <input type="hidden" name="order_id" value={order.id} />
-                  {t.trip_id == null && <input type="hidden" name="open_return" value="1" />}
-                  <label className="grow text-[12px] text-muted">{t.trip_id == null ? 'Εξαργύρωση σε δρομολόγιο (ID)' : 'Μεταφορά σε δρομολόγιο (ID)'}
-                    <input name="trip_id" defaultValue={t.trip_id ?? ''} placeholder="Trip ID" className={adminInput} />
-                  </label>
+                  {t.trip_id == null ? (
+                    <>
+                      <input type="hidden" name="open_return" value="1" />
+                      <label className="grow text-[12px] text-muted">Εξαργύρωση σε δρομολόγιο (ID)
+                        <input name="trip_id" defaultValue="" placeholder="Trip ID" className={adminInput} />
+                      </label>
+                    </>
+                  ) : (
+                    <label className="grow text-[12px] text-muted">Μεταφορά σε δρομολόγιο
+                      <select name="trip_id" defaultValue={t.trip_id ?? ''} className={adminInput}>
+                        {upcomingTrips
+                          .filter((tr) => tr.route_id === t.trip?.route_id)
+                          .map((tr) => (
+                            <option key={tr.id} value={tr.id}>
+                              {`${new Date(`${tr.service_date}T12:00:00`).toLocaleDateString('el-GR')} ${new Date(tr.departure_at).toLocaleTimeString('el-GR', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Athens' })} — ${routeLabel(tr.route ?? {})}`}
+                            </option>
+                          ))}
+                      </select>
+                    </label>
+                  )}
                   <label className="w-20 text-[12px] text-muted">Θέση
                     <input name="seat_no" defaultValue={t.seat_no ?? ''} className={adminInput} />
                   </label>

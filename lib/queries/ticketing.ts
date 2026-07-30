@@ -269,6 +269,7 @@ export type AdminTicket = {
   refunded_cents: number | null;
   validated_at: string | null;
   trip?: {
+    route_id: string;
     service_date: string;
     departure_at: string;
     route: { title: string | null; origin: { name: string } | null; destination: { name: string } | null } | null;
@@ -281,7 +282,7 @@ export async function getAdminOrder(id: string): Promise<{ order: AdminOrder; ti
   if (!order) return null;
   const { data: tickets } = await sb
     .from('tickets')
-    .select('*, trip:trips(service_date, departure_at, route:bus_routes(title, origin:stations!bus_routes_origin_station_id_fkey(name), destination:stations!bus_routes_destination_station_id_fkey(name)))')
+    .select('*, trip:trips(route_id, service_date, departure_at, route:bus_routes(title, origin:stations!bus_routes_origin_station_id_fkey(name), destination:stations!bus_routes_destination_station_id_fkey(name)))')
     .eq('order_id', id)
     .order('passenger_key')
     .order('leg');

@@ -1,9 +1,8 @@
 import Link from 'next/link';
 import { getAdminOrders } from '@/lib/queries/ticketing';
-import { KIND_LABEL, formatCents } from '@/lib/ticketing';
+import { formatCents } from '@/lib/ticketing';
 import { OrderStatusBadge } from '@/components/admin/StatusBadge';
 import { Button } from '@/components/ui/Button';
-import type { TripKind } from '@/types/ticketing';
 
 const FILTERS: { key: string; label: string }[] = [
   { key: '', label: 'Όλες' },
@@ -55,10 +54,9 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
 
       <div className="mt-4 overflow-x-auto">
         <div className="min-w-[720px] overflow-hidden rounded-lg border border-border bg-surface">
-          <div className="grid grid-cols-[7rem_1fr_9rem_7rem_9rem_auto] items-center gap-3 border-b border-border bg-background/50 px-4 py-3 font-sans text-[12px] uppercase tracking-[0.1em] text-muted">
+          <div className="grid grid-cols-[7rem_1fr_7rem_9rem_auto] items-center gap-3 border-b border-border bg-background/50 px-4 py-3 font-sans text-[12px] uppercase tracking-[0.1em] text-muted">
             <div>Κωδικός</div>
             <div>Πελάτης</div>
-            <div>Τύπος</div>
             <div>Σύνολο</div>
             <div>Κατάσταση</div>
             <div className="text-right">Ημ/νία</div>
@@ -67,14 +65,14 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
             <Link
               key={o.id}
               href={`/admin/orders/${o.id}`}
-              className="grid grid-cols-[7rem_1fr_9rem_7rem_9rem_auto] items-center gap-3 border-b border-border/60 px-4 py-3 last:border-0 hover:bg-primary/5"
+              className="grid grid-cols-[7rem_1fr_7rem_9rem_auto] items-center gap-3 border-b border-border/60 px-4 py-3 last:border-0 hover:bg-primary/5"
             >
               <span className="font-mono text-[13px] font-semibold text-primary">{o.public_code}</span>
               <span className="truncate text-[14px] text-body">
                 {o.customer_name ?? '—'}
+                {o.created_by_admin && <span className="text-[12px] text-muted"> · τηλ.</span>}
                 <span className="block truncate text-[12px] text-muted">{o.phone} {o.email && `· ${o.email}`}</span>
               </span>
-              <span className="text-[13px] text-muted">{KIND_LABEL[o.kind as TripKind] ?? o.kind}{o.created_by_admin && ' · τηλ.'}</span>
               <span className="text-[14px] font-semibold text-body">{formatCents(o.amount_total_cents)}</span>
               <OrderStatusBadge status={o.status} />
               <span className="text-right text-[13px] text-muted">
