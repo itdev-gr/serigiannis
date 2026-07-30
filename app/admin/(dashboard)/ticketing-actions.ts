@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { createServerClient } from '@/lib/supabase/server';
 import { parseBoardingPoints } from '@/lib/excursions';
+import { flashQuery } from '@/lib/admin-flash';
 
 function revalidateTicketing() {
   revalidatePath('/admin/stations');
@@ -67,17 +68,19 @@ export async function upsertRoute(formData: FormData) {
   if (id) {
     const { error } = await sb.from('bus_routes').update(row).eq('id', id);
     if (error) console.error('upsertRoute:', error.message);
-  } else {
-    const { data: created, error } = await sb.from('bus_routes').insert(row).select('id').single();
-    if (error) console.error('upsertRoute:', error.message);
-    // every new excursion starts with the two client-mandated fare categories
-    if (created) {
-      const { error: e2 } = await sb.from('fare_types').insert([
-        { route_id: created.id, name: 'Κανονικό', description: 'Κανονικό εισιτήριο.', price_oneway_cents: 0, price_round_cents: 0, requires_document: false, is_default: true, position: 1, is_active: true },
-        { route_id: created.id, name: 'Φοιτητικό', description: 'Φοιτητές με επίδειξη ακαδημαϊκής ταυτότητας (πάσο).', price_oneway_cents: 0, price_round_cents: 0, requires_document: true, is_default: false, position: 2, is_active: true },
-      ]);
-      if (e2) console.error('upsertRoute fares:', e2.message);
-    }
+    revalidateTicketing();
+    redirect(`/admin/routes/${id}${flashQuery(!error)}`);
+  }
+
+  const { data: created, error } = await sb.from('bus_routes').insert(row).select('id').single();
+  if (error) console.error('upsertRoute:', error.message);
+  // every new excursion starts with the two client-mandated fare categories
+  if (created) {
+    const { error: e2 } = await sb.from('fare_types').insert([
+      { route_id: created.id, name: 'Κανονικό', description: 'Κανονικό εισιτήριο.', price_oneway_cents: 0, price_round_cents: 0, requires_document: false, is_default: true, position: 1, is_active: true },
+      { route_id: created.id, name: 'Φοιτητικό', description: 'Φοιτητές με επίδειξη ακαδημαϊκής ταυτότητας (πάσο).', price_oneway_cents: 0, price_round_cents: 0, requires_document: true, is_default: false, position: 2, is_active: true },
+    ]);
+    if (e2) console.error('upsertRoute fares:', e2.message);
   }
   revalidateTicketing();
   redirect('/admin/routes');
@@ -107,13 +110,15 @@ export async function upsertFareType(formData: FormData) {
     position: num(formData, 'position') ?? 0,
     is_active: formData.get('is_active') !== null,
   };
-  if (!row.name || !routeId) return;
+  if (!routeId) return;
+  if (!row.name) redirect(`/admin/routes/${routeId}${flashQuery(false, 'invalid_input')}`);
   const { error } = id
     ? await sb.from('fare_types').update(row).eq('id', id)
     : await sb.from('fare_types').insert(row);
   if (error) console.error('upsertFareType:', error.message);
   revalidatePath(`/admin/routes/${routeId}`);
   revalidateTicketing();
+  redirect(`/admin/routes/${routeId}${flashQuery(!error)}`);
 }
 
 export async function deleteFareType(id: string, routeId: string) {
@@ -121,6 +126,7 @@ export async function deleteFareType(id: string, routeId: string) {
   const { error } = await sb.from('fare_types').delete().eq('id', id);
   if (error) console.error('deleteFareType:', error.message);
   revalidatePath(`/admin/routes/${routeId}`);
+  redirect(`/admin/routes/${routeId}${flashQuery(!error)}`);
 }
 
 // -------------------------------------------------------------- layouts
@@ -196,7 +202,7 @@ export async function upsertPattern(formData: FormData) {
     : await sb.from('schedule_patterns').insert(row);
   if (error) console.error('upsertPattern:', error.message);
   revalidateTicketing();
-  redirect('/admin/schedules');
+  redirect(`/admin/schedules${flashQuery(!error)}`);
 }
 
 export async function deletePattern(id: string) {
@@ -204,6 +210,7 @@ export async function deletePattern(id: string) {
   const { error } = await sb.from('schedule_patterns').delete().eq('id', id);
   if (error) console.error('deletePattern:', error.message);
   revalidateTicketing();
+  redirect(`/admin/schedules${flashQuery(!error)}`);
 }
 
 export async function materializeTrips(formData: FormData) {
@@ -214,6 +221,7 @@ export async function materializeTrips(formData: FormData) {
   const { error } = await sb.rpc('admin_materialize_range', { p_from: from, p_to: to });
   if (error) console.error('materializeTrips:', error.message);
   revalidatePath('/admin/schedules');
+  redirect(`/admin/schedules${flashQuery(!error)}`);
 }
 
 export async function createTrip(formData: FormData) {
@@ -232,6 +240,7 @@ export async function createTrip(formData: FormData) {
   const { error } = await sb.from('trips').insert(row);
   if (error) console.error('createTrip:', error.message);
   revalidatePath('/admin/schedules');
+  redirect(`/admin/schedules${flashQuery(!error)}`);
 }
 
 export async function updateTrip(formData: FormData) {
@@ -249,22 +258,26 @@ export async function updateTrip(formData: FormData) {
   revalidatePath(`/admin/schedules/trips/${id}`);
   revalidatePath('/admin/schedules');
   revalidatePath('/eisitiria');
+  redirect(`/admin/schedules/trips/${id}${flashQuery(!error)}`);
 }
 
 // ---------------------------------------------------------- seat state
 
-export async function blockSeat(tripId: string, seat: string) {
+/** Called from AdminSeatMap via useTransition — returns status instead of redirecting. */
+export async function blockSeat(tripId: string, seat: string): Promise<{ ok: boolean; error?: string }> {
   const sb = await createServerClient();
   const { error } = await sb.rpc('admin_block_seat', { p_trip_id: tripId, p_seat: seat });
   if (error) console.error('blockSeat:', error.message);
   revalidatePath(`/admin/schedules/trips/${tripId}`);
+  return { ok: !error, error: error ? 'db' : undefined };
 }
 
-export async function unblockSeat(tripId: string, seat: string) {
+export async function unblockSeat(tripId: string, seat: string): Promise<{ ok: boolean; error?: string }> {
   const sb = await createServerClient();
   const { error } = await sb.rpc('admin_unblock_seat', { p_trip_id: tripId, p_seat: seat });
   if (error) console.error('unblockSeat:', error.message);
   revalidatePath(`/admin/schedules/trips/${tripId}`);
+  return { ok: !error, error: error ? 'db' : undefined };
 }
 
 /** Phone booking: one passenger per call — hold + finalize offline in one go. */
@@ -281,10 +294,12 @@ export async function manualBooking(formData: FormData) {
   const { data: began, error } = await sb.rpc('begin_booking', {
     p: { kind: 'oneway', legs: [{ trip_id: tripId, seats: [seat] }] },
   });
-  if (error || !(began as { ok: boolean }).ok) {
+  const okBegin = !error && (began as { ok: boolean }).ok;
+  if (!okBegin) {
     console.error('manualBooking begin:', error?.message ?? began);
+    const code = (began as { error?: string } | null)?.error === 'seat_taken' ? 'seat_taken' : 'db';
     revalidatePath(`/admin/schedules/trips/${tripId}`);
-    return;
+    redirect(`/admin/schedules/trips/${tripId}${flashQuery(false, code)}`);
   }
   const b = began as { order_id: string; access_token: string };
   const { error: e2 } = await sb.rpc('finalize_checkout', {
@@ -303,6 +318,7 @@ export async function manualBooking(formData: FormData) {
   if (e2) console.error('manualBooking finalize:', e2.message);
   revalidatePath(`/admin/schedules/trips/${tripId}`);
   revalidatePath('/admin/orders');
+  redirect(`/admin/schedules/trips/${tripId}${flashQuery(!e2)}`);
 }
 
 // --------------------------------------------------------------- orders
@@ -317,6 +333,7 @@ export async function markOrderPaid(id: string) {
   if (error) console.error('markOrderPaid:', error.message);
   revalidatePath(`/admin/orders/${id}`);
   revalidatePath('/admin/orders');
+  redirect(`/admin/orders/${id}${flashQuery(!error)}`);
 }
 
 export async function saveOrderNotes(id: string, formData: FormData) {
@@ -327,15 +344,18 @@ export async function saveOrderNotes(id: string, formData: FormData) {
     .eq('id', id);
   if (error) console.error('saveOrderNotes:', error.message);
   revalidatePath(`/admin/orders/${id}`);
+  redirect(`/admin/orders/${id}${flashQuery(!error)}`);
 }
 
 export async function cancelTicket(ticketId: string, orderId: string) {
   const sb = await createServerClient();
   const { data, error } = await sb.rpc('admin_cancel_ticket', { p_ticket_id: ticketId });
+  const ok = !error && (data as { ok: boolean }).ok;
   if (error) console.error('cancelTicket:', error.message);
-  else if (!(data as { ok: boolean }).ok) console.error('cancelTicket:', data);
+  else if (!ok) console.error('cancelTicket:', data);
   revalidatePath(`/admin/orders/${orderId}`);
   revalidatePath('/admin/orders');
+  redirect(`/admin/orders/${orderId}${flashQuery(ok)}`);
 }
 
 export async function moveTicket(formData: FormData) {
@@ -344,16 +364,26 @@ export async function moveTicket(formData: FormData) {
   const orderId = g(formData, 'order_id');
   const tripId = g(formData, 'trip_id');
   const seat = g(formData, 'seat_no');
-  if (!ticketId || !tripId || !seat) return;
+  if (!ticketId || !tripId || !seat) {
+    if (orderId) redirect(`/admin/orders/${orderId}${flashQuery(false, 'invalid_input')}`);
+    return;
+  }
   const open = g(formData, 'open_return') === '1';
   const { data, error } = await sb.rpc(open ? 'admin_redeem_open_return' : 'admin_move_ticket', {
     p_ticket_id: ticketId,
     p_trip_id: tripId,
     p_seat: seat,
   });
+  const ok = !error && (data as { ok: boolean }).ok;
   if (error) console.error('moveTicket:', error.message);
-  else if (!(data as { ok: boolean }).ok) console.error('moveTicket:', data);
+  else if (!ok) console.error('moveTicket:', data);
   revalidatePath(`/admin/orders/${orderId}`);
+  let code = 'db';
+  if (!error) {
+    const e = (data as { error?: string })?.error;
+    if (e === 'seat_taken' || e === 'not_found') code = e;
+  }
+  redirect(`/admin/orders/${orderId}${flashQuery(ok, code)}`);
 }
 
 export async function renameTicket(formData: FormData) {
@@ -361,10 +391,14 @@ export async function renameTicket(formData: FormData) {
   const ticketId = g(formData, 'ticket_id');
   const orderId = g(formData, 'order_id');
   const name = g(formData, 'passenger_name');
-  if (!ticketId || name.length < 2) return;
+  if (!ticketId || name.length < 2) {
+    if (orderId) redirect(`/admin/orders/${orderId}${flashQuery(false, 'invalid_input')}`);
+    return;
+  }
   const { error } = await sb.from('tickets').update({ passenger_name: name }).eq('id', ticketId);
   if (error) console.error('renameTicket:', error.message);
   revalidatePath(`/admin/orders/${orderId}`);
+  redirect(`/admin/orders/${orderId}${flashQuery(!error)}`);
 }
 
 export type ValidateState = { result?: unknown } | null;

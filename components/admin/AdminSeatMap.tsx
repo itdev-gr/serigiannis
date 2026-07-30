@@ -10,6 +10,7 @@ import type { LayoutJson } from '@/types/ticketing';
  *  dark=blocked. Click a seat to block/unblock it. */
 export function AdminSeatMap({ tripId, layout, claims }: { tripId: string; layout: LayoutJson; claims: AdminSeatClaim[] }) {
   const [selected, setSelected] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
   const claimBySeat = new Map(claims.map((c) => [c.seat_no, c]));
@@ -103,7 +104,10 @@ export function AdminSeatMap({ tripId, layout, claims }: { tripId: string; layou
               <button
                 type="button"
                 disabled={pending}
-                onClick={() => startTransition(() => unblockSeat(tripId, selected))}
+                onClick={() => startTransition(async () => {
+                  const res = await unblockSeat(tripId, selected);
+                  setError(res.ok ? null : 'Η ενέργεια απέτυχε. Δοκιμάστε ξανά.');
+                })}
                 className="mt-3 w-full rounded-md border border-primary/40 px-3 py-2 text-[14px] font-medium text-primary hover:bg-primary/5"
               >
                 Ξεκλείδωμα θέσης
@@ -113,12 +117,16 @@ export function AdminSeatMap({ tripId, layout, claims }: { tripId: string; layou
               <button
                 type="button"
                 disabled={pending}
-                onClick={() => startTransition(() => blockSeat(tripId, selected))}
+                onClick={() => startTransition(async () => {
+                  const res = await blockSeat(tripId, selected);
+                  setError(res.ok ? null : 'Η ενέργεια απέτυχε. Δοκιμάστε ξανά.');
+                })}
                 className="mt-3 w-full rounded-md border border-deep-ink px-3 py-2 text-[14px] font-medium text-deep-ink hover:bg-deep-ink/5"
               >
                 Κλείδωμα θέσης (να μην πωλείται)
               </button>
             )}
+            {error && <p className="mt-3 text-[13px] font-medium text-cta">{error}</p>}
           </div>
         )}
       </aside>
