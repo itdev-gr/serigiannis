@@ -38,6 +38,17 @@ export async function searchTrips(input: {
   return { ok: true, outbound: outbound as SearchResult, inbound: inbound as SearchResult };
 }
 
+/** Step 1 → 2 (excursions): trips of the chosen excursion for the chosen day. */
+export async function searchRouteTrips(input: { routeId: string; date: string }): Promise<SearchResult> {
+  const sb = await createServerClient();
+  const { data, error } = await sb.rpc('search_route_trips', {
+    p_route_id: input.routeId,
+    p_date: input.date,
+  });
+  if (error) { console.error('searchRouteTrips:', error.message); return { ok: false, error: 'db' }; }
+  return data as SearchResult;
+}
+
 /** Fresh taken-seats list for a trip (polled by the seat map). */
 export async function getTakenSeats(tripId: string): Promise<string[]> {
   const sb = await createServerClient();
