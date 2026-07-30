@@ -27,7 +27,19 @@ export type SeatLegData = {
   taken: string[];
 };
 
-export function SeatSelection({ kind, legs, backHref }: { kind: TripKind; legs: SeatLegData[]; backHref: string }) {
+export function SeatSelection({
+  kind,
+  legs,
+  backHref,
+  requiredSeats,
+  boardingPoint,
+}: {
+  kind: TripKind;
+  legs: SeatLegData[];
+  backHref: string;
+  requiredSeats?: number;
+  boardingPoint?: string;
+}) {
   const [selections, setSelections] = useState<string[][]>(legs.map(() => []));
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
@@ -38,7 +50,7 @@ export function SeatSelection({ kind, legs, backHref }: { kind: TripKind; legs: 
       prev.map((seats, i) => {
         if (i !== legIdx) return seats;
         if (seats.includes(seat)) return seats.filter((s) => s !== seat);
-        return seats.length >= MAX_SEATS ? seats : [...seats, seat];
+        return seats.length >= (requiredSeats ?? MAX_SEATS) ? seats : [...seats, seat];
       })
     );
   };
@@ -57,7 +69,7 @@ export function SeatSelection({ kind, legs, backHref }: { kind: TripKind; legs: 
               <span className="text-[14px] font-semibold text-deep-ink">{leg.dateLabel} · {leg.time}</span>
             </div>
             <div className="bg-gold/20 px-5 py-2 text-[14px] font-semibold text-deep-ink" aria-live="polite">
-              {selections[i].length} επιλεγμένες θέσεις
+              {selections[i].length}{requiredSeats ? ` από ${requiredSeats}` : ''} επιλεγμένες θέσεις
               {selections[i].length > 0 && `: ${[...selections[i]].sort((a, b) => Number(a) - Number(b)).join(', ')}`}
             </div>
             <div className="bg-surface px-3 py-6">
@@ -65,7 +77,7 @@ export function SeatSelection({ kind, legs, backHref }: { kind: TripKind; legs: 
                 layout={leg.layout}
                 taken={leg.taken}
                 selected={selections[i]}
-                maxSeats={MAX_SEATS}
+                maxSeats={requiredSeats ?? MAX_SEATS}
                 onToggle={(seat) => toggle(i, seat)}
               />
               <SeatLegend />
@@ -87,6 +99,10 @@ export function SeatSelection({ kind, legs, backHref }: { kind: TripKind; legs: 
           disabled={pending}
           onClick={() => {
             if (selections[0].length === 0) { setError(ERROR_TEXT.no_seats); return; }
+            if (requiredSeats && selections[0].length !== requiredSeats) {
+              setError(`Επιλέξτε ${requiredSeats} θέσεις — έχετε επιλέξει ${selections[0].length}.`);
+              return;
+            }
             if (kind === 'round' && selections[0].length !== selections[1]?.length) {
               setError(ERROR_TEXT.seats_mismatch);
               return;
@@ -95,6 +111,7 @@ export function SeatSelection({ kind, legs, backHref }: { kind: TripKind; legs: 
               const res = await beginCheckout({
                 kind,
                 legs: legs.map((leg, i) => ({ tripId: leg.tripId, seats: selections[i] })),
+                bp: boardingPoint,
               });
               // beginCheckout redirects on success; a return value means failure.
               if (res && !res.ok) setError(ERROR_TEXT[res.error] ?? ERROR_TEXT.db);

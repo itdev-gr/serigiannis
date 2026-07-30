@@ -12,7 +12,7 @@ const NAV_ITEMS = [
   { to: '/', label: 'Αρχική', icon: HomeIcon },
   { to: '/ekdromes', label: 'Εκδρομές', icon: MapPin },
   { to: '/enoikiaseis-poylman', label: 'Ενοικιάσεις Πούλμαν και Μίνι Βαν', icon: Bus },
-  { to: '/eisitiria', label: 'Εισιτήρια', icon: Ticket },
+  { to: '/eisitiria', label: 'Κλείστε Online Θέσεις', icon: Ticket },
   { to: '/kroyazieres', label: 'Κρουαζιέρες', icon: Ship },
   { to: '/nea', label: 'Νέα', icon: Newspaper },
   { to: '/epikoinonia', label: 'Επικοινωνία', icon: Mail },
@@ -149,7 +149,7 @@ export function Navbar({ phones = [], phone24h = null }: { phones?: string[]; ph
               size="sm"
               className={cn('hidden md:inline-flex', !solidHeader && 'shadow-none')}
             >
-              <Link href="/kratisi">Κλείστε Online Θέση</Link>
+              <Link href="/eisitiria">Κλείστε Online Θέση</Link>
             </Button>
             <button
               type="button"
@@ -208,7 +208,7 @@ export function Navbar({ phones = [], phone24h = null }: { phones?: string[]; ph
             );
           })}
           <Link
-            href="/kratisi"
+            href="/eisitiria"
             className="mt-8 inline-flex h-14 w-full items-center justify-center rounded-md bg-surface font-sans text-[16px] font-semibold tracking-[0.02em] text-primary transition-colors hover:bg-surface/90"
           >
             Κλείστε Online Θέση

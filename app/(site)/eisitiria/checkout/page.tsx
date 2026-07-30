@@ -15,9 +15,9 @@ export const metadata: Metadata = {
 export default async function CheckoutPage({
   searchParams,
 }: {
-  searchParams: Promise<{ order?: string; t?: string }>;
+  searchParams: Promise<{ order?: string; t?: string; bp?: string }>;
 }) {
-  const { t } = await searchParams;
+  const { t, bp } = await searchParams;
   if (!t) redirect('/eisitiria');
 
   const sb = await createServerClient();
@@ -39,7 +39,7 @@ export default async function CheckoutPage({
     <section className="py-14 md:py-20">
       <div className="container max-w-5xl">
         <Stepper current={4} />
-        <CheckoutForm bundle={bundle} token={t} offline={getPaymentProvider().id === 'offline'} />
+        <CheckoutForm bundle={bundle} token={t} offline={getPaymentProvider().id === 'offline'} boardingPoint={bp} />
       </div>
     </section>
   );

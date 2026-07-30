@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { PageHero } from '@/components/shared/PageHero';
 import { PostCard } from '@/components/blog/PostCard';
 import { getPosts } from '@/lib/queries/posts';
+import { sortPostsForListing } from '@/lib/posts-sort';
 
 export const metadata: Metadata = {
   title: 'Νέα & Άρθρα',
@@ -9,7 +10,7 @@ export const metadata: Metadata = {
 };
 
 export default async function NeaPage() {
-  const posts = await getPosts();
+  const posts = sortPostsForListing(await getPosts(), new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Athens' }));
   return (
     <>
       <PageHero

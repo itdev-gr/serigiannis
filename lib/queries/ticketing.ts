@@ -3,11 +3,13 @@ import type {
   BookingSettings,
   BusLayout,
   BusRoute,
+  Excursion,
   FareType,
   SchedulePattern,
   Station,
   Trip,
 } from '@/types/ticketing';
+import { groupRouteDates, type RouteDateRow } from '@/lib/excursions';
 
 const DEFAULT_SETTINGS: BookingSettings = {
   hold_minutes: 30,
@@ -40,13 +42,28 @@ export async function getBookingSettings(): Promise<BookingSettings> {
   return data as BookingSettings;
 }
 
-/** Published routes (for wiring the ΠΡΟΣ dropdown to real destinations). */
-export async function getPublishedRoutes(): Promise<BusRoute[]> {
-  if (!isDbConfigured()) return [];
+type ExcursionRouteRow = BusRoute & { destination: { name: string } | null };
+
+/** Published routes as excursions, with the dates they actually run. */
+export async function getExcursions(): Promise<Excursion[]> {
   const sb = createPublicClient();
-  const { data, error } = await sb.from('bus_routes').select('*').order('position');
-  if (error) { console.error('getPublishedRoutes:', error.message); return []; }
-  return (data ?? []) as BusRoute[];
+  const [routesRes, datesRes] = await Promise.all([
+    sb
+      .from('bus_routes')
+      .select('*, destination:stations!bus_routes_destination_station_id_fkey(name)')
+      .eq('status', 'published')
+      .order('position'),
+    sb.rpc('list_route_dates'),
+  ]);
+  if (routesRes.error) { console.error('getExcursions routes:', routesRes.error.message); return []; }
+  if (datesRes.error) { console.error('getExcursions dates:', datesRes.error.message); return []; }
+  const dateMap = groupRouteDates((datesRes.data ?? []) as RouteDateRow[]);
+  return ((routesRes.data ?? []) as ExcursionRouteRow[]).map((r) => ({
+    id: r.id,
+    title: r.title?.trim() || (r.destination?.name ?? '—'),
+    boarding_points: r.boarding_points ?? [],
+    dates: dateMap.get(r.id) ?? [],
+  }));
 }
 
 export async function getTripWithLayout(tripId: string): Promise<{ trip: Trip; layout: BusLayout } | null> {
@@ -188,6 +205,7 @@ export type AdminOrder = {
   customer_name: string | null;
   email: string | null;
   phone: string | null;
+  boarding_point: string | null;
   amount_total_cents: number;
   payment_provider: string | null;
   paid_at: string | null;
@@ -213,6 +231,7 @@ export type AdminTicket = {
   trip_id: string | null;
   seat_no: string | null;
   passenger_name: string;
+  passenger_phone: string | null;
   fare_name: string;
   fare_basis: string;
   price_cents: number;

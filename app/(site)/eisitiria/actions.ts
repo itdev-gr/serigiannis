@@ -4,38 +4,15 @@ import { createServerClient } from '@/lib/supabase/server';
 import { getPaymentProvider } from '@/lib/payments';
 import type { SearchResult, TripKind } from '@/types/ticketing';
 
-export type TwoWaySearch = {
-  ok: boolean;
-  error?: string;
-  outbound?: SearchResult;
-  inbound?: SearchResult;
-};
-
-/** Step 1 → 2: trips for the requested day (and the reverse leg for round trips). */
-export async function searchTrips(input: {
-  originId: string;
-  destId: string;
-  date: string;
-  kind: TripKind;
-  returnDate?: string;
-}): Promise<TwoWaySearch> {
+/** Step 1 → 2 (excursions): trips of the chosen excursion for the chosen day. */
+export async function searchRouteTrips(input: { routeId: string; date: string }): Promise<SearchResult> {
   const sb = await createServerClient();
-  const { data: outbound, error } = await sb.rpc('search_trips', {
-    p_origin: input.originId,
-    p_dest: input.destId,
+  const { data, error } = await sb.rpc('search_route_trips', {
+    p_route_id: input.routeId,
     p_date: input.date,
   });
-  if (error) { console.error('searchTrips:', error.message); return { ok: false, error: 'db' }; }
-
-  if (input.kind !== 'round') return { ok: true, outbound: outbound as SearchResult };
-
-  const { data: inbound, error: e2 } = await sb.rpc('search_trips', {
-    p_origin: input.destId,
-    p_dest: input.originId,
-    p_date: input.returnDate || input.date,
-  });
-  if (e2) { console.error('searchTrips return:', e2.message); return { ok: false, error: 'db' }; }
-  return { ok: true, outbound: outbound as SearchResult, inbound: inbound as SearchResult };
+  if (error) { console.error('searchRouteTrips:', error.message); return { ok: false, error: 'db' }; }
+  return data as SearchResult;
 }
 
 /** Fresh taken-seats list for a trip (polled by the seat map). */
@@ -50,6 +27,7 @@ export async function getTakenSeats(tripId: string): Promise<string[]> {
 export async function beginCheckout(input: {
   kind: TripKind;
   legs: { tripId: string; seats: string[] }[];
+  bp?: string;
 }): Promise<{ ok: false; error: string }> {
   const sb = await createServerClient();
   const { data, error } = await sb.rpc('begin_booking', {
@@ -61,7 +39,7 @@ export async function beginCheckout(input: {
   if (error) { console.error('beginCheckout:', error.message); return { ok: false, error: 'db' }; }
   const res = data as { ok: boolean; error?: string; order_id?: string; access_token?: string };
   if (!res.ok) return { ok: false, error: res.error ?? 'unknown' };
-  redirect(`/eisitiria/checkout?order=${res.order_id}&t=${res.access_token}`);
+  redirect(`/eisitiria/checkout?order=${res.order_id}&t=${res.access_token}${input.bp ? `&bp=${encodeURIComponent(input.bp)}` : ''}`);
 }
 
 export type CheckoutInput = {
@@ -75,10 +53,11 @@ export type CheckoutInput = {
     city?: string;
     postal_code?: string;
     region?: string;
+    boarding_point?: string;
     marketing_opt_in?: boolean;
     accept_terms: boolean;
   };
-  passengers: { passenger_name: string; fare_type_id: string; outbound_seat: string; return_seat?: string }[];
+  passengers: { passenger_name: string; passenger_phone: string; fare_type_id: string; outbound_seat: string; return_seat?: string }[];
 };
 
 /** Step 4: finalize. Offline → tickets issue now; gateway → redirect to the bank. */

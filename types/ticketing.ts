@@ -33,6 +33,8 @@ export type BusRoute = {
   duration_min: number | null;
   sales_cutoff_min: number | null;
   position: number;
+  title: string | null;
+  boarding_points: string[];
 };
 
 export type FareType = {
@@ -103,7 +105,11 @@ export type TripRow = {
 };
 
 export type SearchResult =
-  | { ok: true; route: { id: string; origin_id: string; destination_id: string; duration_min: number | null }; trips: TripRow[] }
+  | {
+      ok: true;
+      route: { id: string; title?: string | null; origin_id: string; destination_id: string; duration_min: number | null };
+      trips: TripRow[];
+    }
   | { ok: false; error: string };
 
 /** Bundle returned by the get_order_by_token RPC. */
@@ -127,6 +133,7 @@ export type OrderTicket = {
   trip_id: string | null;
   seat_no: string | null;
   passenger_name: string;
+  passenger_phone: string | null;
   fare_name: string;
   fare_basis: 'oneway' | 'round' | 'open_return';
   price_cents: number;
@@ -157,6 +164,7 @@ export type OrderBundle =
         customer_name: string | null;
         email: string | null;
         phone: string | null;
+        boarding_point: string | null;
         amount_total_cents: number;
         payment_provider: string | null;
         paid_at: string | null;
@@ -167,3 +175,11 @@ export type OrderBundle =
       fares: OrderFare[];
     }
   | { ok: false; error: string };
+
+/** Public wizard: a bookable excursion (published route + its scheduled dates). */
+export type Excursion = {
+  id: string;
+  title: string;
+  boarding_points: string[];
+  dates: string[];
+};

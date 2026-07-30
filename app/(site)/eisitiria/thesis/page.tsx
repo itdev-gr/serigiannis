@@ -4,7 +4,7 @@ import { Stepper } from '@/components/ticketing/Stepper';
 import { SeatSelection, type SeatLegData } from '@/components/ticketing/SeatSelection';
 import { getTakenSeats } from '@/app/(site)/eisitiria/actions';
 import { createPublicClient, isDbConfigured } from '@/lib/supabase/server';
-import type { LayoutJson, TripKind } from '@/types/ticketing';
+import type { LayoutJson } from '@/types/ticketing';
 
 export const metadata: Metadata = {
   title: 'Επιλογή Θέσεων',
@@ -49,10 +49,9 @@ async function loadLeg(tripId: string, title: string): Promise<SeatLegData | nul
 export default async function ThesisPage({
   searchParams,
 }: {
-  searchParams: Promise<{ trip?: string; ret_trip?: string; kind?: string; from?: string; to?: string; date?: string; ret?: string }>;
+  searchParams: Promise<{ trip?: string; route?: string; date?: string; bp?: string; pax?: string }>;
 }) {
   const params = await searchParams;
-  const kind = (['oneway', 'round', 'open_return'].includes(params.kind ?? '') ? params.kind : 'oneway') as TripKind;
 
   if (!params.trip) {
     return (
@@ -66,14 +65,10 @@ export default async function ThesisPage({
   }
 
   const legs: SeatLegData[] = [];
-  const outbound = await loadLeg(params.trip, 'Λεωφορείο Αναχώρησης');
+  const outbound = await loadLeg(params.trip, 'Λεωφορείο Εκδρομής');
   if (outbound) legs.push(outbound);
-  if (kind === 'round' && params.ret_trip) {
-    const ret = await loadLeg(params.ret_trip, 'Λεωφορείο Επιστροφής');
-    if (ret) legs.push(ret);
-  }
 
-  if (legs.length === 0 || (kind === 'round' && legs.length < 2)) {
+  if (legs.length === 0) {
     return (
       <section className="py-24">
         <div className="container max-w-2xl text-center">
@@ -85,15 +80,23 @@ export default async function ThesisPage({
   }
 
   const back = new URLSearchParams();
-  for (const k of ['from', 'to', 'date', 'ret', 'kind'] as const) {
+  for (const k of ['route', 'date', 'bp', 'pax'] as const) {
     if (params[k]) back.set(k, params[k]!);
   }
+
+  const pax = Math.min(10, Math.max(1, Number(params.pax) || 1));
 
   return (
     <section className="py-14 md:py-20">
       <div className="container max-w-5xl">
         <Stepper current={3} />
-        <SeatSelection kind={kind} legs={legs} backHref={`/eisitiria/dromologia?${back.toString()}`} />
+        <SeatSelection
+          kind="oneway"
+          legs={legs}
+          backHref={`/eisitiria/dromologia?${back.toString()}`}
+          requiredSeats={pax}
+          boardingPoint={params.bp}
+        />
       </div>
     </section>
   );

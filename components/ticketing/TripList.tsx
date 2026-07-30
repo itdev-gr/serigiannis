@@ -26,6 +26,7 @@ function TripsTable({
   trips,
   selected,
   onSelect,
+  showDateNav,
 }: {
   title: string;
   routeLabel: string;
@@ -34,6 +35,7 @@ function TripsTable({
   trips: TripRow[];
   selected: string | null;
   onSelect: (id: string) => void;
+  showDateNav: boolean;
 }) {
   const router = useRouter();
   const params = useSearchParams();
@@ -54,13 +56,17 @@ function TripsTable({
         <div className="flex flex-wrap items-center justify-between gap-3 bg-gradient-to-r from-amber to-gold px-5 py-3">
           <span className="font-display text-lg font-semibold text-deep-ink">{routeLabel}</span>
           <span className="flex items-center gap-1 rounded-md bg-deep-ink/10 px-2 py-1 text-[13px] font-semibold text-deep-ink">
-            <button type="button" aria-label="Προηγούμενη ημέρα" onClick={() => nav(-1)} className="rounded p-1 hover:bg-deep-ink/10">
-              <ChevronLeft className="h-4 w-4" />
-            </button>
+            {showDateNav && (
+              <button type="button" aria-label="Προηγούμενη ημέρα" onClick={() => nav(-1)} className="rounded p-1 hover:bg-deep-ink/10">
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+            )}
             {fmtDate(date)}
-            <button type="button" aria-label="Επόμενη ημέρα" onClick={() => nav(1)} className="rounded p-1 hover:bg-deep-ink/10">
-              <ChevronRight className="h-4 w-4" />
-            </button>
+            {showDateNav && (
+              <button type="button" aria-label="Επόμενη ημέρα" onClick={() => nav(1)} className="rounded p-1 hover:bg-deep-ink/10">
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            )}
           </span>
         </div>
         <table className="w-full text-center">
@@ -120,6 +126,7 @@ export function TripList({
   retDate,
   outbound,
   inbound,
+  showDateNav = true,
 }: {
   kind: TripKind;
   outboundLabel: string;
@@ -128,6 +135,7 @@ export function TripList({
   retDate?: string;
   outbound: TripRow[];
   inbound?: TripRow[];
+  showDateNav?: boolean;
 }) {
   const router = useRouter();
   const params = useSearchParams();
@@ -145,6 +153,7 @@ export function TripList({
         trips={outbound}
         selected={outSel}
         onSelect={(id) => { setOutSel(id); setError(null); }}
+        showDateNav={showDateNav}
       />
       {kind === 'round' && inbound && inboundLabel && retDate && (
         <TripsTable
@@ -155,6 +164,7 @@ export function TripList({
           trips={inbound}
           selected={inSel}
           onSelect={(id) => { setInSel(id); setError(null); }}
+          showDateNav={showDateNav}
         />
       )}
 

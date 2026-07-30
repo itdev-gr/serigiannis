@@ -10,9 +10,9 @@ export default async function RoutesPage() {
   const [routes, stations] = await Promise.all([getAdminRoutes(), getAdminStations()]);
   return (
     <div className="max-w-4xl">
-      <h1 className="font-display text-4xl font-semibold text-primary">Γραμμές & Ναύλοι</h1>
+      <h1 className="font-display text-4xl font-semibold text-primary">Εκδρομές & Τιμές</h1>
       <p className="mt-2 text-[14px] text-muted">
-        Κάθε κατεύθυνση είναι ξεχωριστή γραμμή με δικό της τιμοκατάλογο. Πατήστε σε μια γραμμή για τους ναύλους της.
+        Κάθε εκδρομή έχει τίτλο, σημεία συνάντησης και δικό της τιμοκατάλογο. Πατήστε σε μια εκδρομή για τις τιμές της.
       </p>
 
       <div className="mt-8 overflow-hidden rounded-lg border border-border bg-surface">
@@ -26,7 +26,7 @@ export default async function RoutesPage() {
         {routes.map((r) => (
           <div key={r.id} className="grid grid-cols-[1fr_7rem_6rem_6rem_auto] items-center gap-3 border-b border-border/60 px-4 py-3 last:border-0">
             <Link href={`/admin/routes/${r.id}`} className="font-medium text-primary hover:underline">
-              {r.origin?.name ?? '—'} → {r.destination?.name ?? '—'}
+              {r.title?.trim() || `${r.origin?.name ?? '—'} → ${r.destination?.name ?? '—'}`}
             </Link>
             <span className={`w-fit rounded-full px-2.5 py-0.5 text-[12px] font-semibold ${r.status === 'published' ? 'bg-olive/15 text-olive' : 'bg-background text-muted'}`}>
               {r.status === 'published' ? 'Δημοσιευμένη' : 'Πρόχειρη'}
@@ -45,9 +45,9 @@ export default async function RoutesPage() {
       </div>
 
       <div className="mt-8 rounded-lg border border-border bg-surface p-6">
-        <h2 className="font-display text-xl font-semibold text-primary">Νέα γραμμή</h2>
-        <p className="mt-1 text-[13px] text-muted">Δημιουργείται αυτόματα και η αντίστροφη κατεύθυνση.</p>
-        <form action={upsertRoute} className="mt-4 grid gap-3 sm:grid-cols-[1fr_1fr_6rem_6rem_auto]">
+        <h2 className="font-display text-xl font-semibold text-primary">Νέα εκδρομή</h2>
+        <form action={upsertRoute} className="mt-4 grid gap-3 sm:grid-cols-[1fr_1fr_1fr_6rem_6rem_auto]">
+          <input name="title" placeholder="Τίτλος εκδρομής (π.χ. Μονοήμερη Ναύπλιο)" className={inputCls} />
           <select name="origin_station_id" required className={inputCls}>
             <option value="">— Από —</option>
             {stations.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}

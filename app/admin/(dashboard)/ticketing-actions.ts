@@ -3,6 +3,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { createServerClient } from '@/lib/supabase/server';
+import { parseBoardingPoints } from '@/lib/excursions';
 
 function revalidateTicketing() {
   revalidatePath('/admin/stations');
@@ -58,6 +59,8 @@ export async function upsertRoute(formData: FormData) {
     duration_min: num(formData, 'duration_min'),
     sales_cutoff_min: num(formData, 'sales_cutoff_min'),
     position: num(formData, 'position') ?? 0,
+    title: g(formData, 'title') || null,
+    boarding_points: parseBoardingPoints(g(formData, 'boarding_points')),
   };
   if (!row.origin_station_id || !row.destination_station_id) return;
 
@@ -65,16 +68,16 @@ export async function upsertRoute(formData: FormData) {
     const { error } = await sb.from('bus_routes').update(row).eq('id', id);
     if (error) console.error('upsertRoute:', error.message);
   } else {
-    const { error } = await sb.from('bus_routes').insert(row);
+    const { data: created, error } = await sb.from('bus_routes').insert(row).select('id').single();
     if (error) console.error('upsertRoute:', error.message);
-    // create the reverse direction too (ignore if it already exists)
-    const { error: e2 } = await sb.from('bus_routes').insert({
-      ...row,
-      origin_station_id: row.destination_station_id,
-      destination_station_id: row.origin_station_id,
-      position: row.position + 1,
-    });
-    if (e2 && e2.code !== '23505') console.error('upsertRoute reverse:', e2.message);
+    // every new excursion starts with the two client-mandated fare categories
+    if (created) {
+      const { error: e2 } = await sb.from('fare_types').insert([
+        { route_id: created.id, name: 'Κανονικό', description: 'Κανονικό εισιτήριο.', price_oneway_cents: 0, price_round_cents: 0, requires_document: false, is_default: true, position: 1, is_active: true },
+        { route_id: created.id, name: 'Φοιτητικό', description: 'Φοιτητές με επίδειξη ακαδημαϊκής ταυτότητας (πάσο).', price_oneway_cents: 0, price_round_cents: 0, requires_document: true, is_default: false, position: 2, is_active: true },
+      ]);
+      if (e2) console.error('upsertRoute fares:', e2.message);
+    }
   }
   revalidateTicketing();
   redirect('/admin/routes');
@@ -84,38 +87,6 @@ export async function deleteRoute(id: string) {
   const sb = await createServerClient();
   const { error } = await sb.from('bus_routes').delete().eq('id', id);
   if (error) console.error('deleteRoute:', error.message);
-  revalidateTicketing();
-}
-
-export async function copyFaresToReverse(routeId: string) {
-  const sb = await createServerClient();
-  const { data: route } = await sb.from('bus_routes').select('*').eq('id', routeId).maybeSingle();
-  if (!route) return;
-  const { data: reverse } = await sb
-    .from('bus_routes')
-    .select('id')
-    .eq('origin_station_id', route.destination_station_id)
-    .eq('destination_station_id', route.origin_station_id)
-    .maybeSingle();
-  if (!reverse) return;
-  const { data: fares } = await sb.from('fare_types').select('*').eq('route_id', routeId);
-  await sb.from('fare_types').delete().eq('route_id', reverse.id);
-  if (fares?.length) {
-    const { error } = await sb.from('fare_types').insert(
-      fares.map((f) => ({
-        route_id: reverse.id,
-        name: f.name,
-        description: f.description,
-        price_oneway_cents: f.price_oneway_cents,
-        price_round_cents: f.price_round_cents,
-        requires_document: f.requires_document,
-        is_default: f.is_default,
-        position: f.position,
-        is_active: f.is_active,
-      }))
-    );
-    if (error) console.error('copyFaresToReverse:', error.message);
-  }
   revalidateTicketing();
 }
 
@@ -326,7 +297,7 @@ export async function manualBooking(formData: FormData) {
       accept_terms: true,
       by_admin: true,
     },
-    p_passengers: [{ passenger_name: name, fare_type_id: fareTypeId, outbound_seat: seat }],
+    p_passengers: [{ passenger_name: name, passenger_phone: phone || '0000000000', fare_type_id: fareTypeId, outbound_seat: seat }],
     p_provider: 'offline',
   });
   if (e2) console.error('manualBooking finalize:', e2.message);

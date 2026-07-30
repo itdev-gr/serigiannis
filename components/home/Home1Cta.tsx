@@ -31,7 +31,7 @@ export function Home1Cta({ settings, content = homeContent.cta }: { settings: Se
               variant="accent"
               className="h-12 min-w-[12rem] rounded-full px-6 text-[13px] font-semibold uppercase tracking-[0.12em]"
             >
-              <Link href="/kratisi">Κλείστε Online Θέση</Link>
+              <Link href="/eisitiria">Κλείστε Online Θέση</Link>
             </Button>
             <Button
               asChild

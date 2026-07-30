@@ -63,7 +63,7 @@ export function ToursExplorer({
 }) {
   const [category, setCategory] = useState<string | undefined>(lockedCategory);
   const [band, setBand] = useState<PriceBand | undefined>(undefined);
-  const [sort, setSort] = useState<SortKey>('popular');
+  const [sort, setSort] = useState<SortKey>('date');
   const [page, setPage] = useState(1);
 
   const filtered = useMemo(() => {
@@ -84,7 +84,7 @@ export function ToursExplorer({
   const reset = () => {
     setCategory(lockedCategory);
     setBand(undefined);
-    setSort('popular');
+    setSort('date');
     setPage(1);
   };
 

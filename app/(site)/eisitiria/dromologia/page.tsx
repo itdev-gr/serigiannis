@@ -2,43 +2,32 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Stepper } from '@/components/ticketing/Stepper';
 import { TripList } from '@/components/ticketing/TripList';
-import { searchTrips } from '@/app/(site)/eisitiria/actions';
+import { searchRouteTrips } from '@/app/(site)/eisitiria/actions';
 import { getStations } from '@/lib/queries/ticketing';
-import type { TripKind } from '@/types/ticketing';
 
 export const metadata: Metadata = {
-  title: 'Δρομολόγια',
+  title: 'Δρομολόγια Εκδρομής',
   robots: { index: false },
 };
 
 export default async function DromologiaPage({
   searchParams,
 }: {
-  searchParams: Promise<{ from?: string; to?: string; date?: string; ret?: string; kind?: string }>;
+  searchParams: Promise<{ route?: string; date?: string; bp?: string; pax?: string }>;
 }) {
-  const { from, to, date, ret, kind: rawKind } = await searchParams;
-  const kind = (['oneway', 'round', 'open_return'].includes(rawKind ?? '') ? rawKind : 'oneway') as TripKind;
+  const { route, date } = await searchParams;
 
-  if (!from || !to || !date) {
-    return (
-      <BareMessage text="Η αναζήτηση δεν είναι πλήρης." backLabel="← Νέα αναζήτηση" />
-    );
+  if (!route || !date) {
+    return <BareMessage text="Η αναζήτηση δεν είναι πλήρης." backLabel="← Νέα αναζήτηση" />;
   }
 
-  const [stations, result] = await Promise.all([
-    getStations(),
-    searchTrips({ originId: from, destId: to, date, kind, returnDate: ret }),
-  ]);
-  const name = (id: string) => stations.find((s) => s.id === id)?.name ?? '—';
-  const outbound = result.outbound && result.outbound.ok ? result.outbound.trips : null;
-  const inbound = result.inbound && result.inbound.ok ? result.inbound.trips : undefined;
+  const [stations, result] = await Promise.all([getStations(), searchRouteTrips({ routeId: route, date })]);
 
-  if (!result.ok || !outbound) {
-    const err = (!result.ok ? result.error : undefined) ?? (result.outbound && !result.outbound.ok ? result.outbound.error : 'db');
+  if (!result.ok) {
     const text =
-      err === 'route_not_found'
-        ? 'Δεν υπάρχει γραμμή για την επιλεγμένη διαδρομή.'
-        : err === 'date_out_of_range'
+      result.error === 'route_not_found'
+        ? 'Η εκδρομή δεν βρέθηκε.'
+        : result.error === 'date_out_of_range'
           ? 'Η ημερομηνία είναι εκτός της περιόδου κρατήσεων.'
           : 'Κάτι πήγε στραβά. Δοκιμάστε ξανά.';
     return <BareMessage text={text} backLabel="← Νέα αναζήτηση" />;
@@ -49,13 +38,11 @@ export default async function DromologiaPage({
       <div className="container max-w-5xl">
         <Stepper current={2} />
         <TripList
-          kind={kind}
-          outboundLabel={`${name(from)} - ${name(to)}`}
-          inboundLabel={`${name(to)} - ${name(from)}`}
+          kind="oneway"
+          outboundLabel={result.route.title ?? stations.find((s) => s.id === result.route.destination_id)?.name ?? '—'}
           date={date}
-          retDate={ret}
-          outbound={outbound}
-          inbound={inbound}
+          outbound={result.trips}
+          showDateNav={false}
         />
       </div>
     </section>

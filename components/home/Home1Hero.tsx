@@ -110,7 +110,7 @@ export function Home1Hero({
 
         <div className="mt-6">
           <Button asChild variant="accent" size="lg">
-            <Link href="/kratisi">Κλείστε Online Θέση</Link>
+            <Link href="/eisitiria">Κλείστε Online Θέση</Link>
           </Button>
         </div>
 

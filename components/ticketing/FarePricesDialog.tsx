@@ -30,8 +30,7 @@ export function FarePricesDialog({ fares }: { fares: OrderFare[] }) {
                 <tr className="border-b border-border text-[13px] uppercase tracking-[0.06em] text-muted">
                   <th className="py-2 pr-4">Κατηγορία</th>
                   <th className="py-2 pr-4">Δικαιούχοι</th>
-                  <th className="py-2 pr-4 text-right">Απλή μετάβαση</th>
-                  <th className="py-2 text-right">Με επιστροφή</th>
+                  <th className="py-2 text-right">Τιμή</th>
                 </tr>
               </thead>
               <tbody>
@@ -39,8 +38,7 @@ export function FarePricesDialog({ fares }: { fares: OrderFare[] }) {
                   <tr key={f.id} className="border-b border-border/60 align-top">
                     <td className="py-3 pr-4 font-semibold text-body">{f.name}</td>
                     <td className="py-3 pr-4 text-muted">{f.description}</td>
-                    <td className="py-3 pr-4 text-right font-semibold text-body">{formatCents(f.price_oneway_cents)}</td>
-                    <td className="py-3 text-right font-semibold text-body">{formatCents(f.price_round_cents)}</td>
+                    <td className="py-3 text-right font-semibold text-body">{formatCents(f.price_oneway_cents)}</td>
                   </tr>
                 ))}
               </tbody>
