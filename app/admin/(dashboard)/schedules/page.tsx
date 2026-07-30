@@ -3,18 +3,20 @@ import { getAdminPatterns, getAdminTrips } from '@/lib/queries/ticketing';
 import { deletePattern, materializeTrips } from '../ticketing-actions';
 import { Button } from '@/components/ui/Button';
 import { ConfirmForm } from '@/components/admin/ConfirmForm';
+import { FlashBanner } from '@/components/admin/FlashBanner';
+import { Pill, adminInput } from '@/components/admin/ui';
+import { routeLabel } from '@/lib/ticketing';
 
-const inputCls = 'rounded-md border border-border bg-surface px-3 py-2 font-sans text-[14px] text-body focus:border-primary focus:outline-none';
 const DAY_SHORT = ['Κυ', 'Δε', 'Τρ', 'Τε', 'Πε', 'Πα', 'Σα'];
 
 function iso(d: Date): string {
   return d.toISOString().slice(0, 10);
 }
 
-export default async function SchedulesPage() {
+export default async function SchedulesPage({ searchParams }: { searchParams: Promise<{ saved?: string; error?: string }> }) {
   const today = new Date();
   const in30 = new Date(today.getTime() + 30 * 86400000);
-  const [patterns, trips] = await Promise.all([getAdminPatterns(), getAdminTrips(iso(today), iso(in30))]);
+  const [patterns, trips, sp] = await Promise.all([getAdminPatterns(), getAdminTrips(iso(today), iso(in30)), searchParams]);
 
   return (
     <div className="max-w-5xl">
@@ -23,13 +25,17 @@ export default async function SchedulesPage() {
         <Button asChild><Link href="/admin/schedules/new">+ Νέο πρόγραμμα</Link></Button>
       </div>
 
+      <div className="mt-6 empty:hidden">
+        <FlashBanner saved={sp.saved} error={sp.error} />
+      </div>
+
       <h2 className="mt-8 font-display text-2xl font-semibold text-primary">Επαναλαμβανόμενα προγράμματα</h2>
       <div className="mt-3 overflow-hidden rounded-lg border border-border bg-surface">
         {patterns.map((p) => (
           <div key={p.id} className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 px-4 py-3 last:border-0">
             <div>
               <Link href={`/admin/schedules/${p.id}`} className="font-medium text-primary hover:underline">
-                {p.route?.origin?.name} → {p.route?.destination?.name} · {p.departure_time.slice(0, 5)}
+                {routeLabel(p.route ?? {})} · {p.departure_time.slice(0, 5)}
               </Link>
               <p className="text-[13px] text-muted">
                 {p.weekdays.slice().sort().map((d) => DAY_SHORT[d]).join(', ')} · {p.layout?.name}
@@ -49,10 +55,10 @@ export default async function SchedulesPage() {
       <div className="mt-6 rounded-lg border border-border bg-surface p-5">
         <form action={materializeTrips} className="flex flex-wrap items-end gap-3">
           <label className="text-[13px] text-muted">Από
-            <input type="date" name="from" defaultValue={iso(today)} className={`${inputCls} block`} />
+            <input type="date" name="from" defaultValue={iso(today)} className={`${adminInput} block`} />
           </label>
           <label className="text-[13px] text-muted">Έως
-            <input type="date" name="to" defaultValue={iso(in30)} className={`${inputCls} block`} />
+            <input type="date" name="to" defaultValue={iso(in30)} className={`${adminInput} block`} />
           </label>
           <Button type="submit" variant="outline">Δημιουργία δρομολογίων περιόδου</Button>
           <p className="w-full text-[12px] text-muted sm:w-auto">
@@ -73,11 +79,9 @@ export default async function SchedulesPage() {
         {trips.map((t) => (
           <div key={t.id} className="grid grid-cols-[9rem_1fr_8rem_7rem_auto] items-center gap-3 border-b border-border/60 px-4 py-2.5 last:border-0">
             <span className="text-[14px] text-body">{new Date(`${t.service_date}T12:00:00`).toLocaleDateString('el-GR', { weekday: 'short', day: '2-digit', month: '2-digit' })}</span>
-            <span className="text-[14px] text-body">{t.route?.origin?.name} → {t.route?.destination?.name} <span className="text-muted">({t.layout?.name})</span></span>
+            <span className="text-[14px] text-body">{routeLabel(t.route ?? {})} <span className="text-muted">({t.layout?.name})</span></span>
             <span className="text-[14px] text-body">{new Date(t.departure_at).toLocaleTimeString('el-GR', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Athens' })}</span>
-            <span className={`w-fit rounded-full px-2.5 py-0.5 text-[12px] font-semibold ${t.status === 'scheduled' ? 'bg-olive/15 text-olive' : 'bg-cta/10 text-cta'}`}>
-              {t.status === 'scheduled' ? 'Ενεργό' : 'Ακυρωμένο'}
-            </span>
+            <Pill tone={t.status === 'scheduled' ? 'ok' : 'danger'}>{t.status === 'scheduled' ? 'Ενεργό' : 'Ακυρωμένο'}</Pill>
             <div className="text-right">
               <Link href={`/admin/schedules/trips/${t.id}`} className="text-[13px] font-medium text-primary hover:underline">Θέσεις & Διαχείριση</Link>
             </div>

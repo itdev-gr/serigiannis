@@ -3,8 +3,8 @@ import { getAdminRoutes, getAdminStations } from '@/lib/queries/ticketing';
 import { deleteRoute, upsertRoute } from '../ticketing-actions';
 import { Button } from '@/components/ui/Button';
 import { ConfirmForm } from '@/components/admin/ConfirmForm';
-
-const inputCls = 'w-full rounded-md border border-border bg-surface px-3 py-2 font-sans text-[14px] text-body focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10';
+import { Pill, adminInput } from '@/components/admin/ui';
+import { routeLabel } from '@/lib/ticketing';
 
 export default async function RoutesPage() {
   const [routes, stations] = await Promise.all([getAdminRoutes(), getAdminStations()]);
@@ -26,11 +26,11 @@ export default async function RoutesPage() {
         {routes.map((r) => (
           <div key={r.id} className="grid grid-cols-[1fr_7rem_6rem_6rem_auto] items-center gap-3 border-b border-border/60 px-4 py-3 last:border-0">
             <Link href={`/admin/routes/${r.id}`} className="font-medium text-primary hover:underline">
-              {r.title?.trim() || `${r.origin?.name ?? '—'} → ${r.destination?.name ?? '—'}`}
+              {routeLabel(r)}
             </Link>
-            <span className={`w-fit rounded-full px-2.5 py-0.5 text-[12px] font-semibold ${r.status === 'published' ? 'bg-olive/15 text-olive' : 'bg-background text-muted'}`}>
+            <Pill tone={r.status === 'published' ? 'ok' : 'muted'}>
               {r.status === 'published' ? 'Δημοσιευμένη' : 'Πρόχειρη'}
-            </span>
+            </Pill>
             <span className="text-[14px] text-muted">{r.duration_min ? `${r.duration_min}′` : '—'}</span>
             <span className="text-[14px] text-muted">{r.sales_cutoff_min != null ? `${r.sales_cutoff_min}′` : 'default'}</span>
             <div className="flex items-center justify-end gap-3">
@@ -47,17 +47,17 @@ export default async function RoutesPage() {
       <div className="mt-8 rounded-lg border border-border bg-surface p-6">
         <h2 className="font-display text-xl font-semibold text-primary">Νέα εκδρομή</h2>
         <form action={upsertRoute} className="mt-4 grid gap-3 sm:grid-cols-[1fr_1fr_1fr_6rem_6rem_auto]">
-          <input name="title" placeholder="Τίτλος εκδρομής (π.χ. Μονοήμερη Ναύπλιο)" className={inputCls} />
-          <select name="origin_station_id" required className={inputCls}>
+          <input name="title" placeholder="Τίτλος εκδρομής (π.χ. Μονοήμερη Ναύπλιο)" className={adminInput} />
+          <select name="origin_station_id" required className={adminInput}>
             <option value="">— Από —</option>
             {stations.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
           </select>
-          <select name="destination_station_id" required className={inputCls}>
+          <select name="destination_station_id" required className={adminInput}>
             <option value="">— Προς —</option>
             {stations.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
           </select>
-          <input name="duration_min" type="number" placeholder="Λεπτά" className={inputCls} />
-          <input name="sales_cutoff_min" type="number" placeholder="Cutoff′" className={inputCls} />
+          <input name="duration_min" type="number" placeholder="Λεπτά" className={adminInput} />
+          <input name="sales_cutoff_min" type="number" placeholder="Cutoff′" className={adminInput} />
           <Button type="submit">Προσθήκη</Button>
           <input type="hidden" name="status" value="published" />
         </form>

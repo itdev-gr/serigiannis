@@ -4,47 +4,56 @@ import { getAdminRoute, getAdminRouteFares } from '@/lib/queries/ticketing';
 import { deleteFareType, upsertFareType, upsertRoute } from '../../ticketing-actions';
 import { Button } from '@/components/ui/Button';
 import { ConfirmForm } from '@/components/admin/ConfirmForm';
+import { FlashBanner } from '@/components/admin/FlashBanner';
+import { adminInput } from '@/components/admin/ui';
+import { routeLabel } from '@/lib/ticketing';
 
-const inputCls = 'w-full rounded-md border border-border bg-surface px-3 py-2 font-sans text-[14px] text-body focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10';
 const FARE_GRID = 'grid grid-cols-[10rem_1fr_6rem_3.5rem_3.5rem_4rem_auto] items-start gap-2';
 
-export default async function RouteDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function RouteDetailPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ saved?: string; error?: string }>;
+}) {
   const { id } = await params;
   const route = await getAdminRoute(id);
   if (!route) notFound();
-  const fares = await getAdminRouteFares(id);
+  const [fares, sp] = await Promise.all([getAdminRouteFares(id), searchParams]);
 
   return (
     <div className="max-w-5xl">
       <p className="mb-2 text-[13px]"><Link href="/admin/routes" className="text-muted hover:text-primary">← Γραμμές</Link></p>
-      <h1 className="font-display text-4xl font-semibold text-primary">
-        {route.title?.trim() || `${route.origin?.name} → ${route.destination?.name}`}
+      <h1 className="mb-6 font-display text-4xl font-semibold text-primary">
+        {routeLabel(route)}
       </h1>
+      <FlashBanner saved={sp.saved} error={sp.error} />
 
       <form action={upsertRoute} className="mt-6 grid gap-3 rounded-lg border border-border bg-surface p-6 sm:grid-cols-[8rem_8rem_8rem_8rem_auto]">
         <input type="hidden" name="id" value={route.id} />
         <input type="hidden" name="origin_station_id" value={route.origin_station_id} />
         <input type="hidden" name="destination_station_id" value={route.destination_station_id} />
         <label className="block text-[13px] text-muted sm:col-span-5">Τίτλος εκδρομής
-          <input name="title" defaultValue={route.title ?? ''} placeholder="π.χ. Μονοήμερη Ναύπλιο" className={inputCls} />
+          <input name="title" defaultValue={route.title ?? ''} placeholder="π.χ. Μονοήμερη Ναύπλιο" className={adminInput} />
         </label>
         <label className="block text-[13px] text-muted sm:col-span-5">Σημεία συνάντησης (ένα ανά γραμμή)
-          <textarea name="boarding_points" rows={3} defaultValue={(route.boarding_points ?? []).join('\n')} className={inputCls} />
+          <textarea name="boarding_points" rows={3} defaultValue={(route.boarding_points ?? []).join('\n')} className={adminInput} />
         </label>
         <label className="block text-[13px] text-muted">Κατάσταση
-          <select name="status" defaultValue={route.status} className={inputCls}>
+          <select name="status" defaultValue={route.status} className={adminInput}>
             <option value="published">Δημοσιευμένη</option>
             <option value="draft">Πρόχειρη</option>
           </select>
         </label>
         <label className="block text-[13px] text-muted">Διάρκεια (λεπτά)
-          <input name="duration_min" type="number" defaultValue={route.duration_min ?? ''} className={inputCls} />
+          <input name="duration_min" type="number" defaultValue={route.duration_min ?? ''} className={adminInput} />
         </label>
         <label className="block text-[13px] text-muted">Cutoff πώλησης (λεπτά)
-          <input name="sales_cutoff_min" type="number" defaultValue={route.sales_cutoff_min ?? ''} placeholder="default" className={inputCls} />
+          <input name="sales_cutoff_min" type="number" defaultValue={route.sales_cutoff_min ?? ''} placeholder="default" className={adminInput} />
         </label>
         <label className="block text-[13px] text-muted">Σειρά
-          <input name="position" type="number" defaultValue={route.position} className={inputCls} />
+          <input name="position" type="number" defaultValue={route.position} className={adminInput} />
         </label>
         <div className="self-end"><Button type="submit">Αποθήκευση</Button></div>
       </form>
@@ -74,9 +83,9 @@ export default async function RouteDetailPage({ params }: { params: Promise<{ id
                   <input type="hidden" name="position" value={f.position} />
                   <input type="hidden" name="price_round" value={(f.price_round_cents / 100).toFixed(2)} />
                 </form>
-                <input form={formId} name="name" defaultValue={f.name} className={inputCls} />
-                <textarea form={formId} name="description" defaultValue={f.description ?? ''} rows={2} className={inputCls} />
-                <input form={formId} name="price_oneway" type="number" step="0.01" defaultValue={(f.price_oneway_cents / 100).toFixed(2)} className={inputCls} />
+                <input form={formId} name="name" defaultValue={f.name} className={adminInput} />
+                <textarea form={formId} name="description" defaultValue={f.description ?? ''} rows={2} className={adminInput} />
+                <input form={formId} name="price_oneway" type="number" step="0.01" defaultValue={(f.price_oneway_cents / 100).toFixed(2)} className={adminInput} />
                 <input form={formId} name="requires_document" type="checkbox" defaultChecked={f.requires_document} className="mt-3 h-4 w-4" />
                 <input form={formId} name="is_default" type="checkbox" defaultChecked={f.is_default} className="mt-3 h-4 w-4" />
                 <input form={formId} name="is_active" type="checkbox" defaultChecked={f.is_active} className="mt-3 h-4 w-4" />
@@ -98,9 +107,9 @@ export default async function RouteDetailPage({ params }: { params: Promise<{ id
           <input type="hidden" name="route_id" value={route.id} />
           <input type="hidden" name="is_active" value="on" />
           <input type="hidden" name="price_round" value="0" />
-          <input name="name" placeholder="Όνομα (π.χ. Κανονικό)" required className={inputCls} />
-          <input name="description" placeholder="Δικαιούχοι" className={inputCls} />
-          <input name="price_oneway" type="number" step="0.01" placeholder="Τιμή €" required className={inputCls} />
+          <input name="name" placeholder="Όνομα (π.χ. Κανονικό)" required className={adminInput} />
+          <input name="description" placeholder="Δικαιούχοι" className={adminInput} />
+          <input name="price_oneway" type="number" step="0.01" placeholder="Τιμή €" required className={adminInput} />
           <Button type="submit">Προσθήκη</Button>
         </form>
       </div>

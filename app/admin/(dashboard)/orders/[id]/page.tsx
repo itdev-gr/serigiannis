@@ -4,14 +4,21 @@ import { getAdminOrder } from '@/lib/queries/ticketing';
 import { cancelTicket, markOrderPaid, moveTicket, renameTicket, saveOrderNotes } from '../../ticketing-actions';
 import { Button } from '@/components/ui/Button';
 import { ConfirmForm } from '@/components/admin/ConfirmForm';
-import { KIND_LABEL, ORDER_STATUS_LABEL, TICKET_STATUS_LABEL, formatCents } from '@/lib/ticketing';
+import { FlashBanner } from '@/components/admin/FlashBanner';
+import { OrderStatusBadge, TicketStatusBadge } from '@/components/admin/StatusBadge';
+import { adminInput } from '@/components/admin/ui';
+import { KIND_LABEL, formatCents, routeLabel } from '@/lib/ticketing';
 import type { TripKind } from '@/types/ticketing';
 
-const inputCls = 'w-full rounded-md border border-border bg-surface px-3 py-2 font-sans text-[14px] text-body focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10';
-
-export default async function OrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function OrderDetailPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ saved?: string; error?: string }>;
+}) {
   const { id } = await params;
-  const data = await getAdminOrder(id);
+  const [data, sp] = await Promise.all([getAdminOrder(id), searchParams]);
   if (!data) notFound();
   const { order, tickets } = data;
 
@@ -20,9 +27,11 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
       <p className="mb-2 text-[13px]"><Link href="/admin/orders" className="text-muted hover:text-primary">← Εισιτήρια</Link></p>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="font-display text-4xl font-semibold text-primary">{order.public_code}</h1>
-        <span className="rounded-full bg-background px-3 py-1 text-[13px] font-semibold text-body">
-          {ORDER_STATUS_LABEL[order.status] ?? order.status}
-        </span>
+        <OrderStatusBadge status={order.status} />
+      </div>
+
+      <div className="mt-6 empty:hidden">
+        <FlashBanner saved={sp.saved} error={sp.error} />
       </div>
 
       <div className="mt-6 grid gap-4 rounded-lg border border-border bg-surface p-6 sm:grid-cols-2">
@@ -55,15 +64,11 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
         {tickets.map((t) => (
           <div key={t.id} className="rounded-lg border border-border bg-surface p-5">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <div>
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
                 <span className="font-mono text-[15px] font-bold tracking-[0.15em] text-deep-ink">{t.code}</span>
-                <span className={`ml-3 rounded-full px-2.5 py-0.5 text-[12px] font-semibold ${
-                  t.status === 'valid' ? 'bg-olive/15 text-olive' : t.status === 'used' ? 'bg-primary/10 text-primary' : 'bg-cta/10 text-cta'
-                }`}>
-                  {TICKET_STATUS_LABEL[t.status] ?? t.status}
-                </span>
+                <TicketStatusBadge status={t.status} />
                 {t.refunded_cents != null && (
-                  <span className="ml-2 text-[13px] text-muted">Επιστροφή: {formatCents(t.refunded_cents)}</span>
+                  <span className="text-[13px] text-muted">Επιστροφή: {formatCents(t.refunded_cents)}</span>
                 )}
               </div>
               <span className="text-[14px] font-semibold text-body">{t.fare_name} · {formatCents(t.price_cents)}</span>
@@ -73,7 +78,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
               {t.passenger_phone && ` · ${t.passenger_phone}`}
               {' · '}
               {t.trip
-                ? `${t.trip.route?.origin?.name} → ${t.trip.route?.destination?.name} · ${new Date(`${t.trip.service_date}T12:00:00`).toLocaleDateString('el-GR')} · ${new Date(t.trip.departure_at).toLocaleTimeString('el-GR', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Athens' })} · Θέση ${t.seat_no}`
+                ? `${routeLabel(t.trip.route ?? {})} · ${new Date(`${t.trip.service_date}T12:00:00`).toLocaleDateString('el-GR')} · ${new Date(t.trip.departure_at).toLocaleTimeString('el-GR', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Athens' })} · Θέση ${t.seat_no}`
                 : `Ανοιχτή επιστροφή${t.open_return_expires_on ? ` (έως ${new Date(`${t.open_return_expires_on}T12:00:00`).toLocaleDateString('el-GR')})` : ''}`}
               {t.validated_at && ` · Επικυρώθηκε ${new Date(t.validated_at).toLocaleString('el-GR')}`}
             </p>
@@ -84,7 +89,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                   <input type="hidden" name="ticket_id" value={t.id} />
                   <input type="hidden" name="order_id" value={order.id} />
                   <label className="grow text-[12px] text-muted">Αλλαγή ονόματος
-                    <input name="passenger_name" defaultValue={t.passenger_name} className={inputCls} />
+                    <input name="passenger_name" defaultValue={t.passenger_name} className={adminInput} />
                   </label>
                   <Button type="submit" size="sm" variant="outline">ΟΚ</Button>
                 </form>
@@ -93,10 +98,10 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                   <input type="hidden" name="order_id" value={order.id} />
                   {t.trip_id == null && <input type="hidden" name="open_return" value="1" />}
                   <label className="grow text-[12px] text-muted">{t.trip_id == null ? 'Εξαργύρωση σε δρομολόγιο (ID)' : 'Μεταφορά σε δρομολόγιο (ID)'}
-                    <input name="trip_id" defaultValue={t.trip_id ?? ''} placeholder="Trip ID" className={inputCls} />
+                    <input name="trip_id" defaultValue={t.trip_id ?? ''} placeholder="Trip ID" className={adminInput} />
                   </label>
                   <label className="w-20 text-[12px] text-muted">Θέση
-                    <input name="seat_no" defaultValue={t.seat_no ?? ''} className={inputCls} />
+                    <input name="seat_no" defaultValue={t.seat_no ?? ''} className={adminInput} />
                   </label>
                   <Button type="submit" size="sm" variant="outline">ΟΚ</Button>
                 </form>
@@ -121,7 +126,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
 
       <form action={saveOrderNotes.bind(null, order.id)} className="mt-8 rounded-lg border border-border bg-surface p-5">
         <label className="block text-[13px] text-muted">Σημειώσεις διαχειριστή
-          <textarea name="admin_notes" rows={3} defaultValue={order.admin_notes ?? ''} className={inputCls} />
+          <textarea name="admin_notes" rows={3} defaultValue={order.admin_notes ?? ''} className={adminInput} />
         </label>
         <div className="mt-3"><Button type="submit" size="sm" variant="outline">Αποθήκευση σημειώσεων</Button></div>
       </form>

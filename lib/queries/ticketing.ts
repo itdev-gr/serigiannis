@@ -132,7 +132,7 @@ export async function getAdminLayout(id: string): Promise<BusLayout | null> {
 }
 
 export type AdminPattern = SchedulePattern & {
-  route: { id: string; origin: { name: string } | null; destination: { name: string } | null } | null;
+  route: { id: string; title: string | null; origin: { name: string } | null; destination: { name: string } | null } | null;
   layout: { name: string } | null;
 };
 
@@ -140,7 +140,7 @@ export async function getAdminPatterns(): Promise<AdminPattern[]> {
   const sb = await createServerClient();
   const { data } = await sb
     .from('schedule_patterns')
-    .select('*, route:bus_routes(id, origin:stations!bus_routes_origin_station_id_fkey(name), destination:stations!bus_routes_destination_station_id_fkey(name)), layout:bus_layouts(name)')
+    .select('*, route:bus_routes(id, title, origin:stations!bus_routes_origin_station_id_fkey(name), destination:stations!bus_routes_destination_station_id_fkey(name)), layout:bus_layouts(name)')
     .order('departure_time');
   return (data ?? []) as AdminPattern[];
 }
@@ -152,7 +152,7 @@ export async function getAdminPattern(id: string): Promise<SchedulePattern | nul
 }
 
 export type AdminTrip = Trip & {
-  route: { origin: { name: string } | null; destination: { name: string } | null } | null;
+  route: { title: string | null; origin: { name: string } | null; destination: { name: string } | null } | null;
   layout: { name: string } | null;
 };
 
@@ -160,7 +160,7 @@ export async function getAdminTrips(from: string, to: string): Promise<AdminTrip
   const sb = await createServerClient();
   const { data } = await sb
     .from('trips')
-    .select('*, route:bus_routes(origin:stations!bus_routes_origin_station_id_fkey(name), destination:stations!bus_routes_destination_station_id_fkey(name)), layout:bus_layouts(name)')
+    .select('*, route:bus_routes(title, origin:stations!bus_routes_origin_station_id_fkey(name), destination:stations!bus_routes_destination_station_id_fkey(name)), layout:bus_layouts(name)')
     .gte('service_date', from)
     .lte('service_date', to)
     .order('departure_at');
@@ -171,7 +171,7 @@ export async function getAdminTrip(id: string): Promise<AdminTrip | null> {
   const sb = await createServerClient();
   const { data } = await sb
     .from('trips')
-    .select('*, route:bus_routes(origin:stations!bus_routes_origin_station_id_fkey(name), destination:stations!bus_routes_destination_station_id_fkey(name)), layout:bus_layouts(name)')
+    .select('*, route:bus_routes(title, origin:stations!bus_routes_origin_station_id_fkey(name), destination:stations!bus_routes_destination_station_id_fkey(name)), layout:bus_layouts(name)')
     .eq('id', id)
     .maybeSingle();
   return (data as AdminTrip) ?? null;
@@ -243,7 +243,7 @@ export type AdminTicket = {
   trip?: {
     service_date: string;
     departure_at: string;
-    route: { origin: { name: string } | null; destination: { name: string } | null } | null;
+    route: { title: string | null; origin: { name: string } | null; destination: { name: string } | null } | null;
   } | null;
 };
 
@@ -253,7 +253,7 @@ export async function getAdminOrder(id: string): Promise<{ order: AdminOrder; ti
   if (!order) return null;
   const { data: tickets } = await sb
     .from('tickets')
-    .select('*, trip:trips(service_date, departure_at, route:bus_routes(origin:stations!bus_routes_origin_station_id_fkey(name), destination:stations!bus_routes_destination_station_id_fkey(name)))')
+    .select('*, trip:trips(service_date, departure_at, route:bus_routes(title, origin:stations!bus_routes_origin_station_id_fkey(name), destination:stations!bus_routes_destination_station_id_fkey(name)))')
     .eq('order_id', id)
     .order('passenger_key')
     .order('leg');
