@@ -1,34 +1,127 @@
 import Link from 'next/link';
-import { getLeads } from '@/lib/queries/leads';
+import { getLeads, groupClients } from '@/lib/queries/leads';
 import { StatusBadge, TypeBadge } from '@/components/admin/StatusBadge';
+import { AdminPageHeader } from '@/components/admin/ui';
+import { cn } from '@/lib/utils';
 
-export default async function RequestsPage() {
+const TABS = [
+  { key: 'ola', label: 'Όλα' },
+  { key: 'kratiseis', label: 'Κρατήσεις' },
+  { key: 'pelates', label: 'Πελάτες' },
+] as const;
+type TabKey = (typeof TABS)[number]['key'];
+
+const TH = 'px-5 py-3';
+const THEAD = 'border-b border-border bg-background/50 font-sans text-[12px] uppercase tracking-[0.1em] text-muted';
+
+export default async function RequestsPage({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
+  const sp = await searchParams;
+  const tab: TabKey = TABS.find((t) => t.key === sp.tab)?.key ?? 'ola';
+
   const leads = await getLeads();
+  const bookings = leads.filter((l) => l.status === 'booked');
+  const clients = groupClients(leads);
+
+  const count = tab === 'kratiseis' ? bookings.length : tab === 'pelates' ? clients.length : leads.length;
+  const countLabel =
+    tab === 'kratiseis' ? 'αιτήματα σε κατάσταση «Κράτηση»'
+    : tab === 'pelates' ? 'πελάτες (ομαδοποίηση κατά email/τηλέφωνο)'
+    : 'αιτήματα συνολικά';
+
   return (
     <div>
-      <h1 className="font-display text-4xl font-semibold text-primary">Αιτήματα</h1>
-      <p className="mt-1 text-muted">{leads.length} συνολικά</p>
-      <div className="mt-8 overflow-x-auto">
-        <div className="min-w-[640px] overflow-hidden rounded-lg border border-border bg-surface">
-          <table className="w-full text-left text-[14px]">
-            <thead className="border-b border-border bg-background/50 font-sans text-[12px] uppercase tracking-[0.1em] text-muted">
-              <tr><th className="px-5 py-3">Όνομα</th><th className="px-5 py-3">Τύπος</th><th className="px-5 py-3">Θέμα / Εκδρομή</th><th className="px-5 py-3">Επικοινωνία</th><th className="px-5 py-3">Κατάσταση</th></tr>
-            </thead>
-            <tbody>
-              {leads.length === 0 && <tr><td colSpan={5} className="px-5 py-8 text-center text-muted">Δεν υπάρχουν αιτήματα ακόμη.</td></tr>}
-              {leads.map((l) => (
-                <tr key={l.id} className="border-b border-border/60 last:border-0 hover:bg-background/40">
-                  <td className="px-5 py-3"><Link href={`/admin/requests/${l.id}`} className="font-medium text-primary hover:text-cta">{l.name}</Link></td>
-                  <td className="px-5 py-3"><TypeBadge type={l.type} /></td>
-                  <td className="px-5 py-3 text-muted">{l.tour_title ?? l.subject ?? '—'}</td>
-                  <td className="px-5 py-3 text-muted">{l.phone ?? l.email ?? '—'}</td>
-                  <td className="px-5 py-3"><StatusBadge status={l.status} /></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      <AdminPageHeader
+        title="Αιτήματα & Πελάτες"
+        subtitle="Αιτήματα από τις φόρμες επικοινωνίας, προσφοράς και κράτησης — και οι πελάτες που προκύπτουν από αυτά."
+      />
+
+      <div className="mb-6 flex flex-wrap gap-2">
+        {TABS.map((t) => (
+          <Link
+            key={t.key}
+            href={t.key === 'ola' ? '/admin/requests' : `/admin/requests?tab=${t.key}`}
+            className={cn(
+              'rounded-full px-4 py-1.5 text-[14px] font-medium transition-colors',
+              t.key === tab ? 'bg-primary text-surface' : 'bg-background text-body hover:bg-primary/10'
+            )}
+          >
+            {t.label}
+          </Link>
+        ))}
       </div>
+
+      <p className="mb-4 text-muted">{count} {countLabel}</p>
+
+      {tab === 'ola' && (
+        <div className="overflow-x-auto">
+          <div className="min-w-[640px] overflow-hidden rounded-lg border border-border bg-surface">
+            <table className="w-full text-left text-[14px]">
+              <thead className={THEAD}>
+                <tr><th className={TH}>Όνομα</th><th className={TH}>Τύπος</th><th className={TH}>Θέμα / Εκδρομή</th><th className={TH}>Επικοινωνία</th><th className={TH}>Κατάσταση</th></tr>
+              </thead>
+              <tbody>
+                {leads.length === 0 && <tr><td colSpan={5} className="px-5 py-8 text-center text-muted">Δεν υπάρχουν αιτήματα ακόμη.</td></tr>}
+                {leads.map((l) => (
+                  <tr key={l.id} className="border-b border-border/60 last:border-0 hover:bg-background/40">
+                    <td className={TH}><Link href={`/admin/requests/${l.id}`} className="font-medium text-primary hover:text-cta">{l.name}</Link></td>
+                    <td className={TH}><TypeBadge type={l.type} /></td>
+                    <td className={`${TH} text-muted`}>{l.tour_title ?? l.subject ?? '—'}</td>
+                    <td className={`${TH} text-muted`}>{l.phone ?? l.email ?? '—'}</td>
+                    <td className={TH}><StatusBadge status={l.status} /></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {tab === 'kratiseis' && (
+        <div className="overflow-x-auto">
+          <div className="min-w-[640px] overflow-hidden rounded-lg border border-border bg-surface">
+            <table className="w-full text-left text-[14px]">
+              <thead className={THEAD}>
+                <tr><th className={TH}>Πελάτης</th><th className={TH}>Εκδρομή</th><th className={TH}>Ημερομηνία</th><th className={TH}>Θέσεις</th><th className={TH}>Επικοινωνία</th></tr>
+              </thead>
+              <tbody>
+                {bookings.length === 0 && <tr><td colSpan={5} className="px-5 py-8 text-center text-muted">Δεν υπάρχουν κρατήσεις ακόμη.</td></tr>}
+                {bookings.map((b) => (
+                  <tr key={b.id} className="border-b border-border/60 last:border-0">
+                    <td className={TH}><Link href={`/admin/requests/${b.id}`} className="font-medium text-primary hover:text-cta">{b.name}</Link></td>
+                    <td className={`${TH} text-muted`}>{b.tour_title ?? b.subject ?? '—'}</td>
+                    <td className={`${TH} text-muted`}>{b.preferred_date ?? '—'}</td>
+                    <td className={`${TH} text-muted`}>{b.party_size ?? '—'}</td>
+                    <td className={`${TH} text-muted`}>{b.phone ?? b.email ?? '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {tab === 'pelates' && (
+        <div className="overflow-x-auto">
+          <div className="min-w-[640px] overflow-hidden rounded-lg border border-border bg-surface">
+            <table className="w-full text-left text-[14px]">
+              <thead className={THEAD}>
+                <tr><th className={TH}>Όνομα</th><th className={TH}>Επικοινωνία</th><th className={TH}>Αιτήματα</th><th className={TH}>Τελευταία δραστηριότητα</th></tr>
+              </thead>
+              <tbody>
+                {clients.length === 0 && <tr><td colSpan={4} className="px-5 py-8 text-center text-muted">Δεν υπάρχουν πελάτες ακόμη.</td></tr>}
+                {clients.map((c) => (
+                  <tr key={c.key} className="border-b border-border/60 last:border-0">
+                    <td className={`${TH} font-medium text-primary`}>{c.name}</td>
+                    <td className={`${TH} text-muted`}>{c.phone ?? c.email ?? '—'}</td>
+                    <td className={`${TH} text-muted`}>{c.count}</td>
+                    <td className={`${TH} text-muted`}>{new Date(c.lastActivity).toLocaleDateString('el-GR')}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

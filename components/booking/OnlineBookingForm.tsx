@@ -82,7 +82,7 @@ export function OnlineBookingForm({
       })}
     >
       <input {...register('hp')} type="text" name="hp" tabIndex={-1} autoComplete="off" aria-hidden="true" className="absolute left-[-9999px] top-0 h-0 w-0 opacity-0" />
-      <h3 className="font-display text-2xl font-semibold text-primary">Κλείστε Online Θέση</h3>
+      <h3 className="font-display text-2xl font-semibold text-primary">Ζητήστε Κράτηση / Προσφορά</h3>
       {subject && <p className="-mt-2 text-[14px] text-muted">{subject}</p>}
       <Field label="Ονοματεπώνυμο *" error={errors.name?.message}><input {...register('name')} className={inputCls} /></Field>
       <div className="grid gap-4 sm:grid-cols-2">
@@ -103,7 +103,7 @@ export function OnlineBookingForm({
       )}
       <Field label="Σημειώσεις"><textarea rows={3} {...register('notes')} className={inputCls} /></Field>
       {error && <p className="text-[14px] text-cta">{error}</p>}
-      <Button type="submit" disabled={isSubmitting}>{isSubmitting ? 'Αποστολή…' : 'Στείλτε αίτημα κράτησης'}</Button>
+      <Button type="submit" disabled={isSubmitting}>{isSubmitting ? 'Αποστολή…' : 'Αποστολή Αιτήματος'}</Button>
     </form>
   );
 }

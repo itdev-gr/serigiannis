@@ -142,7 +142,7 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
                 )}
               </ul>
               <Button asChild variant="accent" size="lg" className="mt-8 w-full">
-                <Link href="#kratisi">Κλείστε Online Θέση</Link>
+                <Link href="#kratisi">Ζητήστε Κράτηση / Προσφορά</Link>
               </Button>
               {phone && (
                 <a href={telHref(phone)} className="mt-3 flex items-center justify-center gap-2 font-sans text-[14px] font-semibold text-primary hover:text-cta">

@@ -297,7 +297,6 @@ export async function setLeadStatus(id: string, status: string) {
   if (error) console.error('setLeadStatus:', error.message);
   revalidatePath('/admin');
   revalidatePath('/admin/requests');
-  revalidatePath('/admin/bookings');
   revalidatePath(`/admin/requests/${id}`);
 }
 
@@ -330,7 +329,7 @@ export async function upsertCategory(formData: FormData) {
     : await sb.from('categories').insert(payload);
   if (error) console.error('upsertCategory:', error.message);
   revalidatePublic();
-  revalidatePath('/admin/categories');
+  revalidatePath('/admin/tours');
 }
 
 export async function deleteCategory(id: string) {
@@ -338,7 +337,7 @@ export async function deleteCategory(id: string) {
   const { error } = await sb.from('categories').delete().eq('id', id);
   if (error) console.error('deleteCategory:', error.message);
   revalidatePublic();
-  revalidatePath('/admin/categories');
+  revalidatePath('/admin/tours');
 }
 
 function revalidatePosts(slug?: string) {

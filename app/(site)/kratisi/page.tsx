@@ -6,8 +6,8 @@ import { getTourBySlug } from '@/lib/queries/tours';
 import { getPostBySlug } from '@/lib/queries/posts';
 
 export const metadata: Metadata = {
-  title: 'Κλείστε Online Θέση',
-  description: 'Κλείστε online θέση για εκδρομή ή κρουαζιέρα της Sergiani Travel. Συμπληρώστε τη φόρμα και θα σας καλέσουμε για επιβεβαίωση.',
+  title: 'Ζητήστε Κράτηση / Προσφορά',
+  description: 'Ζητήστε κράτηση ή προσφορά για εκδρομή ή κρουαζιέρα της Sergiani Travel. Συμπληρώστε τη φόρμα και θα σας καλέσουμε για επιβεβαίωση.',
   alternates: { canonical: '/kratisi' },
 };
 
@@ -24,7 +24,8 @@ export default async function KratisiPage({ searchParams }: { searchParams: Prom
   return (
     <>
       <PageHero
-        title="Κλείστε Online Θέση"
+        eyebrow="Κράτηση / Προσφορά"
+        title="Ζητήστε Κράτηση / Προσφορά"
         subtitle="Συμπληρώστε τη φόρμα και θα επικοινωνήσουμε μαζί σας για την επιβεβαίωση της κράτησης."
         heightClass="h-[44vh] min-h-[340px]"
         align="center"

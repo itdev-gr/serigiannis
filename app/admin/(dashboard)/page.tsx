@@ -6,8 +6,8 @@ import { StatusBadge, TypeBadge } from '@/components/admin/StatusBadge';
 const TILES = [
   { key: 'tours', label: 'Δημοσιευμένες εκδρομές', href: '/admin/tours' },
   { key: 'newRequests', label: 'Νέα αιτήματα', href: '/admin/requests' },
-  { key: 'clients', label: 'Πελάτες', href: '/admin/clients' },
-  { key: 'bookings', label: 'Κρατήσεις', href: '/admin/bookings' },
+  { key: 'clients', label: 'Πελάτες', href: '/admin/requests?tab=pelates' },
+  { key: 'bookings', label: 'Κρατήσεις', href: '/admin/requests?tab=kratiseis' },
 ] as const;
 
 export default async function DashboardPage() {
