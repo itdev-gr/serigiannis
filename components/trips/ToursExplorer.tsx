@@ -36,7 +36,7 @@ export function ToursExplorer({
 }) {
   const [category, setCategory] = useState<string | undefined>(lockedCategory);
   const [band, setBand] = useState<PriceBand | undefined>(undefined);
-  const [sort, setSort] = useState<SortKey>('popular');
+  const [sort, setSort] = useState<SortKey>('date');
   const [page, setPage] = useState(1);
 
   const filtered = useMemo(() => {
@@ -53,7 +53,7 @@ export function ToursExplorer({
       active ? 'bg-primary text-surface' : 'text-primary hover:bg-primary/10'
     }`;
 
-  const reset = () => { setCategory(lockedCategory); setBand(undefined); setSort('popular'); setPage(1); };
+  const reset = () => { setCategory(lockedCategory); setBand(undefined); setSort('date'); setPage(1); };
 
   return (
     <div>
