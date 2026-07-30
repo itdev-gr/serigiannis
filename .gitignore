@@ -36,3 +36,6 @@ next-env.d.ts
 .playwright-mcp/
 /home1-full.jpeg
 /hero-slideshow.jpeg
+
+# Supabase CLI local cache
+supabase/.temp/
