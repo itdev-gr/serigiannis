@@ -62,6 +62,7 @@ export type Post = {
   published_at: string | null;
   trip_date: string | null; // 'YYYY-MM-DD' — ημερομηνία εκδρομής
   price: number | null;     // per-person €, drives booking total
+  route_id: string | null;  // linked bookable excursion (bus_routes.id) — deep-link CTA
   created_at: string;
   updated_at: string;
 };
