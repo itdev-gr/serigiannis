@@ -1,6 +1,6 @@
 import QRCode from 'qrcode';
 import { createServiceClient } from '@/lib/supabase/server';
-import { KIND_LABEL, ORDER_STATUS_LABEL, formatCents } from '@/lib/ticketing';
+import { ORDER_STATUS_LABEL, formatCents } from '@/lib/ticketing';
 import type { OrderBundle } from '@/types/ticketing';
 
 const esc = (v: unknown) => String(v ?? '').replace(/</g, '&lt;');
@@ -36,7 +36,7 @@ export async function notifyTicketOrder(accessToken: string): Promise<void> {
       (tk) => `
     <div style="border:1px solid #dbe2ec;border-radius:8px;padding:14px 16px;margin:10px 0">
       <p style="margin:0 0 6px;color:#5b6b82;font-size:12px;text-transform:uppercase">${esc(legLine(tk.leg))}</p>
-      <p style="margin:0;font-size:15px"><strong>${esc(tk.passenger_name)}</strong>
+      <p style="margin:0;font-size:15px"><strong>${esc(tk.passenger_name)}${tk.passenger_phone ? ' · ' + esc(tk.passenger_phone) : ''}</strong>
         · Θέση: <strong>${esc(tk.seat_no ?? 'Ανοιχτή')}</strong>
         · ${esc(tk.fare_name)} · ${esc(formatCents(tk.price_cents))}</p>
       <p style="margin:8px 0 0;font-size:18px;letter-spacing:4px;font-family:monospace">
@@ -48,8 +48,9 @@ export async function notifyTicketOrder(accessToken: string): Promise<void> {
   const html = `
   <div style="font-family:sans-serif;max-width:640px">
     <h2 style="color:#00296b">Τα εισιτήριά σας — ${esc(order.public_code)}</h2>
-    <p style="color:#16233b">${esc(KIND_LABEL[order.kind])} · ${esc(ORDER_STATUS_LABEL[order.status] ?? order.status)}
+    <p style="color:#16233b">Εκδρομή · ${esc(ORDER_STATUS_LABEL[order.status] ?? order.status)}
       · Σύνολο: <strong>${esc(formatCents(order.amount_total_cents))}</strong></p>
+    ${order.boarding_point ? `<p style="color:#16233b">Σημείο συνάντησης: <strong>${esc(order.boarding_point)}</strong></p>` : ''}
     ${order.status === 'offline' ? '<p style="color:#5b6b82">Η εξόφληση γίνεται στο γραφείο μας ή στο λεωφορείο πριν την αναχώρηση.</p>' : ''}
     ${ticketBlocks}
     <p style="color:#5b6b82;font-size:13px">Δείτε τα εισιτήριά σας online:
@@ -99,7 +100,7 @@ export async function notifyTicketOrder(accessToken: string): Promise<void> {
       <div style="font-family:sans-serif">
         <h2 style="color:#00296b">Νέα κράτηση εισιτηρίων — ${esc(order.public_code)}</h2>
         <p>${esc(order.customer_name)} · ${esc(order.phone)} · ${esc(order.email)}</p>
-        <p>${esc(KIND_LABEL[order.kind])} · ${tickets.length} εισιτήρια · ${esc(formatCents(order.amount_total_cents))}
+        <p>Εκδρομή · ${tickets.length} εισιτήρια · ${esc(formatCents(order.amount_total_cents))}
           · ${esc(ORDER_STATUS_LABEL[order.status] ?? order.status)}</p>
         ${ticketBlocks}
         <p style="color:#5b6b82;font-size:13px">Διαχείριση: <a href="${site}/admin/orders/${order.id}">/admin/orders</a></p>

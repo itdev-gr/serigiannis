@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getAdminRoute, getAdminRouteFares } from '@/lib/queries/ticketing';
-import { copyFaresToReverse, deleteFareType, upsertFareType, upsertRoute } from '../../ticketing-actions';
+import { deleteFareType, upsertFareType, upsertRoute } from '../../ticketing-actions';
 import { Button } from '@/components/ui/Button';
 import { ConfirmForm } from '@/components/admin/ConfirmForm';
 
@@ -51,9 +51,6 @@ export default async function RouteDetailPage({ params }: { params: Promise<{ id
 
       <div className="mt-10 flex flex-wrap items-center justify-between gap-3">
         <h2 className="font-display text-2xl font-semibold text-primary">Τιμές εισιτηρίων</h2>
-        <ConfirmForm action={copyFaresToReverse.bind(null, route.id)} message="Αντιγραφή των ναύλων στην αντίστροφη κατεύθυνση; Οι υπάρχοντες ναύλοι της θα αντικατασταθούν.">
-          <Button type="submit" variant="outline" size="sm">Αντιγραφή στην αντίστροφη</Button>
-        </ConfirmForm>
       </div>
 
       <div className="mt-4 overflow-x-auto rounded-lg border border-border bg-surface">

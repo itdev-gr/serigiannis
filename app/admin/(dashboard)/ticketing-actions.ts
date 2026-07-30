@@ -90,38 +90,6 @@ export async function deleteRoute(id: string) {
   revalidateTicketing();
 }
 
-export async function copyFaresToReverse(routeId: string) {
-  const sb = await createServerClient();
-  const { data: route } = await sb.from('bus_routes').select('*').eq('id', routeId).maybeSingle();
-  if (!route) return;
-  const { data: reverse } = await sb
-    .from('bus_routes')
-    .select('id')
-    .eq('origin_station_id', route.destination_station_id)
-    .eq('destination_station_id', route.origin_station_id)
-    .maybeSingle();
-  if (!reverse) return;
-  const { data: fares } = await sb.from('fare_types').select('*').eq('route_id', routeId);
-  await sb.from('fare_types').delete().eq('route_id', reverse.id);
-  if (fares?.length) {
-    const { error } = await sb.from('fare_types').insert(
-      fares.map((f) => ({
-        route_id: reverse.id,
-        name: f.name,
-        description: f.description,
-        price_oneway_cents: f.price_oneway_cents,
-        price_round_cents: f.price_round_cents,
-        requires_document: f.requires_document,
-        is_default: f.is_default,
-        position: f.position,
-        is_active: f.is_active,
-      }))
-    );
-    if (error) console.error('copyFaresToReverse:', error.message);
-  }
-  revalidateTicketing();
-}
-
 // ---------------------------------------------------------------- fares
 
 export async function upsertFareType(formData: FormData) {

@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 };
 
 export default async function NeaPage() {
-  const posts = sortPostsForListing(await getPosts(), new Date().toISOString().slice(0, 10));
+  const posts = sortPostsForListing(await getPosts(), new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Athens' }));
   return (
     <>
       <PageHero

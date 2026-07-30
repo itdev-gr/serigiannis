@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { Stepper } from '@/components/ticketing/Stepper';
 import { TripList } from '@/components/ticketing/TripList';
 import { searchRouteTrips } from '@/app/(site)/eisitiria/actions';
+import { getStations } from '@/lib/queries/ticketing';
 
 export const metadata: Metadata = {
   title: 'Δρομολόγια Εκδρομής',
@@ -20,7 +21,7 @@ export default async function DromologiaPage({
     return <BareMessage text="Η αναζήτηση δεν είναι πλήρης." backLabel="← Νέα αναζήτηση" />;
   }
 
-  const result = await searchRouteTrips({ routeId: route, date });
+  const [stations, result] = await Promise.all([getStations(), searchRouteTrips({ routeId: route, date })]);
 
   if (!result.ok) {
     const text =
@@ -38,7 +39,7 @@ export default async function DromologiaPage({
         <Stepper current={2} />
         <TripList
           kind="oneway"
-          outboundLabel={result.route.title ?? '—'}
+          outboundLabel={result.route.title ?? stations.find((s) => s.id === result.route.destination_id)?.name ?? '—'}
           date={date}
           outbound={result.trips}
           showDateNav={false}

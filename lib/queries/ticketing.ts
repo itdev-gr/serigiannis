@@ -40,14 +40,6 @@ export async function getBookingSettings(): Promise<BookingSettings> {
   return data as BookingSettings;
 }
 
-/** Published routes (for wiring the ΠΡΟΣ dropdown to real destinations). */
-export async function getPublishedRoutes(): Promise<BusRoute[]> {
-  const sb = createPublicClient();
-  const { data, error } = await sb.from('bus_routes').select('*').order('position');
-  if (error) { console.error('getPublishedRoutes:', error.message); return []; }
-  return (data ?? []) as BusRoute[];
-}
-
 type ExcursionRouteRow = BusRoute & { destination: { name: string } | null };
 
 /** Published routes as excursions, with the dates they actually run. */

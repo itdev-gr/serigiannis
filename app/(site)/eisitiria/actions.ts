@@ -4,40 +4,6 @@ import { createServerClient } from '@/lib/supabase/server';
 import { getPaymentProvider } from '@/lib/payments';
 import type { SearchResult, TripKind } from '@/types/ticketing';
 
-export type TwoWaySearch = {
-  ok: boolean;
-  error?: string;
-  outbound?: SearchResult;
-  inbound?: SearchResult;
-};
-
-/** Step 1 → 2: trips for the requested day (and the reverse leg for round trips). */
-export async function searchTrips(input: {
-  originId: string;
-  destId: string;
-  date: string;
-  kind: TripKind;
-  returnDate?: string;
-}): Promise<TwoWaySearch> {
-  const sb = await createServerClient();
-  const { data: outbound, error } = await sb.rpc('search_trips', {
-    p_origin: input.originId,
-    p_dest: input.destId,
-    p_date: input.date,
-  });
-  if (error) { console.error('searchTrips:', error.message); return { ok: false, error: 'db' }; }
-
-  if (input.kind !== 'round') return { ok: true, outbound: outbound as SearchResult };
-
-  const { data: inbound, error: e2 } = await sb.rpc('search_trips', {
-    p_origin: input.destId,
-    p_dest: input.originId,
-    p_date: input.returnDate || input.date,
-  });
-  if (e2) { console.error('searchTrips return:', e2.message); return { ok: false, error: 'db' }; }
-  return { ok: true, outbound: outbound as SearchResult, inbound: inbound as SearchResult };
-}
-
 /** Step 1 → 2 (excursions): trips of the chosen excursion for the chosen day. */
 export async function searchRouteTrips(input: { routeId: string; date: string }): Promise<SearchResult> {
   const sb = await createServerClient();
