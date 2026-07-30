@@ -8,12 +8,10 @@ import { parseBoardingPoints, slugify } from '@/lib/excursions';
 import { flashQuery, withFlash } from '@/lib/admin-flash';
 
 function revalidateTicketing() {
-  revalidatePath('/admin/stations');
-  revalidatePath('/admin/routes');
   revalidatePath('/admin/excursions');
   revalidatePath('/admin/layouts');
-  revalidatePath('/admin/schedules');
   revalidatePath('/admin/orders');
+  revalidatePath('/admin/trips');
   revalidatePath('/eisitiria');
 }
 
@@ -22,33 +20,6 @@ const num = (fd: FormData, k: string) => {
   const v = Number(g(fd, k));
   return Number.isFinite(v) ? v : null;
 };
-
-// ------------------------------------------------------------- stations
-
-export async function upsertStation(formData: FormData) {
-  const sb = await createServerClient();
-  const id = g(formData, 'id');
-  const row = {
-    name: g(formData, 'name'),
-    slug: g(formData, 'slug'),
-    code: g(formData, 'code') || null,
-    position: num(formData, 'position') ?? 0,
-    is_active: formData.get('is_active') !== null,
-  };
-  if (!row.name || !row.slug) return;
-  const { error } = id
-    ? await sb.from('stations').update(row).eq('id', id)
-    : await sb.from('stations').insert(row);
-  if (error) console.error('upsertStation:', error.message);
-  revalidateTicketing();
-}
-
-export async function deleteStation(id: string) {
-  const sb = await createServerClient();
-  const { error } = await sb.from('stations').delete().eq('id', id);
-  if (error) console.error('deleteStation:', error.message);
-  revalidateTicketing();
-}
 
 // --------------------------------------------------------------- routes
 
@@ -81,7 +52,7 @@ export async function upsertRoute(formData: FormData) {
     if (error) console.error('upsertRoute:', error.message);
     revalidateTicketing();
     if (redirectTo.startsWith('/admin/')) redirect(withFlash(redirectTo, !error));
-    redirect(`/admin/routes/${id}${flashQuery(!error)}`);
+    redirect(`/admin/excursions/${id}${flashQuery(!error)}`);
   }
 
   const { data: created, error } = await sb.from('bus_routes').insert(row).select('id').single();
@@ -91,7 +62,7 @@ export async function upsertRoute(formData: FormData) {
     if (e2) console.error('upsertRoute fares:', e2.message);
   }
   revalidateTicketing();
-  redirect('/admin/routes');
+  redirect('/admin/excursions');
 }
 
 /** New excursion from the hub: one title. Reuses a shared origin station,
@@ -199,24 +170,24 @@ export async function upsertFareType(formData: FormData) {
   if (!routeId) return;
   if (!row.name) {
     if (redirectTo.startsWith('/admin/')) redirect(withFlash(redirectTo, false, 'invalid_input'));
-    redirect(`/admin/routes/${routeId}${flashQuery(false, 'invalid_input')}`);
+    redirect(`/admin/excursions/${routeId}${flashQuery(false, 'invalid_input')}`);
   }
   const { error } = id
     ? await sb.from('fare_types').update(row).eq('id', id)
     : await sb.from('fare_types').insert(row);
   if (error) console.error('upsertFareType:', error.message);
-  revalidatePath(`/admin/routes/${routeId}`);
+  revalidatePath(`/admin/excursions/${routeId}`);
   revalidateTicketing();
   if (redirectTo.startsWith('/admin/')) redirect(withFlash(redirectTo, !error));
-  redirect(`/admin/routes/${routeId}${flashQuery(!error)}`);
+  redirect(`/admin/excursions/${routeId}${flashQuery(!error)}`);
 }
 
 export async function deleteFareType(id: string, routeId: string) {
   const sb = await createServerClient();
   const { error } = await sb.from('fare_types').delete().eq('id', id);
   if (error) console.error('deleteFareType:', error.message);
-  revalidatePath(`/admin/routes/${routeId}`);
-  redirect(`/admin/routes/${routeId}${flashQuery(!error)}`);
+  revalidatePath(`/admin/excursions/${routeId}`);
+  redirect(`/admin/excursions/${routeId}${flashQuery(!error)}`);
 }
 
 // -------------------------------------------------------------- layouts
@@ -294,7 +265,7 @@ export async function upsertPattern(formData: FormData) {
   if (error) console.error('upsertPattern:', error.message);
   revalidateTicketing();
   if (redirectTo.startsWith('/admin/')) redirect(withFlash(redirectTo, !error));
-  redirect(`/admin/schedules${flashQuery(!error)}`);
+  redirect(`/admin/excursions${flashQuery(!error)}`);
 }
 
 export async function deletePattern(id: string, redirectTo?: string) {
@@ -304,18 +275,7 @@ export async function deletePattern(id: string, redirectTo?: string) {
   revalidateTicketing();
   // when bound with only `id`, React passes FormData here — guard on string
   if (typeof redirectTo === 'string' && redirectTo.startsWith('/admin/')) redirect(withFlash(redirectTo, !error));
-  redirect(`/admin/schedules${flashQuery(!error)}`);
-}
-
-export async function materializeTrips(formData: FormData) {
-  const sb = await createServerClient();
-  const from = g(formData, 'from');
-  const to = g(formData, 'to');
-  if (!from || !to) return;
-  const { error } = await sb.rpc('admin_materialize_range', { p_from: from, p_to: to });
-  if (error) console.error('materializeTrips:', error.message);
-  revalidatePath('/admin/schedules');
-  redirect(`/admin/schedules${flashQuery(!error)}`);
+  redirect(`/admin/excursions${flashQuery(!error)}`);
 }
 
 export async function createTrip(formData: FormData) {
@@ -334,10 +294,9 @@ export async function createTrip(formData: FormData) {
   if (!row.route_id || !row.layout_id || !date || !time) return;
   const { error } = await sb.from('trips').insert(row);
   if (error) console.error('createTrip:', error.message);
-  revalidatePath('/admin/schedules');
   revalidatePath('/admin/excursions');
   if (redirectTo.startsWith('/admin/')) redirect(withFlash(redirectTo, !error));
-  redirect(`/admin/schedules${flashQuery(!error)}`);
+  redirect(`/admin/excursions${flashQuery(!error)}`);
 }
 
 export async function updateTrip(formData: FormData) {
@@ -353,7 +312,7 @@ export async function updateTrip(formData: FormData) {
   const { error } = await sb.from('trips').update(row).eq('id', id);
   if (error) console.error('updateTrip:', error.message);
   revalidatePath(`/admin/trips/${id}`);
-  revalidatePath('/admin/schedules');
+  revalidatePath('/admin/excursions');
   revalidatePath('/eisitiria');
   redirect(`/admin/trips/${id}${flashQuery(!error)}`);
 }

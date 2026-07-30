@@ -2,25 +2,35 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, MapPin, Tags, Newspaper, Inbox, Users, CalendarCheck, Settings, LogOut, ExternalLink, Menu, X, MapPinned, Route, Bus, CalendarDays, Ticket, Compass } from 'lucide-react';
+import { LayoutDashboard, MapPin, Newspaper, Inbox, Settings, LogOut, ExternalLink, Menu, X, Route, Bus, Ticket, type LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { signOut } from '@/app/admin/(dashboard)/actions';
 
-const NAV = [
-  { to: '/admin', label: 'Πίνακας', icon: LayoutDashboard, exact: true },
-  { to: '/admin/tours', label: 'Εκδρομές', icon: MapPin },
-  { to: '/admin/categories', label: 'Κατηγορίες', icon: Tags },
-  { to: '/admin/posts', label: 'Νέα', icon: Newspaper },
-  { to: '/admin/requests', label: 'Αιτήματα', icon: Inbox },
-  { to: '/admin/clients', label: 'Πελάτες', icon: Users },
-  { to: '/admin/bookings', label: 'Κρατήσεις', icon: CalendarCheck },
-  { to: '/admin/excursions', label: 'Εκδρομές & Πρόγραμμα', icon: Compass },
-  { to: '/admin/stations', label: 'Στάσεις', icon: MapPinned },
-  { to: '/admin/routes', label: 'Γραμμές & Ναύλοι', icon: Route },
-  { to: '/admin/layouts', label: 'Λεωφορεία', icon: Bus },
-  { to: '/admin/schedules', label: 'Δρομολόγια', icon: CalendarDays },
-  { to: '/admin/orders', label: 'Εισιτήρια', icon: Ticket },
-  { to: '/admin/settings', label: 'Ρυθμίσεις', icon: Settings },
+type NavItem = { to: string; label: string; icon: LucideIcon; exact?: boolean };
+type NavGroup = { heading?: string; items: NavItem[] };
+
+const GROUPS: NavGroup[] = [
+  { items: [{ to: '/admin', label: 'Πίνακας', icon: LayoutDashboard, exact: true }] },
+  {
+    heading: 'Πωλήσεις',
+    items: [
+      { to: '/admin/excursions', label: 'Εκδρομές & Πρόγραμμα', icon: Route },
+      { to: '/admin/orders', label: 'Κρατήσεις Εισιτηρίων', icon: Ticket },
+      { to: '/admin/layouts', label: 'Λεωφορεία', icon: Bus },
+    ],
+  },
+  {
+    heading: 'Αιτήματα',
+    items: [{ to: '/admin/requests', label: 'Αιτήματα & Πελάτες', icon: Inbox }],
+  },
+  {
+    heading: 'Περιεχόμενο Site',
+    items: [
+      { to: '/admin/tours', label: 'Σελίδες Εκδρομών', icon: MapPin },
+      { to: '/admin/posts', label: 'Νέα & Ανακοινώσεις', icon: Newspaper },
+    ],
+  },
+  { items: [{ to: '/admin/settings', label: 'Ρυθμίσεις', icon: Settings }] },
 ];
 
 function isActive(pathname: string, to: string, exact?: boolean) {
@@ -31,17 +41,28 @@ export function AdminSidebar({ email }: { email?: string }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const links = (
-    <nav className="flex flex-col gap-1">
-      {NAV.map(({ to, label, icon: Icon, exact }) => {
-        const active = isActive(pathname, to, exact);
-        return (
-          <Link key={to} href={to} onClick={() => setOpen(false)}
-            className={cn('flex items-center gap-3 rounded-md px-3 py-2.5 font-sans text-[14px] transition-colors',
-              active ? 'bg-primary text-surface' : 'text-body hover:bg-primary/5')}>
-            <Icon className="h-4.5 w-4.5 shrink-0" strokeWidth={1.75} /> {label}
-          </Link>
-        );
-      })}
+    <nav className="flex flex-col">
+      {GROUPS.map((group, gi) => (
+        <div key={group.heading ?? `group-${gi}`} className={gi > 0 ? 'mt-4' : undefined}>
+          {group.heading ? (
+            <p className="px-3 pb-1 font-sans text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">{group.heading}</p>
+          ) : gi > 0 ? (
+            <div className="mb-3 border-t border-border" />
+          ) : null}
+          <div className="flex flex-col gap-1">
+            {group.items.map(({ to, label, icon: Icon, exact }) => {
+              const active = isActive(pathname, to, exact);
+              return (
+                <Link key={to} href={to} onClick={() => setOpen(false)}
+                  className={cn('flex items-center gap-3 rounded-md px-3 py-2.5 font-sans text-[14px] transition-colors',
+                    active ? 'bg-primary text-surface' : 'text-body hover:bg-primary/5')}>
+                  <Icon className="h-4.5 w-4.5 shrink-0" strokeWidth={1.75} /> {label}
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      ))}
     </nav>
   );
   return (
