@@ -39,7 +39,10 @@ const TABS = [
 ] as const;
 type TabKey = (typeof TABS)[number]['key'];
 
-function iso(d: Date): string {
+/** Calendar date `days` after the given `YYYY-MM-DD`, anchored at noon UTC so DST never shifts the day. */
+function addDays(ymd: string, days: number): string {
+  const d = new Date(`${ymd}T12:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + days);
   return d.toISOString().slice(0, 10);
 }
 
@@ -57,8 +60,8 @@ export default async function ExcursionDetailPage({
   const route = await getAdminRoute(id);
   if (!route) notFound();
 
-  const today = new Date();
-  const in30 = new Date(today.getTime() + 30 * 86400000);
+  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Athens' });
+  const in30 = addDays(today, 30);
 
   const [fares, allPatterns, layouts] = await Promise.all([
     getAdminRouteFares(id),
@@ -72,8 +75,8 @@ export default async function ExcursionDetailPage({
   if (tab === 'dromologia') {
     // idempotent, admin-granted materialization so the tab lists every upcoming run
     const sb = await createServerClient();
-    await sb.rpc('admin_materialize_range', { p_from: iso(today), p_to: iso(in30) });
-    const all = await getAdminTrips(iso(today), iso(in30));
+    await sb.rpc('admin_materialize_range', { p_from: today, p_to: in30 });
+    const all = await getAdminTrips(today, in30);
     trips = all.filter((t) => t.route_id === id);
     occupancy = await getTripsOccupancy(trips.map((t) => t.id));
   }
@@ -298,7 +301,7 @@ export default async function ExcursionDetailPage({
                     <input type="time" name="departure_time" required className={adminInput} />
                   </label>
                   <label className={adminLabel}>Ισχύει από
-                    <input type="date" name="valid_from" defaultValue={iso(today)} required className={adminInput} />
+                    <input type="date" name="valid_from" defaultValue={today} required className={adminInput} />
                   </label>
                   <label className={adminLabel}>Έως (προαιρετικό)
                     <input type="date" name="valid_to" className={adminInput} />

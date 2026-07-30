@@ -240,7 +240,16 @@ export async function upsertPattern(formData: FormData) {
   const id = g(formData, 'id');
   const redirectTo = g(formData, 'redirect_to');
   const weekdays = [0, 1, 2, 3, 4, 5, 6].filter((d) => formData.get(`wd_${d}`) !== null);
-  const row = {
+  const row: {
+    route_id: string;
+    layout_id: string;
+    departure_time: string;
+    weekdays: number[];
+    valid_from: string;
+    valid_to: string | null;
+    is_active: boolean;
+    notes?: string | null;
+  } = {
     route_id: g(formData, 'route_id'),
     layout_id: g(formData, 'layout_id'),
     departure_time: g(formData, 'departure_time'),
@@ -248,9 +257,13 @@ export async function upsertPattern(formData: FormData) {
     valid_from: g(formData, 'valid_from'),
     valid_to: g(formData, 'valid_to') || null,
     is_active: formData.get('is_active') !== null,
-    notes: g(formData, 'notes') || null,
   };
-  if (!row.route_id || !row.layout_id || !row.departure_time || !row.valid_from || weekdays.length === 0) return;
+  // The hub's pattern forms carry no notes field — only touch notes when present,
+  // so saving from the hub doesn't null out legacy notes.
+  if (formData.has('notes')) row.notes = g(formData, 'notes') || null;
+  if (!row.route_id || !row.layout_id || !row.departure_time || !row.valid_from || weekdays.length === 0) {
+    redirect(withFlash(redirectTo.startsWith('/admin/') ? redirectTo : '/admin/excursions', false, 'invalid_input'));
+  }
   const { error } = id
     ? await sb.from('schedule_patterns').update(row).eq('id', id)
     : await sb.from('schedule_patterns').insert(row);
@@ -373,15 +386,18 @@ export async function manualBooking(formData: FormData) {
 
 export async function markOrderPaid(id: string) {
   const sb = await createServerClient();
-  const { error } = await sb
+  const { data, error } = await sb
     .from('ticket_orders')
     .update({ status: 'paid', paid_at: new Date().toISOString(), payment_provider: 'offline' })
     .eq('id', id)
-    .in('status', ['offline', 'awaiting_payment']);
+    .in('status', ['offline', 'awaiting_payment'])
+    .select('id');
   if (error) console.error('markOrderPaid:', error.message);
   revalidatePath(`/admin/orders/${id}`);
   revalidatePath('/admin/orders');
-  redirect(`/admin/orders/${id}${flashQuery(!error)}`);
+  // 0 rows matched → the order wasn't in a payable state; don't flash a false success.
+  const ok = !error && (data?.length ?? 0) > 0;
+  redirect(`/admin/orders/${id}${flashQuery(ok, error ? 'db' : 'not_found')}`);
 }
 
 export async function saveOrderNotes(id: string, formData: FormData) {

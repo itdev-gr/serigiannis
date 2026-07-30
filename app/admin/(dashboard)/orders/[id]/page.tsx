@@ -63,7 +63,16 @@ export default async function OrderDetailPage({
 
       <h2 className="mt-8 font-display text-2xl font-semibold text-primary">Εισιτήρια</h2>
       <div className="mt-3 grid gap-4">
-        {tickets.map((t) => (
+        {tickets.map((t) => {
+          // Move targets: same route, still scheduled. If the ticket's current trip
+          // isn't among them, prepend it so opening the form + ΟΚ is a no-op self-move.
+          const moveTargets = upcomingTrips.filter(
+            (tr) => tr.status === 'scheduled' && tr.route_id === t.trip?.route_id
+          );
+          const currentInTargets = moveTargets.some((tr) => tr.id === t.trip_id);
+          const showCurrentOption = !currentInTargets && t.trip != null;
+          const hasDefault = currentInTargets || showCurrentOption;
+          return (
           <div key={t.id} className="rounded-lg border border-border bg-surface p-5">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
@@ -107,14 +116,18 @@ export default async function OrderDetailPage({
                     </>
                   ) : (
                     <label className="grow text-[12px] text-muted">Μεταφορά σε δρομολόγιο
-                      <select name="trip_id" defaultValue={t.trip_id ?? ''} className={adminInput}>
-                        {upcomingTrips
-                          .filter((tr) => tr.route_id === t.trip?.route_id)
-                          .map((tr) => (
-                            <option key={tr.id} value={tr.id}>
-                              {`${new Date(`${tr.service_date}T12:00:00`).toLocaleDateString('el-GR')} ${new Date(tr.departure_at).toLocaleTimeString('el-GR', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Athens' })} — ${routeLabel(tr.route ?? {})}`}
-                            </option>
-                          ))}
+                      <select name="trip_id" defaultValue={hasDefault ? t.trip_id : ''} className={adminInput}>
+                        {!hasDefault && <option value="" disabled>— Επιλέξτε δρομολόγιο —</option>}
+                        {showCurrentOption && t.trip && (
+                          <option value={t.trip_id}>
+                            {`${new Date(`${t.trip.service_date}T12:00:00`).toLocaleDateString('el-GR')} ${new Date(t.trip.departure_at).toLocaleTimeString('el-GR', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Athens' })} — ${routeLabel(t.trip.route ?? {})}`}
+                          </option>
+                        )}
+                        {moveTargets.map((tr) => (
+                          <option key={tr.id} value={tr.id}>
+                            {`${new Date(`${tr.service_date}T12:00:00`).toLocaleDateString('el-GR')} ${new Date(tr.departure_at).toLocaleTimeString('el-GR', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Athens' })} — ${routeLabel(tr.route ?? {})}`}
+                          </option>
+                        ))}
                       </select>
                     </label>
                   )}
@@ -134,7 +147,8 @@ export default async function OrderDetailPage({
               </div>
             )}
           </div>
-        ))}
+          );
+        })}
         {tickets.length === 0 && (
           <p className="rounded-lg border border-border bg-surface px-4 py-6 text-[14px] text-muted">
             Δεν έχουν εκδοθεί εισιτήρια (η κράτηση δεν ολοκληρώθηκε).

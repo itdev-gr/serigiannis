@@ -9,7 +9,10 @@ import type { FareType } from '@/types/ticketing';
 
 const GRID = 'grid grid-cols-[1fr_7rem_6rem_8rem_10rem_4rem] items-center gap-3';
 
-function iso(d: Date): string {
+/** Calendar date `days` after the given `YYYY-MM-DD`, anchored at noon UTC so DST never shifts the day. */
+function addDays(ymd: string, days: number): string {
+  const d = new Date(`${ymd}T12:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + days);
   return d.toISOString().slice(0, 10);
 }
 
@@ -25,12 +28,12 @@ export default async function ExcursionsPage({
 }: {
   searchParams: Promise<{ saved?: string; error?: string }>;
 }) {
-  const today = new Date();
-  const in30 = new Date(today.getTime() + 30 * 86400000);
+  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Athens' });
+  const in30 = addDays(today, 30);
   const [routes, patterns, trips, allFares, sp] = await Promise.all([
     getAdminRoutes(),
     getAdminPatterns(),
-    getAdminTrips(iso(today), iso(in30)),
+    getAdminTrips(today, in30),
     getAdminAllFares(),
     searchParams,
   ]);

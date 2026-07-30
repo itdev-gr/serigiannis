@@ -86,12 +86,6 @@ export async function getRouteFares(routeId: string): Promise<FareType[]> {
 
 // ----------------------------------------------------------------- admin
 
-export async function getAdminStations(): Promise<Station[]> {
-  const sb = await createServerClient();
-  const { data } = await sb.from('stations').select('*').order('position');
-  return (data ?? []) as Station[];
-}
-
 export type AdminRoute = BusRoute & { origin: { name: string } | null; destination: { name: string } | null };
 
 export async function getAdminRoutes(): Promise<AdminRoute[]> {
@@ -150,12 +144,6 @@ export async function getAdminPatterns(): Promise<AdminPattern[]> {
     .select('*, route:bus_routes(id, title, origin:stations!bus_routes_origin_station_id_fkey(name), destination:stations!bus_routes_destination_station_id_fkey(name)), layout:bus_layouts(name)')
     .order('departure_time');
   return (data ?? []) as AdminPattern[];
-}
-
-export async function getAdminPattern(id: string): Promise<SchedulePattern | null> {
-  const sb = await createServerClient();
-  const { data } = await sb.from('schedule_patterns').select('*').eq('id', id).maybeSingle();
-  return (data as SchedulePattern) ?? null;
 }
 
 export type AdminTrip = Trip & {

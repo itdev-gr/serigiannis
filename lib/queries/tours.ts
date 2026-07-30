@@ -74,21 +74,6 @@ export async function getPublishedSlugs(): Promise<string[]> {
   return (await getTours()).map((t) => t.slug);
 }
 
-/** Lightweight count for dashboard tiles (no row payload). */
-export async function getPublishedTourCount(): Promise<number> {
-  if (!isDbConfigured()) return 0;
-  const sb = createPublicClient();
-  const { count, error } = await sb
-    .from('tours')
-    .select('id', { count: 'exact', head: true })
-    .eq('status', 'published');
-  if (error) {
-    console.error('getPublishedTourCount:', error.message);
-    return 0;
-  }
-  return count ?? 0;
-}
-
 export type AdminTourRow = Pick<Tour, 'id' | 'slug' | 'title' | 'status' | 'is_featured' | 'price_from'> & {
   categories: { slug: string; name_el: string }[];
 };

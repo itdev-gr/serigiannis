@@ -49,11 +49,3 @@ export async function getLeadById(id: string): Promise<Lead | null> {
   if (error) { console.error('getLeadById:', error.message); return null; }
   return data ? normalize(data as RawLead) : null;
 }
-
-export async function getClients(): Promise<Client[]> {
-  return groupClients(await getLeads());
-}
-
-export async function getBookings(): Promise<Lead[]> {
-  return getLeads({ status: 'booked' });
-}
