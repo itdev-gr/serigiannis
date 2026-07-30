@@ -12,7 +12,7 @@ const NAV_ITEMS = [
   { to: '/', label: 'Αρχική', icon: HomeIcon },
   { to: '/ekdromes', label: 'Εκδρομές', icon: MapPin },
   { to: '/enoikiaseis-poylman', label: 'Ενοικιάσεις Πούλμαν – Μίνι Βαν', icon: Bus },
-  { to: '/eisitiria', label: 'Εισιτήρια', icon: Ticket },
+  { to: '/eisitiria', label: 'Κλείστε Online Θέσεις', icon: Ticket },
   { to: '/kroyazieres', label: 'Κρουαζιέρες', icon: Ship },
   { to: '/epikoinonia', label: 'Επικοινωνία', icon: Mail },
   { to: '/nea', label: 'Νέα', icon: Newspaper },
@@ -114,7 +114,7 @@ export function Navbar({ phones = [], phone24h = null }: { phones?: string[]; ph
 
           <div className="flex items-center gap-2">
             <Button asChild variant={dark ? 'ghost' : 'primary'} size="sm" className="hidden md:inline-flex">
-              <Link href="/kratisi">Κλείστε Online Θέση</Link>
+              <Link href="/eisitiria">Κλείστε Online Θέση</Link>
             </Button>
             <button
               type="button"
@@ -170,7 +170,7 @@ export function Navbar({ phones = [], phone24h = null }: { phones?: string[]; ph
             );
           })}
           <Button asChild size="lg" className="mt-8">
-            <Link href="/kratisi">Κλείστε Online Θέση</Link>
+            <Link href="/eisitiria">Κλείστε Online Θέση</Link>
           </Button>
         </nav>
       </div>
