@@ -17,7 +17,7 @@ export function Home1Cta({ settings, content = homeContent.cta }: { settings: Se
         </div>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <Link
-            href="/kratisi"
+            href="/eisitiria"
             className="inline-flex items-center justify-center rounded-full bg-surface px-6 py-3.5 font-sans text-[13px] font-semibold uppercase tracking-[0.14em] text-[#00296b] transition hover:bg-surface/85"
           >
             Κλείστε Online Θέση
