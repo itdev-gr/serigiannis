@@ -30,6 +30,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
           <h2 className="mb-2 text-[12px] font-semibold uppercase tracking-[0.1em] text-muted">Πελάτης</h2>
           <p className="text-[15px] font-semibold text-body">{order.customer_name ?? '—'}</p>
           <p className="text-[14px] text-muted">{order.phone} {order.email && `· ${order.email}`}</p>
+          {order.boarding_point && <p className="text-[13px] text-muted">Σημείο συνάντησης: {order.boarding_point}</p>}
           <p className="mt-1 text-[13px] text-muted">
             {KIND_LABEL[order.kind as TripKind] ?? order.kind}
             {order.created_by_admin && ' · τηλεφωνική κράτηση'}
@@ -69,6 +70,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
             </div>
             <p className="mt-2 text-[14px] text-body">
               <strong>{t.passenger_name}</strong>
+              {t.passenger_phone && ` · ${t.passenger_phone}`}
               {' · '}
               {t.trip
                 ? `${t.trip.route?.origin?.name} → ${t.trip.route?.destination?.name} · ${new Date(`${t.trip.service_date}T12:00:00`).toLocaleDateString('el-GR')} · ${new Date(t.trip.departure_at).toLocaleTimeString('el-GR', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Athens' })} · Θέση ${t.seat_no}`

@@ -209,6 +209,7 @@ export type AdminOrder = {
   customer_name: string | null;
   email: string | null;
   phone: string | null;
+  boarding_point: string | null;
   amount_total_cents: number;
   payment_provider: string | null;
   paid_at: string | null;

@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { ConfirmForm } from '@/components/admin/ConfirmForm';
 
 const inputCls = 'w-full rounded-md border border-border bg-surface px-3 py-2 font-sans text-[14px] text-body focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10';
-const FARE_GRID = 'grid grid-cols-[10rem_1fr_6rem_6rem_3.5rem_3.5rem_4rem_auto] items-start gap-2';
+const FARE_GRID = 'grid grid-cols-[10rem_1fr_6rem_3.5rem_3.5rem_4rem_auto] items-start gap-2';
 
 export default async function RouteDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -18,13 +18,19 @@ export default async function RouteDetailPage({ params }: { params: Promise<{ id
     <div className="max-w-5xl">
       <p className="mb-2 text-[13px]"><Link href="/admin/routes" className="text-muted hover:text-primary">← Γραμμές</Link></p>
       <h1 className="font-display text-4xl font-semibold text-primary">
-        {route.origin?.name} → {route.destination?.name}
+        {route.title?.trim() || `${route.origin?.name} → ${route.destination?.name}`}
       </h1>
 
       <form action={upsertRoute} className="mt-6 grid gap-3 rounded-lg border border-border bg-surface p-6 sm:grid-cols-[8rem_8rem_8rem_8rem_auto]">
         <input type="hidden" name="id" value={route.id} />
         <input type="hidden" name="origin_station_id" value={route.origin_station_id} />
         <input type="hidden" name="destination_station_id" value={route.destination_station_id} />
+        <label className="block text-[13px] text-muted sm:col-span-5">Τίτλος εκδρομής
+          <input name="title" defaultValue={route.title ?? ''} placeholder="π.χ. Μονοήμερη Ναύπλιο" className={inputCls} />
+        </label>
+        <label className="block text-[13px] text-muted sm:col-span-5">Σημεία συνάντησης (ένα ανά γραμμή)
+          <textarea name="boarding_points" rows={3} defaultValue={(route.boarding_points ?? []).join('\n')} className={inputCls} />
+        </label>
         <label className="block text-[13px] text-muted">Κατάσταση
           <select name="status" defaultValue={route.status} className={inputCls}>
             <option value="published">Δημοσιευμένη</option>
@@ -44,7 +50,7 @@ export default async function RouteDetailPage({ params }: { params: Promise<{ id
       </form>
 
       <div className="mt-10 flex flex-wrap items-center justify-between gap-3">
-        <h2 className="font-display text-2xl font-semibold text-primary">Ναύλοι</h2>
+        <h2 className="font-display text-2xl font-semibold text-primary">Τιμές εισιτηρίων</h2>
         <ConfirmForm action={copyFaresToReverse.bind(null, route.id)} message="Αντιγραφή των ναύλων στην αντίστροφη κατεύθυνση; Οι υπάρχοντες ναύλοι της θα αντικατασταθούν.">
           <Button type="submit" variant="outline" size="sm">Αντιγραφή στην αντίστροφη</Button>
         </ConfirmForm>
@@ -55,8 +61,7 @@ export default async function RouteDetailPage({ params }: { params: Promise<{ id
           <div className={`${FARE_GRID} border-b border-border bg-background/50 px-4 py-3 font-sans text-[12px] uppercase tracking-[0.1em] text-muted`}>
             <div>Όνομα</div>
             <div>Δικαιούχοι</div>
-            <div>Απλή (€)</div>
-            <div>Με επιστρ. (€)</div>
+            <div>Τιμή (€)</div>
             <div>Πάσο</div>
             <div>Default</div>
             <div>Ενεργός</div>
@@ -70,11 +75,11 @@ export default async function RouteDetailPage({ params }: { params: Promise<{ id
                   <input type="hidden" name="id" value={f.id} />
                   <input type="hidden" name="route_id" value={route.id} />
                   <input type="hidden" name="position" value={f.position} />
+                  <input type="hidden" name="price_round" value={(f.price_round_cents / 100).toFixed(2)} />
                 </form>
                 <input form={formId} name="name" defaultValue={f.name} className={inputCls} />
                 <textarea form={formId} name="description" defaultValue={f.description ?? ''} rows={2} className={inputCls} />
                 <input form={formId} name="price_oneway" type="number" step="0.01" defaultValue={(f.price_oneway_cents / 100).toFixed(2)} className={inputCls} />
-                <input form={formId} name="price_round" type="number" step="0.01" defaultValue={(f.price_round_cents / 100).toFixed(2)} className={inputCls} />
                 <input form={formId} name="requires_document" type="checkbox" defaultChecked={f.requires_document} className="mt-3 h-4 w-4" />
                 <input form={formId} name="is_default" type="checkbox" defaultChecked={f.is_default} className="mt-3 h-4 w-4" />
                 <input form={formId} name="is_active" type="checkbox" defaultChecked={f.is_active} className="mt-3 h-4 w-4" />
@@ -91,14 +96,14 @@ export default async function RouteDetailPage({ params }: { params: Promise<{ id
       </div>
 
       <div className="mt-8 rounded-lg border border-border bg-surface p-6">
-        <h3 className="font-display text-xl font-semibold text-primary">Νέος ναύλος</h3>
-        <form action={upsertFareType} className="mt-4 grid gap-3 sm:grid-cols-[10rem_1fr_6rem_6rem_auto]">
+        <h3 className="font-display text-xl font-semibold text-primary">Νέα κατηγορία εισιτηρίου</h3>
+        <form action={upsertFareType} className="mt-4 grid gap-3 sm:grid-cols-[10rem_1fr_6rem_auto]">
           <input type="hidden" name="route_id" value={route.id} />
           <input type="hidden" name="is_active" value="on" />
+          <input type="hidden" name="price_round" value="0" />
           <input name="name" placeholder="Όνομα (π.χ. Κανονικό)" required className={inputCls} />
           <input name="description" placeholder="Δικαιούχοι" className={inputCls} />
-          <input name="price_oneway" type="number" step="0.01" placeholder="Απλή €" required className={inputCls} />
-          <input name="price_round" type="number" step="0.01" placeholder="Με επιστρ. €" required className={inputCls} />
+          <input name="price_oneway" type="number" step="0.01" placeholder="Τιμή €" required className={inputCls} />
           <Button type="submit">Προσθήκη</Button>
         </form>
       </div>
