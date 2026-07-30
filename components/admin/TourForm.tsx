@@ -1,10 +1,7 @@
 import Link from 'next/link';
 import type { Category, Tour } from '@/types/db';
 import { Button } from '@/components/ui/Button';
-
-const inputCls =
-  'w-full rounded-md border border-border bg-surface px-4 py-2.5 font-sans text-[15px] text-body transition focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10';
-const labelCls = 'mb-1.5 block font-sans text-[13px] font-medium uppercase tracking-[0.1em] text-primary';
+import { adminInput, adminLabel } from '@/components/admin/ui';
 
 const STATUSES = [
   { v: 'published', l: 'Δημοσιευμένη' },
@@ -28,28 +25,28 @@ export function TourForm({
       {tour?.id && <input type="hidden" name="id" value={tour.id} />}
 
       <label className="block">
-        <span className={labelCls}>Τίτλος *</span>
-        <input name="title" required defaultValue={tour?.title ?? ''} className={inputCls} />
+        <span className={adminLabel}>Τίτλος *</span>
+        <input name="title" required defaultValue={tour?.title ?? ''} className={adminInput} />
       </label>
 
       <label className="block">
-        <span className={labelCls}>Slug (URL) *</span>
-        <input name="slug" required defaultValue={tour?.slug ?? ''} className={inputCls} placeholder="π.χ. meteora-monoimeri" />
+        <span className={adminLabel}>Slug (URL) *</span>
+        <input name="slug" required defaultValue={tour?.slug ?? ''} className={adminInput} placeholder="π.χ. meteora-monoimeri" />
       </label>
 
       <label className="block">
-        <span className={labelCls}>Σύνοψη</span>
-        <textarea name="summary" rows={3} defaultValue={tour?.summary ?? ''} className={inputCls} />
+        <span className={adminLabel}>Σύνοψη</span>
+        <textarea name="summary" rows={3} defaultValue={tour?.summary ?? ''} className={adminInput} />
       </label>
 
       <div className="grid gap-5 sm:grid-cols-2">
         <label className="block">
-          <span className={labelCls}>Τιμή από (€)</span>
-          <input name="price_from" type="number" step="1" min="0" defaultValue={tour?.price_from ?? ''} className={inputCls} />
+          <span className={adminLabel}>Τιμή από (€)</span>
+          <input name="price_from" type="number" step="1" min="0" defaultValue={tour?.price_from ?? ''} className={adminInput} />
         </label>
         <label className="block">
-          <span className={labelCls}>Κατηγορία</span>
-          <select name="category" defaultValue={primaryCat} className={inputCls}>
+          <span className={adminLabel}>Κατηγορία</span>
+          <select name="category" defaultValue={primaryCat} className={adminInput}>
             {categories.map((c) => <option key={c.slug} value={c.slug}>{c.name_el}</option>)}
           </select>
         </label>
@@ -57,19 +54,19 @@ export function TourForm({
 
       <div className="grid gap-5 sm:grid-cols-2">
         <label className="block">
-          <span className={labelCls}>Διάρκεια</span>
-          <input name="duration_label" defaultValue={tour?.duration_label ?? ''} className={inputCls} placeholder="π.χ. Μονοήμερη" />
+          <span className={adminLabel}>Διάρκεια</span>
+          <input name="duration_label" defaultValue={tour?.duration_label ?? ''} className={adminInput} placeholder="π.χ. Μονοήμερη" />
         </label>
         <label className="block">
-          <span className={labelCls}>Αναχωρήσεις</span>
-          <input name="departure_note" defaultValue={tour?.departure_note ?? ''} className={inputCls} placeholder="π.χ. Κάθε Σάββατο" />
+          <span className={adminLabel}>Αναχωρήσεις</span>
+          <input name="departure_note" defaultValue={tour?.departure_note ?? ''} className={adminInput} placeholder="π.χ. Κάθε Σάββατο" />
         </label>
       </div>
 
       <div className="grid gap-5 sm:grid-cols-2">
         <label className="block">
-          <span className={labelCls}>Κατάσταση</span>
-          <select name="status" defaultValue={tour?.status ?? 'draft'} className={inputCls}>
+          <span className={adminLabel}>Κατάσταση</span>
+          <select name="status" defaultValue={tour?.status ?? 'draft'} className={adminInput}>
             {STATUSES.map((s) => <option key={s.v} value={s.v}>{s.l}</option>)}
           </select>
         </label>

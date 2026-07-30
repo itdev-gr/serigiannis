@@ -1,10 +1,7 @@
 import Link from 'next/link';
 import type { Post } from '@/types/db';
 import { Button } from '@/components/ui/Button';
-
-const inputCls =
-  'w-full rounded-md border border-border bg-surface px-4 py-2.5 font-sans text-[15px] text-body transition focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10';
-const labelCls = 'mb-1.5 block font-sans text-[13px] font-medium uppercase tracking-[0.1em] text-primary';
+import { adminInput, adminLabel } from '@/components/admin/ui';
 
 const STATUSES = [
   { v: 'published', l: 'Δημοσιευμένο' },
@@ -24,59 +21,59 @@ export function PostForm({
       {post?.id && <input type="hidden" name="id" value={post.id} />}
 
       <label className="block">
-        <span className={labelCls}>Τίτλος *</span>
-        <input name="title" required defaultValue={post?.title ?? ''} className={inputCls} />
+        <span className={adminLabel}>Τίτλος *</span>
+        <input name="title" required defaultValue={post?.title ?? ''} className={adminInput} />
       </label>
 
       <label className="block">
-        <span className={labelCls}>Slug (URL) *</span>
-        <input name="slug" required defaultValue={post?.slug ?? ''} className={inputCls} placeholder="π.χ. nea-dromologia-2026" />
+        <span className={adminLabel}>Slug (URL) *</span>
+        <input name="slug" required defaultValue={post?.slug ?? ''} className={adminInput} placeholder="π.χ. nea-dromologia-2026" />
       </label>
 
       <label className="block">
-        <span className={labelCls}>Απόσπασμα</span>
-        <textarea name="excerpt" rows={3} defaultValue={post?.excerpt ?? ''} className={inputCls} />
+        <span className={adminLabel}>Απόσπασμα</span>
+        <textarea name="excerpt" rows={3} defaultValue={post?.excerpt ?? ''} className={adminInput} />
       </label>
 
       <label className="block">
-        <span className={labelCls}>Κείμενο</span>
-        <textarea name="body" rows={12} defaultValue={post?.body ?? ''} className={inputCls} />
+        <span className={adminLabel}>Κείμενο</span>
+        <textarea name="body" rows={12} defaultValue={post?.body ?? ''} className={adminInput} />
       </label>
 
       <div className="grid gap-5 sm:grid-cols-3">
         <label className="block">
-          <span className={labelCls}>Ημερομηνία εκδρομής</span>
-          <input name="trip_date" type="date" defaultValue={post?.trip_date ?? ''} className={inputCls} />
+          <span className={adminLabel}>Ημερομηνία εκδρομής</span>
+          <input name="trip_date" type="date" defaultValue={post?.trip_date ?? ''} className={adminInput} />
         </label>
         <label className="block">
-          <span className={labelCls}>Τιμή ανά άτομο (€)</span>
-          <input name="price" type="number" min={0} step="0.01" defaultValue={post?.price ?? ''} className={inputCls} />
+          <span className={adminLabel}>Τιμή ανά άτομο (€)</span>
+          <input name="price" type="number" min={0} step="0.01" defaultValue={post?.price ?? ''} className={adminInput} />
         </label>
         <label className="block">
-          <span className={labelCls}>Ημερομηνία δημοσίευσης</span>
-          <input name="published_on" type="date" defaultValue={post?.published_at ? post.published_at.slice(0, 10) : ''} className={inputCls} />
+          <span className={adminLabel}>Ημερομηνία δημοσίευσης</span>
+          <input name="published_on" type="date" defaultValue={post?.published_at ? post.published_at.slice(0, 10) : ''} className={adminInput} />
         </label>
       </div>
 
       <label className="block">
-        <span className={labelCls}>Κατάσταση</span>
-        <select name="status" defaultValue={post?.status ?? 'draft'} className={inputCls}>
+        <span className={adminLabel}>Κατάσταση</span>
+        <select name="status" defaultValue={post?.status ?? 'draft'} className={adminInput}>
           {STATUSES.map((s) => <option key={s.v} value={s.v}>{s.l}</option>)}
         </select>
       </label>
 
       <label className="block">
-        <span className={labelCls}>SEO Τίτλος</span>
-        <input name="seo_title" defaultValue={post?.seo_title ?? ''} className={inputCls} />
+        <span className={adminLabel}>SEO Τίτλος</span>
+        <input name="seo_title" defaultValue={post?.seo_title ?? ''} className={adminInput} />
       </label>
 
       <label className="block">
-        <span className={labelCls}>SEO Περιγραφή</span>
-        <textarea name="seo_description" rows={3} defaultValue={post?.seo_description ?? ''} className={inputCls} />
+        <span className={adminLabel}>SEO Περιγραφή</span>
+        <textarea name="seo_description" rows={3} defaultValue={post?.seo_description ?? ''} className={adminInput} />
       </label>
 
       <label className="block">
-        <span className={labelCls}>Εικόνα εξωφύλλου</span>
+        <span className={adminLabel}>Εικόνα εξωφύλλου</span>
         <input
           name="cover"
           type="file"

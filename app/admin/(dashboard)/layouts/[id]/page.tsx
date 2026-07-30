@@ -4,8 +4,7 @@ import { getAdminLayout } from '@/lib/queries/ticketing';
 import { upsertLayout } from '../../ticketing-actions';
 import { Button } from '@/components/ui/Button';
 import { LayoutEditor } from '@/components/admin/LayoutEditor';
-
-const inputCls = 'w-full rounded-md border border-border bg-surface px-3 py-2 font-sans text-[14px] text-body focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10';
+import { adminInput } from '@/components/admin/ui';
 
 export default async function LayoutDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -24,7 +23,7 @@ export default async function LayoutDetailPage({ params }: { params: Promise<{ i
         {!isNew && <input type="hidden" name="id" value={layout!.id} />}
         <div className="grid gap-3 sm:grid-cols-[1fr_8rem]">
           <label className="block text-[13px] text-muted">Όνομα
-            <input name="name" defaultValue={layout?.name ?? ''} required className={inputCls} />
+            <input name="name" defaultValue={layout?.name ?? ''} required className={adminInput} />
           </label>
           <label className="mt-6 flex items-center gap-2 text-[14px] text-body">
             <input type="checkbox" name="is_active" defaultChecked={layout?.is_active ?? true} className="h-4 w-4" /> Ενεργή

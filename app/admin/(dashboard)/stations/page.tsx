@@ -2,8 +2,8 @@ import { getAdminStations } from '@/lib/queries/ticketing';
 import { deleteStation, upsertStation } from '../ticketing-actions';
 import { Button } from '@/components/ui/Button';
 import { ConfirmForm } from '@/components/admin/ConfirmForm';
+import { adminInput } from '@/components/admin/ui';
 
-const inputCls = 'w-full rounded-md border border-border bg-surface px-3 py-2 font-sans text-[14px] text-body focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10';
 const ROW_GRID = 'grid grid-cols-[1fr_1fr_5rem_5rem_4rem_auto] items-center gap-3';
 
 export default async function StationsPage() {
@@ -29,10 +29,10 @@ export default async function StationsPage() {
               <form id={formId} action={upsertStation} className="hidden">
                 <input type="hidden" name="id" value={s.id} />
               </form>
-              <input form={formId} name="name" defaultValue={s.name} className={inputCls} />
-              <input form={formId} name="slug" defaultValue={s.slug} className={inputCls} />
-              <input form={formId} name="code" defaultValue={s.code ?? ''} className={inputCls} />
-              <input form={formId} name="position" type="number" defaultValue={s.position} className={inputCls} />
+              <input form={formId} name="name" defaultValue={s.name} className={adminInput} />
+              <input form={formId} name="slug" defaultValue={s.slug} className={adminInput} />
+              <input form={formId} name="code" defaultValue={s.code ?? ''} className={adminInput} />
+              <input form={formId} name="position" type="number" defaultValue={s.position} className={adminInput} />
               <input form={formId} name="is_active" type="checkbox" defaultChecked={s.is_active} className="h-4 w-4" />
               <div className="flex items-center justify-end gap-3">
                 <Button type="submit" form={formId} size="sm" variant="outline">Αποθήκευση</Button>
@@ -48,10 +48,10 @@ export default async function StationsPage() {
       <div className="mt-8 rounded-lg border border-border bg-surface p-6">
         <h2 className="font-display text-xl font-semibold text-primary">Νέα στάση</h2>
         <form action={upsertStation} className="mt-4 grid gap-3 sm:grid-cols-[1fr_1fr_5rem_5rem_auto]">
-          <input name="name" placeholder="Όνομα (π.χ. ΑΘΗΝΑ)" required className={inputCls} />
-          <input name="slug" placeholder="slug (π.χ. athina)" required className={inputCls} />
-          <input name="code" placeholder="Κωδ." className={inputCls} />
-          <input name="position" type="number" defaultValue={0} className={inputCls} />
+          <input name="name" placeholder="Όνομα (π.χ. ΑΘΗΝΑ)" required className={adminInput} />
+          <input name="slug" placeholder="slug (π.χ. athina)" required className={adminInput} />
+          <input name="code" placeholder="Κωδ." className={adminInput} />
+          <input name="position" type="number" defaultValue={0} className={adminInput} />
           <Button type="submit">Προσθήκη</Button>
           <input type="hidden" name="is_active" value="on" />
         </form>

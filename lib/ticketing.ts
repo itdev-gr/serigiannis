@@ -53,3 +53,27 @@ export const TICKET_STATUS_LABEL: Record<string, string> = {
   used: 'Χρησιμοποιημένο',
   cancelled: 'Ακυρωμένο',
 };
+
+export const ORDER_STATUS_TONE: Record<string, 'ok' | 'warn' | 'danger' | 'muted' | 'info'> = {
+  paid: 'ok',
+  offline: 'warn',
+  awaiting_payment: 'info',
+  pending: 'muted',
+  cancelled: 'danger',
+  expired: 'muted',
+};
+
+export const TICKET_STATUS_TONE: Record<string, 'ok' | 'warn' | 'danger' | 'muted' | 'info'> = {
+  valid: 'ok',
+  used: 'info',
+  cancelled: 'danger',
+};
+
+/** Display label for an excursion/route: its title if set, otherwise the station pair. */
+export function routeLabel(r: {
+  title?: string | null;
+  origin?: { name: string } | null;
+  destination?: { name: string } | null;
+}): string {
+  return r.title?.trim() || `${r.origin?.name ?? '—'} → ${r.destination?.name ?? '—'}`;
+}

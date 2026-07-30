@@ -6,10 +6,7 @@ import { homeContent } from '@/components/home/content';
 import { stats as defaultStats, testimonials as defaultTestimonials } from '@/data/site';
 import { resolvePoylman } from '@/components/home/resolve-content';
 import { Button } from '@/components/ui/Button';
-
-const inputCls =
-  'w-full rounded-md border border-border bg-surface px-4 py-2.5 font-sans text-[15px] text-body transition focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10';
-const labelCls = 'mb-1.5 block font-sans text-[13px] font-medium uppercase tracking-[0.1em] text-primary';
+import { adminInput, adminLabel } from '@/components/admin/ui';
 
 const tabs = ['Επικοινωνία', 'Αρχική', 'Σελίδες', 'Νομικά'] as const;
 
@@ -18,11 +15,11 @@ function Field({ label, name, defaultValue, placeholder, textarea }: {
 }) {
   return (
     <label className="block">
-      <span className={labelCls}>{label}</span>
+      <span className={adminLabel}>{label}</span>
       {textarea ? (
-        <textarea name={name} rows={3} defaultValue={defaultValue} placeholder={placeholder} className={inputCls} />
+        <textarea name={name} rows={3} defaultValue={defaultValue} placeholder={placeholder} className={adminInput} />
       ) : (
-        <input name={name} defaultValue={defaultValue} placeholder={placeholder} className={inputCls} />
+        <input name={name} defaultValue={defaultValue} placeholder={placeholder} className={adminInput} />
       )}
     </label>
   );
