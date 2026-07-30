@@ -61,6 +61,7 @@ export async function getTakenSeats(tripId: string): Promise<string[]> {
 export async function beginCheckout(input: {
   kind: TripKind;
   legs: { tripId: string; seats: string[] }[];
+  bp?: string;
 }): Promise<{ ok: false; error: string }> {
   const sb = await createServerClient();
   const { data, error } = await sb.rpc('begin_booking', {
@@ -72,7 +73,7 @@ export async function beginCheckout(input: {
   if (error) { console.error('beginCheckout:', error.message); return { ok: false, error: 'db' }; }
   const res = data as { ok: boolean; error?: string; order_id?: string; access_token?: string };
   if (!res.ok) return { ok: false, error: res.error ?? 'unknown' };
-  redirect(`/eisitiria/checkout?order=${res.order_id}&t=${res.access_token}`);
+  redirect(`/eisitiria/checkout?order=${res.order_id}&t=${res.access_token}${input.bp ? `&bp=${encodeURIComponent(input.bp)}` : ''}`);
 }
 
 export type CheckoutInput = {
