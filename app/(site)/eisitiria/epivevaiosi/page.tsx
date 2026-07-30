@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { BadgeCheck, Bus, TicketCheck } from 'lucide-react';
 import { createServerClient } from '@/lib/supabase/server';
-import { KIND_LABEL, ORDER_STATUS_LABEL, formatCents } from '@/lib/ticketing';
+import { ORDER_STATUS_LABEL, formatCents } from '@/lib/ticketing';
 import type { OrderBundle, OrderTicket } from '@/types/ticketing';
 
 export const metadata: Metadata = {
@@ -84,13 +84,18 @@ export default async function EpivevaiosiPage({
           </h1>
           <p className="mt-2 text-[15px] text-muted">
             Κωδικός κράτησης: <span className="font-mono font-bold text-body">{order.public_code}</span>
-            {' · '}{KIND_LABEL[order.kind]}
+            {' · '}Εκδρομή
             {' · '}
             <span className="font-semibold">{ORDER_STATUS_LABEL[order.status] ?? order.status}</span>
           </p>
           {order.status === 'offline' && (
             <p className="mt-2 text-[14px] text-muted">
               Η εξόφληση γίνεται στο γραφείο μας ή στο λεωφορείο πριν την αναχώρηση.
+            </p>
+          )}
+          {order.boarding_point && (
+            <p className="mt-2 text-[14px] text-muted">
+              Σημείο συνάντησης: <span className="font-semibold text-body">{order.boarding_point}</span>
             </p>
           )}
         </div>

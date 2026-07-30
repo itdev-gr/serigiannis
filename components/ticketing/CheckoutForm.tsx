@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { FarePricesDialog } from '@/components/ticketing/FarePricesDialog';
 import { HoldCountdown } from '@/components/ticketing/HoldCountdown';
 import { cancelCheckout, submitCheckout } from '@/app/(site)/eisitiria/actions';
-import { KIND_LABEL, farePriceForKind, formatCents } from '@/lib/ticketing';
+import { farePriceForKind, formatCents } from '@/lib/ticketing';
 import type { OrderBundle, OrderFare, TripKind } from '@/types/ticketing';
 
 const REGIONS = [
@@ -23,6 +23,7 @@ const ERROR_TEXT: Record<string, string> = {
   terms_required: 'Πρέπει να αποδεχθείτε τους όρους χρήσης.',
   invalid_fare: 'Μη έγκυρος τύπος εισιτηρίου.',
   invalid_passenger_name: 'Συμπληρώστε ονοματεπώνυμο για κάθε επιβάτη.',
+  invalid_passenger_phone: 'Συμπληρώστε τηλέφωνο για κάθε επιβάτη.',
   hold_lost: 'Η δέσμευση των θέσεων χάθηκε. Ξεκινήστε νέα κράτηση.',
   payment_init: 'Η σύνδεση με την τράπεζα απέτυχε. Δοκιμάστε ξανά.',
   db: 'Κάτι πήγε στραβά. Δοκιμάστε ξανά.',
@@ -56,6 +57,7 @@ function buildSchema(passengerCount: number) {
       .array(
         z.object({
           passenger_name: z.string().min(2, 'Συμπληρώστε ονοματεπώνυμο επιβάτη.'),
+          passenger_phone: z.string().min(8, 'Συμπληρώστε ένα έγκυρο τηλέφωνο.'),
           fare_type_id: z.string().min(1, 'Επιλέξτε τύπο εισιτηρίου.'),
         })
       )
@@ -64,7 +66,7 @@ function buildSchema(passengerCount: number) {
 }
 type CheckoutFields = z.infer<ReturnType<typeof buildSchema>>;
 
-export function CheckoutForm({ bundle, token, offline }: { bundle: Extract<OrderBundle, { ok: true }>; token: string; offline: boolean }) {
+export function CheckoutForm({ bundle, token, offline, boardingPoint }: { bundle: Extract<OrderBundle, { ok: true }>; token: string; offline: boolean; boardingPoint?: string }) {
   const { order, legs, fares } = bundle;
   const kind = order.kind as TripKind;
 
@@ -83,7 +85,7 @@ export function CheckoutForm({ bundle, token, offline }: { bundle: Extract<Order
     resolver: zodResolver(schema),
     defaultValues: {
       marketing_opt_in: false,
-      passengers: outSeats.map(() => ({ passenger_name: '', fare_type_id: defaultFare?.id ?? '' })),
+      passengers: outSeats.map(() => ({ passenger_name: '', passenger_phone: '', fare_type_id: defaultFare?.id ?? '' })),
     },
   });
 
@@ -111,11 +113,13 @@ export function CheckoutForm({ bundle, token, offline }: { bundle: Extract<Order
               city: d.city,
               postal_code: d.postal_code,
               region: d.region,
+              boarding_point: boardingPoint,
               marketing_opt_in: !!d.marketing_opt_in,
               accept_terms: true,
             },
             passengers: d.passengers.map((p, i) => ({
               passenger_name: p.passenger_name,
+              passenger_phone: p.passenger_phone,
               fare_type_id: p.fare_type_id,
               outbound_seat: outSeats[i],
               return_seat: kind === 'round' ? retSeats[i] : undefined,
@@ -156,7 +160,7 @@ export function CheckoutForm({ bundle, token, offline }: { bundle: Extract<Order
         </div>
         <div className="grid gap-5">
           {outSeats.map((seat, i) => (
-            <div key={seat} className="grid items-start gap-4 sm:grid-cols-[110px_1fr_1fr]">
+            <div key={seat} className="grid items-start gap-4 sm:grid-cols-[90px_1fr_1fr_1fr]">
               <div>
                 <span className="block font-sans text-[13px] font-medium uppercase tracking-[0.1em] text-primary">Θέση</span>
                 <span className="mt-1 block font-display text-2xl font-semibold text-body">
@@ -168,6 +172,9 @@ export function CheckoutForm({ bundle, token, offline }: { bundle: Extract<Order
               </div>
               <Field label="Ον/νυμο επιβάτη *" error={errors.passengers?.[i]?.passenger_name?.message}>
                 <input {...register(`passengers.${i}.passenger_name`)} className={inputCls} />
+              </Field>
+              <Field label="Τηλέφωνο επιβάτη *" error={errors.passengers?.[i]?.passenger_phone?.message}>
+                <input {...register(`passengers.${i}.passenger_phone`)} type="tel" className={inputCls} />
               </Field>
               <Field label="Τύπος εισιτηρίου *" error={errors.passengers?.[i]?.fare_type_id?.message}>
                 <select {...register(`passengers.${i}.fare_type_id`)} className={inputCls}>
@@ -184,7 +191,7 @@ export function CheckoutForm({ bundle, token, offline }: { bundle: Extract<Order
       </section>
 
       <section className="rounded-lg border border-border bg-surface p-6 shadow-card">
-        <h2 className="mb-5 border-b border-border pb-3 font-display text-2xl font-semibold text-body">Δρομολόγιο</h2>
+        <h2 className="mb-5 border-b border-border pb-3 font-display text-2xl font-semibold text-body">Εκδρομή</h2>
         {legs.map((leg) => (
           <p key={leg.leg} className="mb-2 flex flex-wrap items-center gap-x-6 gap-y-1 text-[15px] text-body">
             <span className="font-semibold uppercase text-[13px] tracking-[0.08em] text-primary">
@@ -196,6 +203,12 @@ export function CheckoutForm({ bundle, token, offline }: { bundle: Extract<Order
             <span className="text-muted">Θέσεις: {leg.seats.join(', ')}</span>
           </p>
         ))}
+        {boardingPoint && (
+          <p className="mb-2 flex flex-wrap items-center gap-x-6 gap-y-1 text-[15px] text-body">
+            <span className="font-semibold uppercase text-[13px] tracking-[0.08em] text-primary">Σημείο συνάντησης:</span>
+            <span>{boardingPoint}</span>
+          </p>
+        )}
         {kind === 'open_return' && (
           <p className="mt-2 text-[14px] text-muted">
             + Ανοιχτή επιστροφή (χωρίς καθορισμένο δρομολόγιο — ισχύει για 3 μήνες)
@@ -203,7 +216,7 @@ export function CheckoutForm({ bundle, token, offline }: { bundle: Extract<Order
         )}
         <div className="mt-4 flex items-center justify-between border-t border-border pt-4">
           <span className="text-[15px] text-muted">
-            {KIND_LABEL[kind]} · Αριθμός εισιτηρίων: {outSeats.length}
+            Εκδρομή · Αριθμός εισιτηρίων: {outSeats.length}
           </span>
           <span className="font-display text-3xl font-bold text-primary" aria-live="polite">{formatCents(total)}</span>
         </div>
@@ -221,7 +234,7 @@ export function CheckoutForm({ bundle, token, offline }: { bundle: Extract<Order
         <p className="mt-4 rounded-md bg-primary/5 px-4 py-3 text-[13px] leading-relaxed text-muted">
           {offline
             ? 'Με την ολοκλήρωση της κράτησης εκδίδονται τα εισιτήριά σας και εξοφλούνται στο γραφείο μας ή στο λεωφορείο πριν την αναχώρηση. Θα λάβετε email με τους κωδικούς των εισιτηρίων σας.'
-            : 'Πρόκειται να μεταβείτε στο ασφαλές περιβάλλον πληρωμών. Μετά την ολοκλήρωση της πληρωμής σας μην κλείσετε τον περιηγητή σας — θα επιστρέψετε αυτόματα για την έκδοση των εισιτηρίων σας.'}
+            : 'Πρόκειται να μεταβείτε στο ασφαλές περιβάλλον πληρωμών, όπου μπορείτε να πληρώσετε με κάρτα ή IRIS. Μετά την ολοκλήρωση της πληρωμής σας μην κλείσετε τον περιηγητή σας — θα επιστρέψετε αυτόματα για την έκδοση των εισιτηρίων σας.'}
         </p>
       </section>
 

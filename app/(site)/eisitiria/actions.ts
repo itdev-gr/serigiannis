@@ -87,10 +87,11 @@ export type CheckoutInput = {
     city?: string;
     postal_code?: string;
     region?: string;
+    boarding_point?: string;
     marketing_opt_in?: boolean;
     accept_terms: boolean;
   };
-  passengers: { passenger_name: string; fare_type_id: string; outbound_seat: string; return_seat?: string }[];
+  passengers: { passenger_name: string; passenger_phone: string; fare_type_id: string; outbound_seat: string; return_seat?: string }[];
 };
 
 /** Step 4: finalize. Offline → tickets issue now; gateway → redirect to the bank. */
