@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, MapPin, Tags, Newspaper, Inbox, Users, CalendarCheck, Settings, LogOut, ExternalLink, Menu, X, MapPinned, Route, Bus, CalendarDays, Ticket } from 'lucide-react';
+import { LayoutDashboard, MapPin, Tags, Newspaper, Inbox, Users, CalendarCheck, Settings, LogOut, ExternalLink, Menu, X, MapPinned, Route, Bus, CalendarDays, Ticket, Compass } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { signOut } from '@/app/admin/(dashboard)/actions';
 
@@ -14,6 +14,7 @@ const NAV = [
   { to: '/admin/requests', label: 'Αιτήματα', icon: Inbox },
   { to: '/admin/clients', label: 'Πελάτες', icon: Users },
   { to: '/admin/bookings', label: 'Κρατήσεις', icon: CalendarCheck },
+  { to: '/admin/excursions', label: 'Εκδρομές & Πρόγραμμα', icon: Compass },
   { to: '/admin/stations', label: 'Στάσεις', icon: MapPinned },
   { to: '/admin/routes', label: 'Γραμμές & Ναύλοι', icon: Route },
   { to: '/admin/layouts', label: 'Λεωφορεία', icon: Bus },
