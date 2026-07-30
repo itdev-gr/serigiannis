@@ -59,7 +59,6 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
         photoAlt={post.title}
         eyebrow="Νέα"
         title={post.title}
-        subtitle={post.excerpt ?? undefined}
         breadcrumbs={[
           { label: 'Αρχική', href: '/' },
           { label: 'Νέα', href: '/nea' },
@@ -82,7 +81,7 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
               </div>
             )}
             <Button asChild variant="accent" className="ml-auto">
-              <Link href={`/kratisi?post=${post.slug}`}>Κλείστε Online Θέση</Link>
+              <Link href="/eisitiria">Κλείστε Online Θέση</Link>
             </Button>
           </div>
           <PostBody body={post.body} />
