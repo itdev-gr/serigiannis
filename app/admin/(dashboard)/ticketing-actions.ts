@@ -182,14 +182,6 @@ export async function upsertFareType(formData: FormData) {
   redirect(`/admin/excursions/${routeId}${flashQuery(!error)}`);
 }
 
-export async function deleteFareType(id: string, routeId: string) {
-  const sb = await createServerClient();
-  const { error } = await sb.from('fare_types').delete().eq('id', id);
-  if (error) console.error('deleteFareType:', error.message);
-  revalidatePath(`/admin/excursions/${routeId}`);
-  redirect(`/admin/excursions/${routeId}${flashQuery(!error)}`);
-}
-
 // -------------------------------------------------------------- layouts
 
 const CellSchema = z.object({
