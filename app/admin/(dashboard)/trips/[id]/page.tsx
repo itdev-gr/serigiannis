@@ -1,11 +1,10 @@
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getAdminLayouts, getAdminRouteFares, getAdminTrip, getTripClaims } from '@/lib/queries/ticketing';
-import { manualBooking, updateTrip } from '../../../ticketing-actions';
+import { manualBooking, updateTrip } from '../../ticketing-actions';
 import { Button } from '@/components/ui/Button';
 import { AdminSeatMap } from '@/components/admin/AdminSeatMap';
 import { FlashBanner } from '@/components/admin/FlashBanner';
-import { adminInput } from '@/components/admin/ui';
+import { AdminPageHeader, Pill, adminInput } from '@/components/admin/ui';
 import { routeLabel } from '@/lib/ticketing';
 
 export default async function TripDashboardPage({
@@ -30,21 +29,21 @@ export default async function TripDashboardPage({
   const booked = claims.filter((c) => c.claim_type === 'booked').length;
   const blocked = claims.filter((c) => c.claim_type === 'blocked').length;
 
+  const dateStr = new Date(`${trip.service_date}T12:00:00`).toLocaleDateString('el-GR', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });
+  const timeStr = new Date(trip.departure_at).toLocaleTimeString('el-GR', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Athens' });
+  const subtitle = `${dateStr} · ${timeStr} · ${trip.layout?.name ?? ''} · ${booked} κρατημένες, ${blocked} κλειδωμένες / ${trip.online_seats_total} online`;
+
   return (
     <div className="max-w-5xl">
-      <p className="mb-2 text-[13px]"><Link href="/admin/schedules" className="text-muted hover:text-primary">← Δρομολόγια</Link></p>
-      <h1 className="font-display text-3xl font-semibold text-primary md:text-4xl">
-        {routeLabel(trip.route ?? {})}
-      </h1>
-      <p className="mt-1 text-[15px] text-muted">
-        {new Date(`${trip.service_date}T12:00:00`).toLocaleDateString('el-GR', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' })}
-        {' · '}{new Date(trip.departure_at).toLocaleTimeString('el-GR', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Athens' })}
-        {' · '}{trip.layout?.name}
-        {' · '}{booked} κρατημένες, {blocked} κλειδωμένες / {trip.online_seats_total} online
-        {trip.status === 'cancelled' && <span className="ml-2 rounded bg-cta/10 px-2 py-0.5 text-[13px] font-semibold text-cta">ΑΚΥΡΩΜΕΝΟ</span>}
-      </p>
+      <AdminPageHeader
+        title={routeLabel(trip.route ?? {})}
+        subtitle={subtitle}
+        backHref={`/admin/excursions/${trip.route_id}?tab=dromologia`}
+        backLabel="Δρομολόγια"
+        actions={trip.status === 'cancelled' ? <Pill tone="danger">ΑΚΥΡΩΜΕΝΟ</Pill> : undefined}
+      />
 
-      <div className="mt-6 empty:hidden">
+      <div className="empty:hidden">
         <FlashBanner saved={sp.saved} error={sp.error} />
       </div>
 

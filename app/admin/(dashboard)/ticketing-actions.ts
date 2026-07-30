@@ -352,10 +352,10 @@ export async function updateTrip(formData: FormData) {
   };
   const { error } = await sb.from('trips').update(row).eq('id', id);
   if (error) console.error('updateTrip:', error.message);
-  revalidatePath(`/admin/schedules/trips/${id}`);
+  revalidatePath(`/admin/trips/${id}`);
   revalidatePath('/admin/schedules');
   revalidatePath('/eisitiria');
-  redirect(`/admin/schedules/trips/${id}${flashQuery(!error)}`);
+  redirect(`/admin/trips/${id}${flashQuery(!error)}`);
 }
 
 // ---------------------------------------------------------- seat state
@@ -365,7 +365,7 @@ export async function blockSeat(tripId: string, seat: string): Promise<{ ok: boo
   const sb = await createServerClient();
   const { error } = await sb.rpc('admin_block_seat', { p_trip_id: tripId, p_seat: seat });
   if (error) console.error('blockSeat:', error.message);
-  revalidatePath(`/admin/schedules/trips/${tripId}`);
+  revalidatePath(`/admin/trips/${tripId}`);
   return { ok: !error, error: error ? 'db' : undefined };
 }
 
@@ -373,7 +373,7 @@ export async function unblockSeat(tripId: string, seat: string): Promise<{ ok: b
   const sb = await createServerClient();
   const { error } = await sb.rpc('admin_unblock_seat', { p_trip_id: tripId, p_seat: seat });
   if (error) console.error('unblockSeat:', error.message);
-  revalidatePath(`/admin/schedules/trips/${tripId}`);
+  revalidatePath(`/admin/trips/${tripId}`);
   return { ok: !error, error: error ? 'db' : undefined };
 }
 
@@ -395,8 +395,8 @@ export async function manualBooking(formData: FormData) {
   if (!okBegin) {
     console.error('manualBooking begin:', error?.message ?? began);
     const code = (began as { error?: string } | null)?.error === 'seat_taken' ? 'seat_taken' : 'db';
-    revalidatePath(`/admin/schedules/trips/${tripId}`);
-    redirect(`/admin/schedules/trips/${tripId}${flashQuery(false, code)}`);
+    revalidatePath(`/admin/trips/${tripId}`);
+    redirect(`/admin/trips/${tripId}${flashQuery(false, code)}`);
   }
   const b = began as { order_id: string; access_token: string };
   const { error: e2 } = await sb.rpc('finalize_checkout', {
@@ -413,9 +413,9 @@ export async function manualBooking(formData: FormData) {
     p_provider: 'offline',
   });
   if (e2) console.error('manualBooking finalize:', e2.message);
-  revalidatePath(`/admin/schedules/trips/${tripId}`);
+  revalidatePath(`/admin/trips/${tripId}`);
   revalidatePath('/admin/orders');
-  redirect(`/admin/schedules/trips/${tripId}${flashQuery(!e2)}`);
+  redirect(`/admin/trips/${tripId}${flashQuery(!e2)}`);
 }
 
 // --------------------------------------------------------------- orders

@@ -368,7 +368,7 @@ export default async function ExcursionDetailPage({
                     <Pill tone={t.status === 'scheduled' ? 'ok' : 'danger'}>{t.status === 'scheduled' ? 'Ενεργό' : 'Ακυρωμένο'}</Pill>
                     <span className="text-[14px] text-body">{taken}/{t.online_seats_total}</span>
                     <div className="text-right">
-                      <Link href={`/admin/schedules/trips/${t.id}`} className="text-[13px] font-medium text-primary hover:underline">Θέσεις →</Link>
+                      <Link href={`/admin/trips/${t.id}`} className="text-[13px] font-medium text-primary hover:underline">Θέσεις →</Link>
                     </div>
                   </div>
                 );
