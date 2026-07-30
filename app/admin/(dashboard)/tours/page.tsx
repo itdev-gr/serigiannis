@@ -12,7 +12,10 @@ export default async function AdminToursPage() {
     <div>
       <div className="mb-8 flex items-end justify-between">
         <div>
-          <h1 className="font-display text-4xl font-semibold text-primary">Εκδρομές</h1>
+          <h1 className="font-display text-4xl font-semibold text-primary">Σελίδες Εκδρομών</h1>
+          <p className="mt-2 text-[14px] text-muted">
+            Το περιεχόμενο του ιστότοπου (κατάλογος). Για τις εκδρομές με online εισιτήρια: Εκδρομές &amp; Πρόγραμμα.
+          </p>
           <p className="mt-1 text-muted">{rows.length} συνολικά · {published} δημοσιευμένες</p>
         </div>
         <Link href="/admin/tours/new" className="inline-flex items-center gap-1.5 rounded-full bg-cta px-4 py-2 font-sans text-[13px] font-semibold text-surface hover:bg-cta-hover">
