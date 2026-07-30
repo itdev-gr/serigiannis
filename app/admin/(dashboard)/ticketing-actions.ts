@@ -1,14 +1,16 @@
 'use server';
+import { randomUUID } from 'node:crypto';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { createServerClient } from '@/lib/supabase/server';
-import { parseBoardingPoints } from '@/lib/excursions';
-import { flashQuery } from '@/lib/admin-flash';
+import { parseBoardingPoints, slugify } from '@/lib/excursions';
+import { flashQuery, withFlash } from '@/lib/admin-flash';
 
 function revalidateTicketing() {
   revalidatePath('/admin/stations');
   revalidatePath('/admin/routes');
+  revalidatePath('/admin/excursions');
   revalidatePath('/admin/layouts');
   revalidatePath('/admin/schedules');
   revalidatePath('/admin/orders');
@@ -50,9 +52,18 @@ export async function deleteStation(id: string) {
 
 // --------------------------------------------------------------- routes
 
+/** The two client-mandated fare categories every excursion starts with. */
+function defaultFares(routeId: string) {
+  return [
+    { route_id: routeId, name: 'Κανονικό', description: 'Κανονικό εισιτήριο.', price_oneway_cents: 0, price_round_cents: 0, requires_document: false, is_default: true, position: 1, is_active: true },
+    { route_id: routeId, name: 'Φοιτητικό', description: 'Φοιτητές με επίδειξη ακαδημαϊκής ταυτότητας (πάσο).', price_oneway_cents: 0, price_round_cents: 0, requires_document: true, is_default: false, position: 2, is_active: true },
+  ];
+}
+
 export async function upsertRoute(formData: FormData) {
   const sb = await createServerClient();
   const id = g(formData, 'id');
+  const redirectTo = g(formData, 'redirect_to');
   const row = {
     origin_station_id: g(formData, 'origin_station_id'),
     destination_station_id: g(formData, 'destination_station_id'),
@@ -69,28 +80,102 @@ export async function upsertRoute(formData: FormData) {
     const { error } = await sb.from('bus_routes').update(row).eq('id', id);
     if (error) console.error('upsertRoute:', error.message);
     revalidateTicketing();
+    if (redirectTo.startsWith('/admin/')) redirect(withFlash(redirectTo, !error));
     redirect(`/admin/routes/${id}${flashQuery(!error)}`);
   }
 
   const { data: created, error } = await sb.from('bus_routes').insert(row).select('id').single();
   if (error) console.error('upsertRoute:', error.message);
-  // every new excursion starts with the two client-mandated fare categories
   if (created) {
-    const { error: e2 } = await sb.from('fare_types').insert([
-      { route_id: created.id, name: 'Κανονικό', description: 'Κανονικό εισιτήριο.', price_oneway_cents: 0, price_round_cents: 0, requires_document: false, is_default: true, position: 1, is_active: true },
-      { route_id: created.id, name: 'Φοιτητικό', description: 'Φοιτητές με επίδειξη ακαδημαϊκής ταυτότητας (πάσο).', price_oneway_cents: 0, price_round_cents: 0, requires_document: true, is_default: false, position: 2, is_active: true },
-    ]);
+    const { error: e2 } = await sb.from('fare_types').insert(defaultFares(created.id));
     if (e2) console.error('upsertRoute fares:', e2.message);
   }
   revalidateTicketing();
   redirect('/admin/routes');
 }
 
+/** New excursion from the hub: one title. Reuses a shared origin station,
+ *  mints a per-excursion destination station, then a draft route + default fares. */
+export async function createExcursion(formData: FormData) {
+  const sb = await createServerClient();
+  const title = g(formData, 'title');
+  if (!title) redirect('/admin/excursions?error=invalid_input');
+
+  // find-or-create the shared origin station
+  let originId: string;
+  const { data: origin } = await sb.from('stations').select('id').eq('slug', 'sergiani-afetiria').maybeSingle();
+  if (origin) {
+    originId = origin.id;
+  } else {
+    const { data: newOrigin, error: eOrigin } = await sb
+      .from('stations')
+      .insert({ slug: 'sergiani-afetiria', name: 'Αφετηρία Sergiani', is_active: true, position: 0 })
+      .select('id')
+      .single();
+    if (eOrigin || !newOrigin) {
+      console.error('createExcursion origin:', eOrigin?.message);
+      redirect('/admin/excursions?error=db');
+    }
+    originId = newOrigin!.id;
+  }
+
+  // unique per-excursion destination station named after the excursion
+  const destSlug = `${slugify(title) || 'ekdromi'}-${randomUUID().slice(0, 6)}`;
+  const { data: dest, error: eDest } = await sb
+    .from('stations')
+    .insert({ slug: destSlug, name: title, is_active: true, position: 0 })
+    .select('id')
+    .single();
+  if (eDest || !dest) {
+    console.error('createExcursion destination:', eDest?.message);
+    redirect('/admin/excursions?error=db');
+  }
+
+  const { data: route, error: eRoute } = await sb
+    .from('bus_routes')
+    .insert({
+      origin_station_id: originId,
+      destination_station_id: dest!.id,
+      status: 'draft',
+      position: 0,
+      title,
+      boarding_points: [],
+    })
+    .select('id')
+    .single();
+  if (eRoute || !route) {
+    console.error('createExcursion route:', eRoute?.message);
+    redirect('/admin/excursions?error=db');
+  }
+
+  const { error: eFares } = await sb.from('fare_types').insert(defaultFares(route!.id));
+  if (eFares) console.error('createExcursion fares:', eFares.message);
+
+  revalidateTicketing();
+  redirect(`/admin/excursions/${route!.id}?created=1`);
+}
+
+/** Unpublish (draft) an excursion — reversible, unlike deletion. */
+export async function retireExcursion(id: string) {
+  const sb = await createServerClient();
+  const { error } = await sb.from('bus_routes').update({ status: 'draft' }).eq('id', id);
+  if (error) console.error('retireExcursion:', error.message);
+  revalidateTicketing();
+  redirect(withFlash(`/admin/excursions/${id}?tab=stoixeia`, !error));
+}
+
 export async function deleteRoute(id: string) {
   const sb = await createServerClient();
+  // trips have no ON DELETE CASCADE — a route with materialized trips can't be
+  // deleted; guide the admin to retire it instead of a silent FK failure.
+  const { count } = await sb.from('trips').select('id', { count: 'exact', head: true }).eq('route_id', id);
+  if ((count ?? 0) > 0) {
+    redirect(withFlash(`/admin/excursions/${id}?tab=stoixeia`, false, 'route_has_trips'));
+  }
   const { error } = await sb.from('bus_routes').delete().eq('id', id);
   if (error) console.error('deleteRoute:', error.message);
   revalidateTicketing();
+  redirect(`/admin/excursions${flashQuery(!error)}`);
 }
 
 // ---------------------------------------------------------------- fares
@@ -99,6 +184,7 @@ export async function upsertFareType(formData: FormData) {
   const sb = await createServerClient();
   const id = g(formData, 'id');
   const routeId = g(formData, 'route_id');
+  const redirectTo = g(formData, 'redirect_to');
   const row = {
     route_id: routeId,
     name: g(formData, 'name'),
@@ -111,13 +197,17 @@ export async function upsertFareType(formData: FormData) {
     is_active: formData.get('is_active') !== null,
   };
   if (!routeId) return;
-  if (!row.name) redirect(`/admin/routes/${routeId}${flashQuery(false, 'invalid_input')}`);
+  if (!row.name) {
+    if (redirectTo.startsWith('/admin/')) redirect(withFlash(redirectTo, false, 'invalid_input'));
+    redirect(`/admin/routes/${routeId}${flashQuery(false, 'invalid_input')}`);
+  }
   const { error } = id
     ? await sb.from('fare_types').update(row).eq('id', id)
     : await sb.from('fare_types').insert(row);
   if (error) console.error('upsertFareType:', error.message);
   revalidatePath(`/admin/routes/${routeId}`);
   revalidateTicketing();
+  if (redirectTo.startsWith('/admin/')) redirect(withFlash(redirectTo, !error));
   redirect(`/admin/routes/${routeId}${flashQuery(!error)}`);
 }
 
@@ -185,6 +275,7 @@ export async function deleteLayout(id: string) {
 export async function upsertPattern(formData: FormData) {
   const sb = await createServerClient();
   const id = g(formData, 'id');
+  const redirectTo = g(formData, 'redirect_to');
   const weekdays = [0, 1, 2, 3, 4, 5, 6].filter((d) => formData.get(`wd_${d}`) !== null);
   const row = {
     route_id: g(formData, 'route_id'),
@@ -202,14 +293,17 @@ export async function upsertPattern(formData: FormData) {
     : await sb.from('schedule_patterns').insert(row);
   if (error) console.error('upsertPattern:', error.message);
   revalidateTicketing();
+  if (redirectTo.startsWith('/admin/')) redirect(withFlash(redirectTo, !error));
   redirect(`/admin/schedules${flashQuery(!error)}`);
 }
 
-export async function deletePattern(id: string) {
+export async function deletePattern(id: string, redirectTo?: string) {
   const sb = await createServerClient();
   const { error } = await sb.from('schedule_patterns').delete().eq('id', id);
   if (error) console.error('deletePattern:', error.message);
   revalidateTicketing();
+  // when bound with only `id`, React passes FormData here — guard on string
+  if (typeof redirectTo === 'string' && redirectTo.startsWith('/admin/')) redirect(withFlash(redirectTo, !error));
   redirect(`/admin/schedules${flashQuery(!error)}`);
 }
 
@@ -226,6 +320,7 @@ export async function materializeTrips(formData: FormData) {
 
 export async function createTrip(formData: FormData) {
   const sb = await createServerClient();
+  const redirectTo = g(formData, 'redirect_to');
   const date = g(formData, 'service_date');
   const time = g(formData, 'departure_time');
   const row = {
@@ -240,6 +335,8 @@ export async function createTrip(formData: FormData) {
   const { error } = await sb.from('trips').insert(row);
   if (error) console.error('createTrip:', error.message);
   revalidatePath('/admin/schedules');
+  revalidatePath('/admin/excursions');
+  if (redirectTo.startsWith('/admin/')) redirect(withFlash(redirectTo, !error));
   redirect(`/admin/schedules${flashQuery(!error)}`);
 }
 

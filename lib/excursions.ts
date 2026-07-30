@@ -19,3 +19,25 @@ export function parseBoardingPoints(text: string): string[] {
     .map((s) => s.trim())
     .filter(Boolean);
 }
+
+const GREEK_TO_LATIN: Record<string, string> = {
+  α: 'a', β: 'v', γ: 'g', δ: 'd', ε: 'e', ζ: 'z', η: 'i', θ: 'th', ι: 'i',
+  κ: 'k', λ: 'l', μ: 'm', ν: 'n', ξ: 'x', ο: 'o', π: 'p', ρ: 'r', σ: 's',
+  ς: 's', τ: 't', υ: 'y', φ: 'f', χ: 'ch', ψ: 'ps', ω: 'o',
+};
+
+/** Latin URL slug from an (often Greek) title. Empty when the title has no
+ *  alphanumerics — callers should fall back (e.g. `ekdromi-<hex>`). */
+export function slugify(input: string): string {
+  const base = input
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, ''); // strip accents (Greek tonos/dialytika too)
+  let out = '';
+  for (const ch of base) out += GREEK_TO_LATIN[ch] ?? ch;
+  return out
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 60)
+    .replace(/-+$/g, '');
+}

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { groupRouteDates, parseBoardingPoints } from '@/lib/excursions';
+import { groupRouteDates, parseBoardingPoints, slugify } from '@/lib/excursions';
 
 describe('groupRouteDates', () => {
   it('groups, dedupes and sorts dates per route', () => {
@@ -28,5 +28,24 @@ describe('parseBoardingPoints', () => {
 
   it('empty string -> empty array', () => {
     expect(parseBoardingPoints('')).toEqual([]);
+  });
+});
+
+describe('slugify', () => {
+  it('transliterates and hyphenates a Greek title', () => {
+    expect(slugify('Μονοήμερη Ναύπλιο')).toBe('monoimeri-nayplio');
+  });
+
+  it('strips accents from latin too and collapses separators', () => {
+    expect(slugify('  Café  du   Monde!! ')).toBe('cafe-du-monde');
+  });
+
+  it('returns empty string when nothing alphanumeric survives', () => {
+    expect(slugify('—!!—')).toBe('');
+    expect(slugify('')).toBe('');
+  });
+
+  it('keeps digits', () => {
+    expect(slugify('Εκδρομή 2026')).toBe('ekdromi-2026');
   });
 });

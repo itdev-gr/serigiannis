@@ -119,6 +119,13 @@ export async function getAdminRouteFares(routeId: string): Promise<FareType[]> {
   return (data ?? []) as FareType[];
 }
 
+/** All fares across every route — for the excursions list (avoids per-route N+1). */
+export async function getAdminAllFares(): Promise<FareType[]> {
+  const sb = await createServerClient();
+  const { data } = await sb.from('fare_types').select('*').order('position');
+  return (data ?? []) as FareType[];
+}
+
 export async function getAdminLayouts(): Promise<BusLayout[]> {
   const sb = await createServerClient();
   const { data } = await sb.from('bus_layouts').select('*').order('created_at');
@@ -194,6 +201,27 @@ export async function getTripClaims(tripId: string): Promise<AdminSeatClaim[]> {
     .select('id, seat_no, claim_type, order_id, ticket_id, expires_at, ticket:tickets(passenger_name, code, order_id)')
     .eq('trip_id', tripId);
   return (data ?? []) as unknown as AdminSeatClaim[];
+}
+
+/** Taken-seat counts per trip (booked + blocked + live holds; expired holds excluded).
+ *  Mirrors the SQL predicate `claim_type <> 'hold' OR expires_at > now()`. */
+export async function getTripsOccupancy(tripIds: string[]): Promise<Map<string, { taken: number }>> {
+  const map = new Map<string, { taken: number }>();
+  if (tripIds.length === 0) return map;
+  const sb = await createServerClient();
+  const { data } = await sb
+    .from('trip_seat_claims')
+    .select('trip_id, claim_type, expires_at')
+    .in('trip_id', tripIds);
+  const now = Date.now();
+  for (const c of (data ?? []) as { trip_id: string; claim_type: string; expires_at: string | null }[]) {
+    const active = c.claim_type !== 'hold' || (c.expires_at != null && new Date(c.expires_at).getTime() > now);
+    if (!active) continue;
+    const entry = map.get(c.trip_id) ?? { taken: 0 };
+    entry.taken += 1;
+    map.set(c.trip_id, entry);
+  }
+  return map;
 }
 
 export type AdminOrder = {

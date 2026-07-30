@@ -11,3 +11,10 @@ export const ADMIN_ERROR_TEXT: Record<string, string> = {
 export function flashQuery(ok: boolean, code?: string): string {
   return ok ? '?saved=1' : `?error=${code ?? 'db'}`;
 }
+
+/** Append a flash marker to a path that may already carry a query string
+ *  (e.g. `?tab=times`), choosing `?` or `&` as needed. */
+export function withFlash(path: string, ok: boolean, code?: string): string {
+  const sep = path.includes('?') ? '&' : '?';
+  return `${path}${sep}${ok ? 'saved=1' : `error=${code ?? 'db'}`}`;
+}
