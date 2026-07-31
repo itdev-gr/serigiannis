@@ -50,7 +50,7 @@ export function AdminSeatMap({ tripId, layout, claims }: { tripId: string; layou
                       key={i}
                       type="button"
                       style={style}
-                      onClick={() => setSelected(cell.seat!)}
+                      onClick={() => { setSelected(cell.seat!); setError(null); }}
                       className={cn(
                         'flex aspect-square items-center justify-center rounded-md border text-[12px] font-semibold transition',
                         selected === cell.seat && 'ring-2 ring-gold',

@@ -5,6 +5,7 @@ export const ADMIN_ERROR_TEXT: Record<string, string> = {
   invalid_input: 'Μη έγκυρα στοιχεία.',
   not_found: 'Δεν βρέθηκε.',
   route_has_trips: 'Η εκδρομή έχει δρομολόγια — δεν μπορεί να διαγραφεί. Κάντε την Πρόχειρη.',
+  layout_in_use: 'Το λεωφορείο χρησιμοποιείται σε πρόγραμμα ή δρομολόγια — δεν μπορεί να διαγραφεί.',
 };
 
 /** The query suffix a server action redirects with so the target page flashes a banner. */

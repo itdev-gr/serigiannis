@@ -173,7 +173,11 @@ export async function saveSettings(formData: FormData) {
     };
   }
 
-  await sb.from('settings').upsert({ id: 1, data }, { onConflict: 'id' });
+  const { error } = await sb.from('settings').upsert({ id: 1, data }, { onConflict: 'id' });
+  if (error) {
+    console.error('saveSettings:', error.message);
+    redirect('/admin/settings?error=db');
+  }
   // Refresh the footer (root layout) and home copy everywhere.
   revalidatePath('/', 'layout');
   redirect('/admin/settings?saved=1');

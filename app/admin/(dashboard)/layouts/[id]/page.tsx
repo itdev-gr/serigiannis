@@ -5,9 +5,16 @@ import { upsertLayout } from '../../ticketing-actions';
 import { Button } from '@/components/ui/Button';
 import { LayoutEditor } from '@/components/admin/LayoutEditor';
 import { adminInput } from '@/components/admin/ui';
+import { FlashBanner } from '@/components/admin/FlashBanner';
 
-export default async function LayoutDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+export default async function LayoutDetailPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ saved?: string; error?: string }>;
+}) {
+  const [{ id }, sp] = await Promise.all([params, searchParams]);
   const isNew = id === 'new';
   const layout = isNew ? null : await getAdminLayout(id);
   if (!isNew && !layout) notFound();
@@ -15,6 +22,7 @@ export default async function LayoutDetailPage({ params }: { params: Promise<{ i
   return (
     <div className="max-w-4xl">
       <p className="mb-2 text-[13px]"><Link href="/admin/layouts" className="text-muted hover:text-primary">← Λεωφορεία</Link></p>
+      <FlashBanner saved={sp.saved} error={sp.error} />
       <h1 className="font-display text-4xl font-semibold text-primary">
         {isNew ? 'Νέα διάταξη' : layout!.name}
       </h1>

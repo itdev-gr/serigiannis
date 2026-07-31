@@ -210,21 +210,21 @@ export async function upsertLayout(formData: FormData) {
   const sb = await createServerClient();
   const id = g(formData, 'id');
   const name = g(formData, 'name');
-  let layout: z.infer<typeof LayoutSchema>;
+  let layout: z.infer<typeof LayoutSchema> | null = null;
   try {
     layout = LayoutSchema.parse(JSON.parse(g(formData, 'layout_json')));
   } catch (e) {
     console.error('upsertLayout: invalid layout json', e);
-    return;
   }
-  if (!name) return;
+  // invalid layout JSON or missing name → back to the editor (redirect outside try)
+  if (!layout || !name) redirect(`/admin/layouts/${id || 'new'}?error=invalid_input`);
   const row = { name, layout, is_active: formData.get('is_active') !== null };
   const { error } = id
     ? await sb.from('bus_layouts').update(row).eq('id', id)
     : await sb.from('bus_layouts').insert(row);
   if (error) console.error('upsertLayout:', error.message);
   revalidateTicketing();
-  redirect('/admin/layouts');
+  redirect(`/admin/layouts${flashQuery(!error)}`);
 }
 
 export async function deleteLayout(id: string) {
@@ -232,6 +232,9 @@ export async function deleteLayout(id: string) {
   const { error } = await sb.from('bus_layouts').delete().eq('id', id);
   if (error) console.error('deleteLayout:', error.message);
   revalidateTicketing();
+  // FK violation → layout still referenced by patterns/trips
+  const code = error?.code === '23503' ? 'layout_in_use' : 'db';
+  redirect(`/admin/layouts${flashQuery(!error, code)}`);
 }
 
 // ------------------------------------------------------------ schedules
@@ -497,4 +500,5 @@ export async function saveBookingSettings(formData: FormData) {
   if (error) console.error('saveBookingSettings:', error.message);
   revalidatePath('/admin/settings');
   revalidatePath('/eisitiria');
+  redirect(`/admin/settings${flashQuery(!error)}`);
 }

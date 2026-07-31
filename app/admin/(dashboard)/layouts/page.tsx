@@ -3,11 +3,17 @@ import { getAdminLayouts } from '@/lib/queries/ticketing';
 import { deleteLayout } from '../ticketing-actions';
 import { Button } from '@/components/ui/Button';
 import { ConfirmForm } from '@/components/admin/ConfirmForm';
+import { FlashBanner } from '@/components/admin/FlashBanner';
 
-export default async function LayoutsPage() {
-  const layouts = await getAdminLayouts();
+export default async function LayoutsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ saved?: string; error?: string }>;
+}) {
+  const [layouts, sp] = await Promise.all([getAdminLayouts(), searchParams]);
   return (
     <div className="max-w-3xl">
+      <FlashBanner saved={sp.saved} error={sp.error} />
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="font-display text-4xl font-semibold text-primary">Λεωφορεία (Διατάξεις)</h1>
         <Button asChild><Link href="/admin/layouts/new">+ Νέα διάταξη</Link></Button>
