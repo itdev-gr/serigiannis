@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { createServerClient } from '@/lib/supabase/server';
 import { parseBoardingPoints, slugify } from '@/lib/excursions';
 import { flashQuery, withFlash } from '@/lib/admin-flash';
+import { athensDepartureAt } from '@/lib/athens-time';
 
 function revalidateTicketing() {
   revalidatePath('/admin/excursions');
@@ -292,8 +293,8 @@ export async function createTrip(formData: FormData) {
     route_id: g(formData, 'route_id'),
     layout_id: g(formData, 'layout_id'),
     service_date: date,
-    // stored as Athens local wall-clock; Postgres converts to timestamptz
-    departure_at: `${date}T${time}:00+03:00`,
+    // Athens wall-clock with the correct EET/EEST offset for that date
+    departure_at: athensDepartureAt(date, time),
     notes: g(formData, 'notes') || null,
   };
   if (!row.route_id || !row.layout_id || !date || !time) return;
