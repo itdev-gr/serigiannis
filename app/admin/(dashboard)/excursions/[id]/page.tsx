@@ -123,7 +123,7 @@ export default async function ExcursionDetailPage({
             <input type="hidden" name="destination_station_id" value={route.destination_station_id} />
             <input type="hidden" name="redirect_to" value={`${base}?tab=stoixeia`} />
             <label className={cn(adminLabel, 'sm:col-span-2')}>Τίτλος εκδρομής
-              <input name="title" defaultValue={route.title ?? ''} placeholder="π.χ. Μονοήμερη Ναύπλιο" className={adminInput} />
+              <input name="title" required defaultValue={route.title ?? ''} placeholder="π.χ. Μονοήμερη Ναύπλιο" className={adminInput} />
             </label>
             <label className={cn(adminLabel, 'sm:col-span-2')}>Σημεία συνάντησης (ένα ανά γραμμή)
               <textarea name="boarding_points" rows={3} defaultValue={(route.boarding_points ?? []).join('\n')} className={adminInput} />
