@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, MapPin, Newspaper, Inbox, Settings, LogOut, ExternalLink, Menu, X, Route, Bus, Ticket, type LucideIcon } from 'lucide-react';
+import { LayoutDashboard, MapPin, Newspaper, Inbox, Settings, LogOut, ExternalLink, Menu, X, Route, Bus, Ticket, BookOpen, type LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { signOut } from '@/app/admin/(dashboard)/actions';
 
@@ -30,7 +30,12 @@ const GROUPS: NavGroup[] = [
       { to: '/admin/posts', label: 'Νέα & Ανακοινώσεις', icon: Newspaper },
     ],
   },
-  { items: [{ to: '/admin/settings', label: 'Ρυθμίσεις', icon: Settings }] },
+  {
+    items: [
+      { to: '/admin/settings', label: 'Ρυθμίσεις', icon: Settings },
+      { to: '/admin/odigos', label: 'Οδηγός Χρήσης', icon: BookOpen },
+    ],
+  },
 ];
 
 function isActive(pathname: string, to: string, exact?: boolean) {
