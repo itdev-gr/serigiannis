@@ -44,14 +44,18 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
         </div>
       </div>
 
-      <form action={async (fd: FormData) => { 'use server'; await saveLeadNotes(lead.id, String(fd.get('notes') || '')); }} className="mt-6 rounded-lg border border-border bg-surface p-6">
-        <h2 className="font-sans text-[13px] font-semibold uppercase tracking-[0.1em] text-primary">Σημειώσεις</h2>
-        <textarea name="notes" rows={4} defaultValue={lead.admin_notes ?? ''} className="mt-3 w-full rounded-md border border-border bg-surface px-4 py-2.5 text-[15px] focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10" />
-        <div className="mt-3 flex items-center justify-between">
-          <Button type="submit" size="sm">Αποθήκευση σημειώσεων</Button>
-          <ConfirmForm action={deleteLead.bind(null, lead.id)} message="Διαγραφή αιτήματος;"><span className="text-[13px] text-cta hover:underline">Διαγραφή</span></ConfirmForm>
+      <div className="mt-6 rounded-lg border border-border bg-surface p-6">
+        <form action={async (fd: FormData) => { 'use server'; await saveLeadNotes(lead.id, String(fd.get('notes') || '')); }}>
+          <h2 className="font-sans text-[13px] font-semibold uppercase tracking-[0.1em] text-primary">Σημειώσεις</h2>
+          <textarea name="notes" rows={4} defaultValue={lead.admin_notes ?? ''} className="mt-3 w-full rounded-md border border-border bg-surface px-4 py-2.5 text-[15px] focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10" />
+          <div className="mt-3"><Button type="submit" size="sm">Αποθήκευση σημειώσεων</Button></div>
+        </form>
+        <div className="mt-3 flex justify-end border-t border-border pt-3">
+          <ConfirmForm action={deleteLead.bind(null, lead.id)} message="Διαγραφή αιτήματος;">
+            <button type="submit" className="text-[13px] text-cta hover:underline">Διαγραφή</button>
+          </ConfirmForm>
         </div>
-      </form>
+      </div>
     </div>
   );
 }

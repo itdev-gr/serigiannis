@@ -5,6 +5,16 @@ export function formatCents(cents: number): string {
   return `${(cents / 100).toLocaleString('el-GR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`;
 }
 
+/** Refund-policy sentence from booking_settings — the single source for user-facing
+ *  cancellation copy (admin confirm, confirmation page, ticket email). */
+export function refundPolicyText(s: {
+  refund_cutoff_hours: number;
+  refund_pct_early: number;
+  refund_pct_late: number;
+}): string {
+  return `Ακύρωση έως ${s.refund_cutoff_hours} ώρες πριν την αναχώρηση: επιστροφή ${s.refund_pct_early}% · εντός ${s.refund_cutoff_hours} ωρών: ${s.refund_pct_late}%.`;
+}
+
 /** Split a round-trip fare across the two legs (matches finalize_checkout). */
 export function splitRoundPrice(roundCents: number): { outbound: number; ret: number } {
   const outbound = Math.ceil(roundCents / 2);

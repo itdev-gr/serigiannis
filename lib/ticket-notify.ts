@@ -1,6 +1,7 @@
 import QRCode from 'qrcode';
 import { createServiceClient } from '@/lib/supabase/server';
-import { ORDER_STATUS_LABEL, formatCents } from '@/lib/ticketing';
+import { ORDER_STATUS_LABEL, formatCents, refundPolicyText } from '@/lib/ticketing';
+import { getBookingSettings } from '@/lib/queries/ticketing';
 import type { OrderBundle } from '@/types/ticketing';
 
 const esc = (v: unknown) => String(v ?? '').replace(/</g, '&lt;');
@@ -24,6 +25,7 @@ export async function notifyTicketOrder(accessToken: string): Promise<void> {
   if (!bundle.ok || bundle.tickets.length === 0) return;
   const { order, legs, tickets } = bundle;
   if (!key) return;
+  const bookingSettings = await getBookingSettings();
 
   const legLine = (leg: 'outbound' | 'return') => {
     const l = legs.find((x) => x.leg === leg);
@@ -55,7 +57,7 @@ export async function notifyTicketOrder(accessToken: string): Promise<void> {
     ${ticketBlocks}
     <p style="color:#5b6b82;font-size:13px">Δείτε τα εισιτήριά σας online:
       <a href="${site}/eisitiria/epivevaiosi?t=${accessToken}">${site}/eisitiria/epivevaiosi</a></p>
-    <p style="color:#5b6b82;font-size:12px">Ακύρωση έως 8 ώρες πριν την αναχώρηση: επιστροφή 70% · εντός 8 ωρών: 50%.
+    <p style="color:#5b6b82;font-size:12px">${esc(refundPolicyText(bookingSettings))}
       Ο κωδικός κάθε εισιτηρίου ζητείται κατά την επιβίβαση.</p>
   </div>`;
 

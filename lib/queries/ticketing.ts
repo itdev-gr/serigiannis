@@ -46,6 +46,7 @@ type ExcursionRouteRow = BusRoute & { destination: { name: string } | null };
 
 /** Published routes as excursions, with the dates they actually run. */
 export async function getExcursions(): Promise<Excursion[]> {
+  if (!isDbConfigured()) return [];
   const sb = createPublicClient();
   const [routesRes, datesRes] = await Promise.all([
     sb

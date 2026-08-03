@@ -1,13 +1,13 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getAdminOrder, getAdminTrips } from '@/lib/queries/ticketing';
+import { getAdminOrder, getAdminTrips, getBookingSettings } from '@/lib/queries/ticketing';
 import { cancelTicket, markOrderPaid, moveTicket, renameTicket, saveOrderNotes } from '../../ticketing-actions';
 import { Button } from '@/components/ui/Button';
 import { ConfirmForm } from '@/components/admin/ConfirmForm';
 import { FlashBanner } from '@/components/admin/FlashBanner';
 import { OrderStatusBadge, TicketStatusBadge } from '@/components/admin/StatusBadge';
 import { adminInput } from '@/components/admin/ui';
-import { KIND_LABEL, formatCents, routeLabel } from '@/lib/ticketing';
+import { KIND_LABEL, formatCents, refundPolicyText, routeLabel } from '@/lib/ticketing';
 import type { TripKind } from '@/types/ticketing';
 
 export default async function OrderDetailPage({
@@ -20,7 +20,12 @@ export default async function OrderDetailPage({
   const { id } = await params;
   const from = new Date().toISOString().slice(0, 10);
   const to = new Date(Date.now() + 30 * 86_400_000).toISOString().slice(0, 10);
-  const [data, sp, upcomingTrips] = await Promise.all([getAdminOrder(id), searchParams, getAdminTrips(from, to)]);
+  const [data, sp, upcomingTrips, bookingSettings] = await Promise.all([
+    getAdminOrder(id),
+    searchParams,
+    getAdminTrips(from, to),
+    getBookingSettings(),
+  ]);
   if (!data) notFound();
   const { order, tickets } = data;
 
@@ -138,7 +143,7 @@ export default async function OrderDetailPage({
                 </form>
                 <ConfirmForm
                   action={cancelTicket.bind(null, t.id, order.id)}
-                  message="Ακύρωση εισιτηρίου; Η επιστροφή υπολογίζεται αυτόματα (70% έως 8 ώρες πριν, 50% μετά)."
+                  message={`Ακύρωση εισιτηρίου; Η επιστροφή υπολογίζεται αυτόματα — ${refundPolicyText(bookingSettings)}`}
                 >
                   <button type="submit" className="mt-5 w-full rounded-md border border-cta/40 px-3 py-2 text-[14px] font-medium text-cta hover:bg-cta/5">
                     Ακύρωση εισιτηρίου

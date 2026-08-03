@@ -2,7 +2,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { BadgeCheck, Bus, TicketCheck } from 'lucide-react';
 import { createServerClient } from '@/lib/supabase/server';
-import { ORDER_STATUS_LABEL, formatCents } from '@/lib/ticketing';
+import { ORDER_STATUS_LABEL, formatCents, refundPolicyText } from '@/lib/ticketing';
+import { getBookingSettings } from '@/lib/queries/ticketing';
 import type { OrderBundle, OrderTicket } from '@/types/ticketing';
 
 export const metadata: Metadata = {
@@ -62,7 +63,10 @@ export default async function EpivevaiosiPage({
   }
 
   const sb = await createServerClient();
-  const { data, error } = await sb.rpc('get_order_by_token', { p_token: t });
+  const [{ data, error }, bookingSettings] = await Promise.all([
+    sb.rpc('get_order_by_token', { p_token: t }),
+    getBookingSettings(),
+  ]);
   if (error) console.error('epivevaiosi bundle:', error.message);
   const bundle = (data ?? { ok: false, error: 'db' }) as OrderBundle;
   if (!bundle.ok) return <Message text="Η κράτηση δεν βρέθηκε." />;
@@ -115,7 +119,7 @@ export default async function EpivevaiosiPage({
 
         <p className="mt-6 text-center text-[13px] leading-relaxed text-muted">
           Φυλάξτε αυτή τη σελίδα ή το email επιβεβαίωσης, ο κωδικός κάθε εισιτηρίου ζητείται κατά την επιβίβαση.
-          Ακύρωση έως 8 ώρες πριν την αναχώρηση: επιστροφή 70% · εντός 8 ωρών: 50%.
+          {' '}{refundPolicyText(bookingSettings)}
         </p>
         <p className="mt-4 text-center">
           <Link href="/eisitiria" className="font-medium text-primary hover:underline">← Νέα αναζήτηση</Link>

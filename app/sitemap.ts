@@ -28,7 +28,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
   return [
     ...STATIC_ROUTES.map((r) => ({ url: `${SITE_URL}${r}`, lastModified: now })),
-    ...slugs.map((s) => ({ url: `${SITE_URL}/tour/${s}`, lastModified: now })),
-    ...postSlugs.map((s) => ({ url: `${SITE_URL}/nea/${s}`, lastModified: now })),
+    ...slugs.map((s) => ({ url: `${SITE_URL}/tour/${encodeURIComponent(s)}`, lastModified: now })),
+    ...postSlugs.map((s) => ({ url: `${SITE_URL}/nea/${encodeURIComponent(s)}`, lastModified: now })),
   ];
 }

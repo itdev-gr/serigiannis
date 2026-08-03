@@ -4,6 +4,7 @@ import {
   formatCents,
   layoutAllSeats,
   layoutOnlineSeats,
+  refundPolicyText,
   splitRoundPrice,
 } from '@/lib/ticketing';
 import type { LayoutJson } from '@/types/ticketing';
@@ -75,5 +76,18 @@ describe('layout seat extraction', () => {
   });
   it('treats missing online flag as sellable', () => {
     expect(layoutOnlineSeats(layout)).toContain('9');
+  });
+});
+
+describe('refundPolicyText', () => {
+  it('interpolates the live booking settings, not hardcoded defaults', () => {
+    expect(refundPolicyText({ refund_cutoff_hours: 100, refund_pct_early: 70, refund_pct_late: 50 })).toBe(
+      'Ακύρωση έως 100 ώρες πριν την αναχώρηση: επιστροφή 70% · εντός 100 ωρών: 50%.'
+    );
+  });
+  it('matches the historical copy for the default settings', () => {
+    expect(refundPolicyText({ refund_cutoff_hours: 8, refund_pct_early: 70, refund_pct_late: 50 })).toBe(
+      'Ακύρωση έως 8 ώρες πριν την αναχώρηση: επιστροφή 70% · εντός 8 ωρών: 50%.'
+    );
   });
 });
