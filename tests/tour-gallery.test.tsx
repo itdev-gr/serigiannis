@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { TourGallery } from '@/components/trips/TourGallery';
 import type { GalleryImage } from '@/lib/gallery';
 
@@ -33,5 +33,25 @@ describe('TourGallery', () => {
   it('lists every photo in the lightbox, including the ones not shown inline', () => {
     render(<TourGallery images={photos(7)} />);
     expect(screen.getAllByTestId('lightbox-photo')).toHaveLength(7);
+  });
+
+  it('renders a mobile carousel slide per photo, with dots capped at eight', () => {
+    render(<TourGallery images={photos(12)} />);
+    expect(screen.getByTestId('gallery-carousel')).toBeInTheDocument();
+    expect(screen.getAllByTestId('carousel-slide')).toHaveLength(12);
+    expect(screen.getAllByTestId('carousel-dot')).toHaveLength(8);
+  });
+
+  it('advances the carousel when the next button is clicked', async () => {
+    render(<TourGallery images={photos(3)} />);
+    const track = screen.getByTestId('carousel-track');
+    expect(track).toHaveStyle({ transform: 'translateX(-0%)' });
+    fireEvent.click(screen.getByRole('button', { name: 'Επόμενη φωτογραφία' }));
+    expect(track).toHaveStyle({ transform: 'translateX(-100%)' });
+  });
+
+  it('hides the arrows for a single photo', () => {
+    render(<TourGallery images={photos(1)} />);
+    expect(screen.queryByRole('button', { name: 'Επόμενη φωτογραφία' })).not.toBeInTheDocument();
   });
 });

@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
-import { LayoutGrid, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, LayoutGrid, X } from 'lucide-react';
 import { galleryLayout, type GalleryImage } from '@/lib/gallery';
 import { cn } from '@/lib/utils';
 
@@ -15,8 +15,11 @@ const PHOTO =
 export function TourGallery({ images }: { images: GalleryImage[] }) {
   const [open, setOpen] = useState(false);
   const [current, setCurrent] = useState(0);
+  const [slide, setSlide] = useState(0);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const touchStartX = useRef(0);
+  const swiped = useRef(false);
 
   // Drive the native dialog from state so Esc, focus trapping and the backdrop
   // come for free while React stays the source of truth.
@@ -44,6 +47,8 @@ export function TourGallery({ images }: { images: GalleryImage[] }) {
   const visible = images.slice(0, layout.visibleCount);
 
   const openAt = (index: number) => { setCurrent(index); setOpen(true); };
+
+  const go = (to: number) => setSlide((to + images.length) % images.length);
 
   const cell = (image: GalleryImage, index: number, sizes: string, className: string) => (
     <button
@@ -73,6 +78,76 @@ export function TourGallery({ images }: { images: GalleryImage[] }) {
 
   return (
     <>
+      <div
+        data-testid="gallery-carousel"
+        className="relative aspect-[4/3] w-full touch-pan-y overflow-hidden rounded-lg bg-primary/5 md:hidden"
+        onTouchStart={(e) => { touchStartX.current = e.touches[0].clientX; swiped.current = false; }}
+        onTouchMove={(e) => { if (Math.abs(e.touches[0].clientX - touchStartX.current) > 10) swiped.current = true; }}
+        onTouchEnd={(e) => {
+          const dx = touchStartX.current - e.changedTouches[0].clientX;
+          if (Math.abs(dx) > 40) go(dx > 0 ? slide + 1 : slide - 1);
+        }}
+      >
+        <div
+          data-testid="carousel-track"
+          className="flex h-full w-full transition-transform duration-300 ease-editorial motion-reduce:transition-none"
+          style={{ transform: `translateX(-${slide * 100}%)` }}
+        >
+          {images.map((image, i) => (
+            <button
+              key={`${image.url}-slide-${i}`}
+              type="button"
+              data-testid="carousel-slide"
+              onClick={() => { if (!swiped.current) openAt(i); }}
+              aria-label={`Φωτογραφία ${i + 1} από ${images.length}`}
+              className="relative h-full w-full shrink-0"
+            >
+              <Image
+                src={image.url}
+                alt={image.alt}
+                fill
+                sizes="(max-width: 768px) 100vw, 0px"
+                priority={i === 0}
+                className="object-cover"
+              />
+            </button>
+          ))}
+        </div>
+
+        {images.length > 1 && (
+          <>
+            <button
+              type="button"
+              onClick={() => go(slide - 1)}
+              aria-label="Προηγούμενη φωτογραφία"
+              className="absolute left-2 top-1/2 z-10 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full bg-surface/95 text-primary shadow-card"
+            >
+              <ChevronLeft className="h-5 w-5" strokeWidth={2.5} />
+            </button>
+            <button
+              type="button"
+              onClick={() => go(slide + 1)}
+              aria-label="Επόμενη φωτογραφία"
+              className="absolute right-2 top-1/2 z-10 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full bg-surface/95 text-primary shadow-card"
+            >
+              <ChevronRight className="h-5 w-5" strokeWidth={2.5} />
+            </button>
+            <div className="absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 gap-1.5">
+              {images.slice(0, 8).map((_, i) => (
+                <span
+                  key={`dot-${i}`}
+                  data-testid="carousel-dot"
+                  className={cn(
+                    'h-1.5 w-1.5 rounded-full bg-surface transition-all motion-reduce:transition-none',
+                    i === slide ? 'opacity-100' : 'scale-75 opacity-50'
+                  )}
+                />
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+
       <div className="hidden md:block">
         {layout.variant === 'hero' ? (
           <div className="grid grid-cols-4 grid-rows-2 gap-2">
