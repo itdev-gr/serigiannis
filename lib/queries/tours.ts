@@ -7,9 +7,10 @@ import type { Category, Tour, TourDeparture, TourImage, TourPriceTier } from '@/
 // embed must name the one-to-many FK explicitly to avoid PGRST201 ambiguity.
 // Tiers/departures come along for the booking widget (RLS filters both to
 // active rows of published tours).
+// Keep this ONE string literal — concatenation widens it to `string` and the
+// supabase-js type parser then infers GenericStringError instead of the rows.
 const SELECT =
-  '*, categories:tour_categories(category:categories(*)), images:tour_images!tour_images_tour_id_fkey(*),' +
-  ' price_tiers:tour_price_tiers(*), departures:tour_departures(*)';
+  '*, categories:tour_categories(category:categories(*)), images:tour_images!tour_images_tour_id_fkey(*), price_tiers:tour_price_tiers(*), departures:tour_departures(*)';
 
 export { imageUrl, coverImage } from '@/lib/images';
 
