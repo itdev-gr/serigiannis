@@ -60,4 +60,29 @@ describe('galleryImages', () => {
     expect(galleryImages({ title: 'Μάνη', images: [], cover_image_id: null })).toEqual([]);
     expect(galleryImages({ title: 'Μάνη' })).toEqual([]);
   });
+
+  it('skips images with unresolvable URLs (empty storage_path)', () => {
+    const list = galleryImages({
+      title: 'Μάνη',
+      cover_image_id: null,
+      images: [
+        img('a', 0),
+        {
+          id: 'unresolvable',
+          tour_id: 't1',
+          storage_path: '',
+          alt_el: null,
+          width: null,
+          height: null,
+          blurhash: null,
+          position: 1,
+        },
+        img('b', 2),
+      ],
+    });
+    expect(list.map((i) => i.url)).toEqual([
+      'https://cdn.example.com/a.jpg',
+      'https://cdn.example.com/b.jpg',
+    ]);
+  });
 });
