@@ -54,4 +54,32 @@ describe('TourGallery', () => {
     render(<TourGallery images={photos(1)} />);
     expect(screen.queryByRole('button', { name: 'Επόμενη φωτογραφία' })).not.toBeInTheDocument();
   });
+
+  it('highlights the dot matching the active slide, and moves it on next', () => {
+    render(<TourGallery images={photos(3)} />);
+    let dots = screen.getAllByTestId('carousel-dot');
+    expect(dots[0]).toHaveClass('opacity-100');
+    expect(dots[1]).toHaveClass('opacity-50');
+    expect(dots[2]).toHaveClass('opacity-50');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Επόμενη φωτογραφία' }));
+
+    dots = screen.getAllByTestId('carousel-dot');
+    expect(dots[0]).toHaveClass('opacity-50');
+    expect(dots[1]).toHaveClass('opacity-100');
+    expect(dots[2]).toHaveClass('opacity-50');
+  });
+
+  // Accepted upstream limitation, ruled on by the client: dots are capped at eight
+  // and rendered from images.slice(0, 8), so once the active slide advances past
+  // the eighth photo no dot matches it and none is highlighted. This test pins
+  // that behaviour so any future change to it is deliberate rather than accidental.
+  it('leaves no dot active once the carousel advances past the eight-dot cap', () => {
+    render(<TourGallery images={photos(12)} />);
+    const next = screen.getByRole('button', { name: 'Επόμενη φωτογραφία' });
+    for (let i = 0; i < 8; i++) fireEvent.click(next);
+
+    const dots = screen.getAllByTestId('carousel-dot');
+    for (const dot of dots) expect(dot).not.toHaveClass('opacity-100');
+  });
 });
