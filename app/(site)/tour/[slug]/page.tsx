@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
-import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Clock, Calendar, MapPin, Phone, Check } from 'lucide-react';
 import { PageHero } from '@/components/shared/PageHero';
 import { TourCard } from '@/components/trips/TourCard';
+import { TourGallery } from '@/components/trips/TourGallery';
 import { OnlineBookingForm } from '@/components/booking/OnlineBookingForm';
 import { TourBookingWidget } from '@/components/booking/TourBookingWidget';
 import { Button } from '@/components/ui/Button';
@@ -13,6 +13,7 @@ import { getSettings } from '@/lib/queries/settings';
 import { getPaymentProvider } from '@/lib/payments';
 import { athensToday } from '@/lib/athens-time';
 import { bookableDepartures, headlinePrice } from '@/lib/booking';
+import { galleryImages } from '@/lib/gallery';
 import { coverImage, imageUrl } from '@/lib/images';
 import { telHref } from '@/lib/phone';
 import { SITE_URL } from '@/lib/seo';
@@ -59,6 +60,7 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
   const tiers = (tour.price_tiers ?? []).filter((t) => t.is_active);
   const departures = bookableDepartures(tour.departures ?? [], athensToday());
   const bookable = tiers.length > 0;
+  const photos = galleryImages(tour);
   const headline = headlinePrice(tiers);
   const offerPrice = headline ? headline.cents / 100 : tour.price_from;
 
@@ -99,8 +101,6 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
       <PageHero
-        photo={imageUrl(cover) ?? undefined}
-        photoAlt={cover?.alt_el ?? tour.title}
         eyebrow={primaryCat?.name_el}
         title={tour.title}
         subtitle={tour.summary ?? undefined}
@@ -109,8 +109,17 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
           { label: 'Εκδρομές', href: '/ekdromes' },
           { label: tour.title },
         ]}
-        heightClass="h-[58vh] min-h-[460px]"
+        heightClass="h-[38vh] min-h-[300px]"
+        breadcrumbsPosition="bottom"
       />
+
+      {photos.length > 0 && (
+        <section className="pt-10 md:pt-14">
+          <div className="container">
+            <TourGallery images={photos} />
+          </div>
+        </section>
+      )}
 
       <section className="py-16 md:py-24">
         <div className="container grid gap-10 lg:grid-cols-12">
@@ -206,29 +215,6 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
           </aside>
         </div>
       </section>
-
-      {(() => {
-        const gallery = (tour.images ?? []).filter((im) => im.id !== tour.cover_image_id);
-        if (gallery.length === 0) return null;
-        return (
-          <section className="pb-16 md:pb-24">
-            <div className="container">
-              <h2 className="mb-8 font-display text-display-section text-primary">Φωτογραφίες</h2>
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-                {gallery.map((im) => {
-                  const url = imageUrl(im);
-                  if (!url) return null;
-                  return (
-                    <a key={im.id} href={url} target="_blank" rel="noopener" className="group relative block aspect-[4/3] overflow-hidden rounded-lg bg-primary/5">
-                      <Image src={url} alt={im.alt_el ?? tour.title} fill sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw" className="object-cover transition-transform duration-500 group-hover:scale-105" />
-                    </a>
-                  );
-                })}
-              </div>
-            </div>
-          </section>
-        );
-      })()}
 
       {related.length > 0 && (
         <section className="bg-surface py-16 md:py-24">
