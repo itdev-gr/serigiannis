@@ -7,6 +7,11 @@ function offsetAt(instant: Date): string {
   return m ? m[1] : '+02:00';
 }
 
+/** Today's date in Athens as 'YYYY-MM-DD' (en-CA formats exactly that way). */
+export function athensToday(now: Date = new Date()): string {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Athens' }).format(now);
+}
+
 /**
  * Athens wall-clock date+time as an ISO string with the CORRECT UTC offset for
  * that moment (EET +02:00 in winter, EEST +03:00 in summer). Two passes resolve

@@ -1,18 +1,23 @@
 import { isDbConfigured, createPublicClient, createServerClient } from '@/lib/supabase/server';
 import { seedTours } from '@/data/seed/tours';
 import { decodeEntities, decodeMaybe } from '@/lib/text';
-import type { Category, Tour, TourImage } from '@/types/db';
+import type { Category, Tour, TourDeparture, TourImage, TourPriceTier } from '@/types/db';
 
 // tours has two FKs to tour_images (images + cover_image_id), so the images
 // embed must name the one-to-many FK explicitly to avoid PGRST201 ambiguity.
+// Tiers/departures come along for the booking widget (RLS filters both to
+// active rows of published tours).
 const SELECT =
-  '*, categories:tour_categories(category:categories(*)), images:tour_images!tour_images_tour_id_fkey(*)';
+  '*, categories:tour_categories(category:categories(*)), images:tour_images!tour_images_tour_id_fkey(*),' +
+  ' price_tiers:tour_price_tiers(*), departures:tour_departures(*)';
 
 export { imageUrl, coverImage } from '@/lib/images';
 
-type RawTour = Omit<Tour, 'categories' | 'images'> & {
+type RawTour = Omit<Tour, 'categories' | 'images' | 'price_tiers' | 'departures'> & {
   categories?: { category: Category | null }[] | null;
   images?: TourImage[] | null;
+  price_tiers?: TourPriceTier[] | null;
+  departures?: TourDeparture[] | null;
 };
 
 function normalize(row: RawTour): Tour {
@@ -20,9 +25,14 @@ function normalize(row: RawTour): Tour {
     .map((c) => c.category)
     .filter((c): c is Category => Boolean(c));
   const images = (row.images ?? []).slice().sort((a, b) => a.position - b.position);
-  const { categories: _c, images: _i, ...rest } = row;
-  void _c; void _i;
-  const clean = rest as Omit<Tour, 'categories' | 'images'>;
+  const priceTiers = (row.price_tiers ?? [])
+    .slice()
+    .sort((a, b) => a.position - b.position)
+    .map((t) => ({ ...t, label: decodeEntities(t.label) }));
+  const departures = (row.departures ?? []).slice().sort((a, b) => a.starts_on.localeCompare(b.starts_on));
+  const { categories: _c, images: _i, price_tiers: _p, departures: _d, ...rest } = row;
+  void _c; void _i; void _p; void _d;
+  const clean = rest as Omit<Tour, 'categories' | 'images' | 'price_tiers' | 'departures'>;
   return {
     ...clean,
     title: decodeEntities(clean.title),
@@ -32,6 +42,8 @@ function normalize(row: RawTour): Tour {
     departure_note: decodeMaybe(clean.departure_note),
     categories,
     images,
+    price_tiers: priceTiers,
+    departures,
   };
 }
 

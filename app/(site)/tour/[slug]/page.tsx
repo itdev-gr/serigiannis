@@ -6,9 +6,13 @@ import { Clock, Calendar, MapPin, Phone, Check } from 'lucide-react';
 import { PageHero } from '@/components/shared/PageHero';
 import { TourCard } from '@/components/trips/TourCard';
 import { OnlineBookingForm } from '@/components/booking/OnlineBookingForm';
+import { TourBookingWidget } from '@/components/booking/TourBookingWidget';
 import { Button } from '@/components/ui/Button';
 import { getTourBySlug, getTours, getPublishedSlugs } from '@/lib/queries/tours';
 import { getSettings } from '@/lib/queries/settings';
+import { getPaymentProvider } from '@/lib/payments';
+import { athensToday } from '@/lib/athens-time';
+import { bookableDepartures, headlinePrice } from '@/lib/booking';
 import { coverImage, imageUrl } from '@/lib/images';
 import { telHref } from '@/lib/phone';
 import { SITE_URL } from '@/lib/seo';
@@ -51,6 +55,13 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
     .filter((t) => t.slug !== tour.slug && t.categories?.some((c) => primaryCat && c.slug === primaryCat.slug))
     .slice(0, 3);
 
+  // Tours with price categories book online; the rest keep the enquiry form.
+  const tiers = (tour.price_tiers ?? []).filter((t) => t.is_active);
+  const departures = bookableDepartures(tour.departures ?? [], athensToday());
+  const bookable = tiers.length > 0;
+  const headline = headlinePrice(tiers);
+  const offerPrice = headline ? headline.cents / 100 : tour.price_from;
+
   const coverUrl = imageUrl(cover);
   const tourUrl = `${SITE_URL}/tour/${tour.slug}`;
   const jsonLd = {
@@ -60,11 +71,11 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
     description: tour.summary ?? undefined,
     url: tourUrl,
     ...(coverUrl ? { image: [coverUrl] } : {}),
-    ...(tour.price_from != null
+    ...(offerPrice != null
       ? {
           offers: {
             '@type': 'Offer',
-            price: tour.price_from,
+            price: offerPrice,
             priceCurrency: tour.currency,
             availability: 'https://schema.org/InStock',
             url: tourUrl,
@@ -119,8 +130,40 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
             </ul>
           </div>
 
-          {/* Info card */}
+          {/* Booking box (tours with price categories) / info card + enquiry form */}
           <aside className="lg:col-span-5">
+            {bookable ? (
+              <div className="sticky top-28 space-y-5">
+                <TourBookingWidget
+                  tourId={tour.id}
+                  tourSlug={tour.slug}
+                  tiers={tiers}
+                  departures={departures}
+                  payOnline={getPaymentProvider().id !== 'offline'}
+                />
+                {(tour.duration_label || tour.departure_note || tour.meeting_point || phone) && (
+                  <div className="rounded-lg border border-border bg-surface p-6">
+                    <ul className="space-y-4 text-[15px]">
+                      {tour.duration_label && (
+                        <li className="flex items-center gap-3"><Clock className="h-5 w-5 shrink-0 text-primary/60" strokeWidth={1.75} /><span>{tour.duration_label}</span></li>
+                      )}
+                      {tour.departure_note && (
+                        <li className="flex items-center gap-3"><Calendar className="h-5 w-5 shrink-0 text-primary/60" strokeWidth={1.75} /><span>{tour.departure_note}</span></li>
+                      )}
+                      {tour.meeting_point && (
+                        <li className="flex items-center gap-3"><MapPin className="h-5 w-5 shrink-0 text-primary/60" strokeWidth={1.75} /><span>{tour.meeting_point}</span></li>
+                      )}
+                    </ul>
+                    {phone && (
+                      <a href={telHref(phone)} className="mt-5 flex items-center justify-center gap-2 font-sans text-[14px] font-semibold text-primary hover:text-cta">
+                        <Phone className="h-4 w-4" strokeWidth={1.75} /> {phone}
+                      </a>
+                    )}
+                  </div>
+                )}
+              </div>
+            ) : (
+            <>
             <div className="sticky top-28 rounded-lg border border-border bg-surface p-8 shadow-card">
               {tour.price_from != null && (
                 <div className="flex items-baseline gap-2">
@@ -158,6 +201,8 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
                 sourcePath={`/tour/${tour.slug}`}
               />
             </div>
+            </>
+            )}
           </aside>
         </div>
       </section>

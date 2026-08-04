@@ -22,6 +22,29 @@ export type TourImage = {
   position: number;
 };
 
+/** A bookable price category of a tour («Το άτομο σε δίκλινο», «Παιδιά έως 9 ετών»…). */
+export type TourPriceTier = {
+  id: string;
+  tour_id: string;
+  label: string;
+  price_cents: number;
+  price_original_cents: number | null;
+  max_qty: number;
+  position: number;
+  is_active: boolean;
+};
+
+/** A departure date offered on the tour page. */
+export type TourDeparture = {
+  id: string;
+  tour_id: string;
+  starts_on: string; // 'YYYY-MM-DD'
+  ends_on: string | null;
+  note: string | null;
+  capacity: number | null;
+  is_active: boolean;
+};
+
 export type Tour = {
   id: string;
   slug: string;
@@ -46,8 +69,45 @@ export type Tour = {
   // Joined/derived (populated by the data layer):
   categories?: Category[];
   images?: TourImage[];
+  price_tiers?: TourPriceTier[];
+  departures?: TourDeparture[];
   next_departure?: string | null;
 };
+
+/** One line of a tour order — snapshotted at order time (labels/prices frozen). */
+export type TourOrderItem = {
+  tier_id: string;
+  label: string;
+  unit_cents: number;
+  qty: number;
+  line_cents: number;
+};
+
+export type TourOrderStatus = 'pending' | 'awaiting_payment' | 'paid' | 'offline' | 'cancelled' | 'expired';
+
+export type TourOrder = {
+  id: string;
+  public_code: string;
+  status: TourOrderStatus;
+  expires_at: string | null;
+  tour_id: string | null;
+  tour_title: string;
+  tour_slug: string | null;
+  departure_date: string | null;
+  items: TourOrderItem[];
+  party_size: number;
+  amount_total_cents: number;
+  customer_name: string | null;
+  email: string | null;
+  phone: string | null;
+  notes: string | null;
+  payment_provider: string | null;
+  paid_at: string | null;
+  created_at: string;
+};
+
+/** get_tour_order_by_token RPC result. */
+export type TourOrderBundle = { ok: true; order: TourOrder } | { ok: false; error: string };
 
 export type Post = {
   id: string;

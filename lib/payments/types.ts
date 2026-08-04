@@ -10,6 +10,8 @@ export interface PaymentProvider {
     amountCents: number;
     email: string;
     returnUrl: string;
+    /** What the customer sees on the bank page — defaults to «Εισιτήρια …». */
+    description?: string;
   }): Promise<{ url: string; providerRef: string }>;
   /** Verify the browser return (server-side lookup — never trust the query alone). */
   verifyReturn(params: URLSearchParams): Promise<{ ok: boolean; orderId?: string; ref?: string }>;

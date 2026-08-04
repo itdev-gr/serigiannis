@@ -48,6 +48,29 @@ and JSON-LD emit absolute production URLs.
 - `/sitemap.xml` lists `https://<domain>/tour/...` (not localhost).
 - Change the weak admin password: `node --env-file=.env.local scripts/create-admin.mjs <email> <newpass>`.
 
+## 5. Tour bookings with online payment (migration 0021)
+
+Booking straight from a tour page (`/tour/<slug>` → «Κάντε Κράτηση» → checkout → κάρτα)
+needs two things:
+
+1. **Run `supabase/migrations/0021_tour_booking.sql`** on the production database
+   (Supabase → SQL Editor, or `supabase db push`). It adds `tour_price_tiers`,
+   `tour_orders` and the booking RPCs.
+2. **Set the gateway env vars** — without them `PAYMENT_PROVIDER` stays `offline` and a
+   booking is stored as «Πληρωμή στο γραφείο» instead of charging the card:
+
+| Variable | Notes |
+|---|---|
+| `PAYMENT_PROVIDER` | `viva` to charge online, `offline` (default) to book without payment |
+| `VIVA_CLIENT_ID` / `VIVA_CLIENT_SECRET` | Viva Smart Checkout credentials |
+| `VIVA_SOURCE_CODE` | Viva payment source |
+| `VIVA_DEMO` | `1` while testing against the Viva demo environment |
+| `VIVA_WEBHOOK_KEY` | echoed by `GET /api/payments/viva/webhook` during Viva's verification |
+
+Prices and departure dates are set per tour in **/admin/tours/<id>/edit → «Κρατήσεις &
+Τιμές»**; incoming bookings appear under **/admin/bookings**. A tour with no price
+categories keeps the old «Ζητήστε Κράτηση / Προσφορά» form.
+
 ## Notes
 
 - Admin auth uses Supabase **password** sign-in — no email-redirect config needed. (If you

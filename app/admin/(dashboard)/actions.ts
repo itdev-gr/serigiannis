@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { createServerClient } from '@/lib/supabase/server';
 import type { SettingsData } from '@/types/db';
 import { resolvePublishedAt } from '@/lib/posts-publish';
+import { parseEuroToCents } from '@/lib/booking';
 
 function revalidatePublic() {
   revalidatePath('/admin');
@@ -439,4 +440,114 @@ export async function deletePost(id: string) {
   const { error } = await sb.from('posts').delete().eq('id', id);
   if (error) console.error('deletePost:', error.message);
   revalidatePosts();
+}
+
+// ── Tour booking setup (price categories + departure dates) ────────────────
+
+type TierPayload = {
+  id?: string;
+  label?: string;
+  price?: string;
+  price_original?: string;
+  max_qty?: string;
+  is_active?: boolean;
+};
+
+type DeparturePayload = {
+  id?: string;
+  starts_on?: string;
+  ends_on?: string;
+  note?: string;
+  capacity?: string;
+  is_active?: boolean;
+};
+
+function parseJsonRows<T>(raw: FormDataEntryValue | null): T[] {
+  if (typeof raw !== 'string' || !raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? (parsed as T[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+/** Save every price category and departure date of a tour in one shot: rows the
+ *  editor dropped are deleted, the rest are upserted in on-screen order. */
+export async function saveTourBooking(formData: FormData) {
+  const sb = await createServerClient();
+  const tourId = String(formData.get('tour_id') || '');
+  if (!tourId) return;
+
+  const tiers = parseJsonRows<TierPayload>(formData.get('tiers'))
+    .map((t, i) => ({
+      id: t.id,
+      tour_id: tourId,
+      label: String(t.label ?? '').trim(),
+      price_cents: parseEuroToCents(t.price ?? '') ?? 0,
+      price_original_cents: parseEuroToCents(t.price_original ?? ''),
+      max_qty: Math.min(99, Math.max(1, Number(t.max_qty) || 20)),
+      position: i,
+      is_active: t.is_active !== false,
+    }))
+    .filter((t) => t.label !== '');
+
+  const departures = parseJsonRows<DeparturePayload>(formData.get('departures'))
+    .map((d) => ({
+      id: d.id,
+      tour_id: tourId,
+      starts_on: String(d.starts_on ?? '').trim(),
+      ends_on: String(d.ends_on ?? '').trim() || null,
+      note: String(d.note ?? '').trim() || null,
+      capacity: d.capacity && Number(d.capacity) > 0 ? Number(d.capacity) : null,
+      is_active: d.is_active !== false,
+    }))
+    .filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d.starts_on));
+
+  const keptTierIds = tiers.map((t) => t.id).filter((id): id is string => Boolean(id));
+  const keptDepIds = departures.map((d) => d.id).filter((id): id is string => Boolean(id));
+
+  const inList = (ids: string[]) => `("${ids.join('","')}")`;
+  const delTiers = sb.from('tour_price_tiers').delete().eq('tour_id', tourId);
+  await (keptTierIds.length ? delTiers.not('id', 'in', inList(keptTierIds)) : delTiers);
+  const delDeps = sb.from('tour_departures').delete().eq('tour_id', tourId);
+  await (keptDepIds.length ? delDeps.not('id', 'in', inList(keptDepIds)) : delDeps);
+
+  for (const t of tiers) {
+    const { id, ...values } = t;
+    const { error } = id
+      ? await sb.from('tour_price_tiers').update(values).eq('id', id).eq('tour_id', tourId)
+      : await sb.from('tour_price_tiers').insert(values);
+    if (error) console.error('saveTourBooking tier:', error.message);
+  }
+  for (const d of departures) {
+    const { id, ...values } = d;
+    const { error } = id
+      ? await sb.from('tour_departures').update(values).eq('id', id).eq('tour_id', tourId)
+      : await sb.from('tour_departures').insert(values);
+    if (error) console.error('saveTourBooking departure:', error.message);
+  }
+
+  const { data: tour } = await sb.from('tours').select('slug').eq('id', tourId).maybeSingle();
+  if (tour?.slug) revalidatePath(`/tour/${tour.slug}`);
+  revalidatePath(`/admin/tours/${tourId}/edit`);
+  revalidatePublic();
+}
+
+// ── Tour bookings (orders) ────────────────────────────────────────────────
+
+export async function setTourOrderStatus(id: string, status: string) {
+  const sb = await createServerClient();
+  const { data, error } = await sb.rpc('admin_set_tour_order_status', { p_order_id: id, p_status: status });
+  if (error) console.error('setTourOrderStatus:', error.message);
+  else if (!(data as { ok: boolean })?.ok) console.error('setTourOrderStatus:', data);
+  revalidatePath('/admin/bookings');
+  revalidatePath(`/admin/bookings/${id}`);
+}
+
+export async function saveTourOrderNotes(id: string, notes: string) {
+  const sb = await createServerClient();
+  const { error } = await sb.from('tour_orders').update({ admin_notes: notes }).eq('id', id);
+  if (error) console.error('saveTourOrderNotes:', error.message);
+  revalidatePath(`/admin/bookings/${id}`);
 }

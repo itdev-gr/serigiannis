@@ -37,14 +37,14 @@ async function getTransaction(transactionId: string): Promise<VivaTransaction | 
 export const vivaProvider: PaymentProvider = {
   id: 'viva',
 
-  async createRedirect({ orderId, publicCode, amountCents, email, returnUrl }) {
+  async createRedirect({ orderId, publicCode, amountCents, email, returnUrl, description }) {
     const token = await accessToken();
     const res = await fetch(`${API}/checkout/v2/orders`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         amount: amountCents,
-        customerTrns: `Εισιτήρια ${publicCode}`,
+        customerTrns: description ? `${description} ${publicCode}` : `Εισιτήρια ${publicCode}`,
         merchantTrns: orderId,
         customer: { email, requestLang: 'el-GR' },
         paymentTimeout: 1800,
