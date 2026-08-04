@@ -103,13 +103,12 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
       <PageHero
         eyebrow={primaryCat?.name_el}
         title={tour.title}
-        subtitle={tour.summary ?? undefined}
         breadcrumbs={[
           { label: 'Αρχική', href: '/' },
           { label: 'Εκδρομές', href: '/ekdromes' },
           { label: tour.title },
         ]}
-        heightClass="h-[38vh] min-h-[300px]"
+        heightClass="h-[46vh] min-h-[440px]"
         breadcrumbsPosition="bottom"
       />
 

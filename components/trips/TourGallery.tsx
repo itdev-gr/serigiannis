@@ -100,6 +100,8 @@ export function TourGallery({ images }: { images: GalleryImage[] }) {
               data-testid="carousel-slide"
               onClick={() => { if (!swiped.current) openAt(i); }}
               aria-label={`Φωτογραφία ${i + 1} από ${images.length}`}
+              tabIndex={i === slide ? 0 : -1}
+              aria-hidden={i !== slide}
               className="relative h-full w-full shrink-0"
             >
               <Image

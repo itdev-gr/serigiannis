@@ -1,12 +1,17 @@
-import { describe, it, expect, beforeAll, vi } from 'vitest';
+import { describe, it, expect, beforeAll, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { TourGallery } from '@/components/trips/TourGallery';
 import type { GalleryImage } from '@/lib/gallery';
 
-// jsdom implements <dialog> without showModal/close.
+// jsdom implements <dialog> without showModal/close, and has no scrollIntoView at all.
 beforeAll(() => {
   HTMLDialogElement.prototype.showModal = vi.fn();
   HTMLDialogElement.prototype.close = vi.fn();
+  Element.prototype.scrollIntoView = vi.fn();
+});
+
+beforeEach(() => {
+  vi.clearAllMocks();
 });
 
 const photos = (n: number): GalleryImage[] =>
@@ -81,5 +86,19 @@ describe('TourGallery', () => {
 
     const dots = screen.getAllByTestId('carousel-dot');
     for (const dot of dots) expect(dot).not.toHaveClass('opacity-100');
+  });
+
+  it('opens the lightbox when a grid cell is clicked', () => {
+    render(<TourGallery images={photos(7)} />);
+    expect(HTMLDialogElement.prototype.showModal).not.toHaveBeenCalled();
+    fireEvent.click(screen.getAllByTestId('gallery-cell')[2]);
+    expect(HTMLDialogElement.prototype.showModal).toHaveBeenCalledTimes(1);
+  });
+
+  it('opens the same lightbox when a mobile carousel slide is clicked', () => {
+    render(<TourGallery images={photos(7)} />);
+    expect(HTMLDialogElement.prototype.showModal).not.toHaveBeenCalled();
+    fireEvent.click(screen.getAllByTestId('carousel-slide')[3]);
+    expect(HTMLDialogElement.prototype.showModal).toHaveBeenCalledTimes(1);
   });
 });
