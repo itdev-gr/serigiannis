@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { UPLOAD_RULES, scaledDimensions, uploadRulesText, validateUploadFile } from '@/lib/upload';
+import { UPLOAD_RULES, batchBySize, scaledDimensions, uploadRulesText, validateUploadFile } from '@/lib/upload';
 
 describe('validateUploadFile', () => {
   it('δέχεται JPEG, PNG και WebP μέσα στο όριο', () => {
@@ -48,6 +48,44 @@ describe('scaledDimensions', () => {
 
   it('αντέχει μηδενικές διαστάσεις χωρίς NaN', () => {
     expect(scaledDimensions(0, 0, 2400)).toEqual({ width: 0, height: 0 });
+  });
+});
+
+describe('batchBySize', () => {
+  it('επιστρέφει άδειο πίνακα για άδεια είσοδο', () => {
+    expect(batchBySize([], 1000)).toEqual([]);
+  });
+
+  it('βάζει ένα υπερμεγέθες αρχείο μόνο του σε παρτίδα', () => {
+    const files = [{ size: 5000 }];
+    expect(batchBySize(files, 1000)).toEqual([[{ size: 5000 }]]);
+  });
+
+  it('υπερμεγέθες αρχείο ανάμεσα σε άλλα παίρνει τη δική του παρτίδα', () => {
+    const files = [{ size: 400 }, { size: 5000 }, { size: 300 }];
+    expect(batchBySize(files, 1000)).toEqual([[{ size: 400 }], [{ size: 5000 }], [{ size: 300 }]]);
+  });
+
+  it('γεμίζει ακριβώς στο όριο χωρίς να το ξεπερνά', () => {
+    const files = [{ size: 500 }, { size: 500 }, { size: 1 }];
+    expect(batchBySize(files, 1000)).toEqual([[{ size: 500 }, { size: 500 }], [{ size: 1 }]]);
+  });
+
+  it('ποτέ δεν ξεπερνά το όριο για παρτίδα δύο ή περισσότερων αρχείων', () => {
+    const files = [{ size: 300 }, { size: 300 }, { size: 300 }, { size: 300 }];
+    const batches = batchBySize(files, 1000);
+    for (const batch of batches) {
+      if (batch.length > 1) {
+        const total = batch.reduce((sum, f) => sum + f.size, 0);
+        expect(total).toBeLessThanOrEqual(1000);
+      }
+    }
+  });
+
+  it('διατηρεί τη σειρά εισόδου', () => {
+    const files = [{ size: 100 }, { size: 900 }, { size: 200 }, { size: 800 }, { size: 50 }];
+    const batches = batchBySize(files, 1000);
+    expect(batches.flat()).toEqual(files);
   });
 });
 

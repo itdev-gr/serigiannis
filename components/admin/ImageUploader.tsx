@@ -2,13 +2,15 @@
 import { useRef, useState, useTransition } from 'react';
 import { ImageUp, TriangleAlert } from 'lucide-react';
 import { addTourImages } from '@/app/admin/(dashboard)/actions';
-import { UPLOAD_RULES, scaledDimensions, uploadRulesText, validateUploadFile } from '@/lib/upload';
+import { UPLOAD_RULES, batchBySize, scaledDimensions, uploadRulesText, validateUploadFile } from '@/lib/upload';
 
 /** Συρρικνώνει την εικόνα στον browser. Επιστρέφει το αρχικό αρχείο αν
  *  κάτι πάει στραβά — καλύτερα μια μεγάλη φωτογραφία παρά καμία. */
 async function shrink(file: File): Promise<File> {
   try {
-    const bitmap = await createImageBitmap(file);
+    // 'from-image' σέβεται το EXIF orientation ώστε οι κάθετες φωτογραφίες
+    // κινητού να μη γυρίζουν πλάγια όταν ξαναζωγραφίζονται στο canvas.
+    const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' });
     const { width, height } = scaledDimensions(bitmap.width, bitmap.height, UPLOAD_RULES.maxEdge);
     if (width === bitmap.width && height === bitmap.height && file.size <= 2 * 1024 * 1024) {
       bitmap.close();
@@ -18,7 +20,10 @@ async function shrink(file: File): Promise<File> {
     canvas.width = width;
     canvas.height = height;
     const ctx = canvas.getContext('2d');
-    if (!ctx) return file;
+    if (!ctx) {
+      bitmap.close();
+      return file;
+    }
     ctx.drawImage(bitmap, 0, 0, width, height);
     bitmap.close();
     const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/jpeg', UPLOAD_RULES.quality));
@@ -49,22 +54,42 @@ export function ImageUploader({ tourId }: { tourId: string }) {
     setErrors(rejected);
     if (accepted.length === 0) {
       setStatus(null);
+      if (inputRef.current) inputRef.current.value = '';
       return;
     }
 
     startTransition(async () => {
       setStatus(`Προετοιμασία ${accepted.length} ${accepted.length === 1 ? 'φωτογραφίας' : 'φωτογραφιών'}…`);
       const prepared = await Promise.all(accepted.map(shrink));
-      setStatus('Ανέβασμα…');
-      const fd = new FormData();
-      for (const file of prepared) fd.append('files', file);
-      const res = await addTourImages(tourId, fd);
-      setErrors((prev) => [...prev, ...res.failed]);
-      setStatus(
-        res.uploaded > 0
-          ? `Ανέβηκαν ${res.uploaded} ${res.uploaded === 1 ? 'φωτογραφία' : 'φωτογραφίες'}.`
-          : 'Δεν ανέβηκε καμία φωτογραφία.'
-      );
+      const batches = batchBySize(prepared, UPLOAD_RULES.maxRequestBytes);
+      let uploaded = 0;
+      const failed: { name: string; message: string }[] = [];
+
+      try {
+        for (let i = 0; i < batches.length; i++) {
+          setStatus(
+            batches.length > 1 ? `Ανέβασμα ${i + 1} από ${batches.length} παρτίδων…` : 'Ανέβασμα…'
+          );
+          const fd = new FormData();
+          for (const file of batches[i]) fd.append('files', file);
+          const res = await addTourImages(tourId, fd);
+          uploaded += res.uploaded;
+          failed.push(...res.failed);
+        }
+        setErrors((prev) => [...prev, ...failed]);
+        setStatus(
+          uploaded > 0
+            ? `Ανέβηκαν ${uploaded} ${uploaded === 1 ? 'φωτογραφία' : 'φωτογραφίες'}.`
+            : 'Δεν ανέβηκε καμία φωτογραφία.'
+        );
+      } catch {
+        setErrors((prev) => [
+          ...prev,
+          ...failed,
+          { name: '—', message: 'Η αποστολή απέτυχε. Δοκιμάστε ξανά με λιγότερες φωτογραφίες τη φορά.' },
+        ]);
+        setStatus(null);
+      }
       if (inputRef.current) inputRef.current.value = '';
     });
   }

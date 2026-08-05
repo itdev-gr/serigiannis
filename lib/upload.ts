@@ -13,6 +13,8 @@ export const UPLOAD_RULES = {
   quality: 0.85,
   /** Συνιστώμενο ελάχιστο πλάτος πηγής. */
   minWidth: 1600,
+  /** Ανώτατο μέγεθος ανά αίτημα (παρτίδα) — αρκετά κάτω από το όριο 15MB των Server Actions. */
+  maxRequestBytes: 8 * 1024 * 1024,
 };
 
 export type UploadCheck = { ok: true } | { ok: false; message: string };
@@ -38,6 +40,29 @@ export function scaledDimensions(width: number, height: number, max: number): { 
   if (longest <= max || longest === 0) return { width, height };
   const ratio = max / longest;
   return { width: Math.round(width * ratio), height: Math.round(height * ratio) };
+}
+
+/** Χωρίζει τα αρχεία σε παρτίδες που δεν ξεπερνούν το όριο του request.
+ *  Διατηρεί τη σειρά εισόδου. Κάθε παρτίδα έχει τουλάχιστον ένα αρχείο,
+ *  ακόμα κι όταν αυτό μόνο του ξεπερνά το `maxBytes` — έτσι αναφέρεται
+ *  ως αποτυχία στο δικό του αίτημα αντί να αγνοηθεί σιωπηλά. */
+export function batchBySize<T extends { size: number }>(files: T[], maxBytes: number): T[][] {
+  const batches: T[][] = [];
+  let current: T[] = [];
+  let currentBytes = 0;
+
+  for (const file of files) {
+    if (current.length > 0 && currentBytes + file.size > maxBytes) {
+      batches.push(current);
+      current = [];
+      currentBytes = 0;
+    }
+    current.push(file);
+    currentBytes += file.size;
+  }
+  if (current.length > 0) batches.push(current);
+
+  return batches;
 }
 
 /** Η οδηγία που διαβάζει ο υπάλληλος πάνω από το κουμπί. */
