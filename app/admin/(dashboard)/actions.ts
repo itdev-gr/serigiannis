@@ -252,27 +252,45 @@ export async function upsertTour(formData: FormData) {
   redirect('/admin/tours');
 }
 
-export async function addTourImages(tourId: string, formData: FormData) {
+export type UploadResult = { uploaded: number; failed: { name: string; message: string }[] };
+
+export async function addTourImages(tourId: string, formData: FormData): Promise<UploadResult> {
   const sb = await createServerClient();
+  const failed: { name: string; message: string }[] = [];
   const { data: tour } = await sb.from('tours').select('slug, cover_image_id').eq('id', tourId).maybeSingle();
-  if (!tour) return;
+  if (!tour) return { uploaded: 0, failed: [{ name: '—', message: 'Η εκδρομή δεν βρέθηκε.' }] };
+
   const files = formData.getAll('files').filter((f): f is File => f instanceof File && f.size > 0);
   const { data: existing } = await sb.from('tour_images').select('position').eq('tour_id', tourId).order('position', { ascending: false }).limit(1);
   let pos = (existing?.[0]?.position ?? -1) + 1;
   let firstNewId: string | null = null;
+  let uploaded = 0;
+
   for (const file of files) {
     const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
     const path = `${tour.slug}/gallery-${Date.now()}-${pos}.${ext === 'jpeg' ? 'jpg' : ext}`;
     const buf = Buffer.from(await file.arrayBuffer());
     const { error } = await sb.storage.from('tour-images').upload(path, buf, { contentType: file.type || 'image/jpeg', upsert: true });
-    if (error) { console.error('addTourImages upload:', error.message); continue; }
-    const { data: img } = await sb.from('tour_images').insert({ tour_id: tourId, storage_path: path, position: pos }).select('id').single();
-    if (img && !firstNewId) firstNewId = img.id;
+    if (error) {
+      console.error('addTourImages upload:', error.message);
+      failed.push({ name: file.name, message: 'Η αποθήκευση απέτυχε. Δοκιμάστε ξανά.' });
+      continue;
+    }
+    const { data: img, error: rowError } = await sb.from('tour_images').insert({ tour_id: tourId, storage_path: path, position: pos }).select('id').single();
+    if (rowError || !img) {
+      console.error('addTourImages row:', rowError?.message);
+      failed.push({ name: file.name, message: 'Η καταχώρηση απέτυχε. Δοκιμάστε ξανά.' });
+      continue;
+    }
+    if (!firstNewId) firstNewId = img.id;
+    uploaded++;
     pos++;
   }
+
   if (!tour.cover_image_id && firstNewId) await sb.from('tours').update({ cover_image_id: firstNewId }).eq('id', tourId);
   revalidatePath(`/admin/tours/${tourId}/edit`);
   revalidatePublic();
+  return { uploaded, failed };
 }
 
 export async function deleteTourImage(imageId: string, tourId: string) {

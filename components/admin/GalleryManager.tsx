@@ -1,7 +1,8 @@
 import type { TourImage } from '@/types/db';
 import { imageUrl } from '@/lib/images';
 import { ConfirmForm } from '@/components/admin/ConfirmForm';
-import { addTourImages, deleteTourImage, setCoverImage } from '@/app/admin/(dashboard)/actions';
+import { deleteTourImage, setCoverImage } from '@/app/admin/(dashboard)/actions';
+import { ImageUploader } from '@/components/admin/ImageUploader';
 
 export function GalleryManager({
   tourId,
@@ -53,18 +54,7 @@ export function GalleryManager({
         </div>
       )}
 
-      <form action={addTourImages.bind(null, tourId)} className="flex flex-wrap items-center gap-4">
-        <input
-          type="file"
-          name="files"
-          multiple
-          accept="image/*"
-          className="block text-[14px] text-muted file:mr-4 file:rounded-md file:border-0 file:bg-primary file:px-4 file:py-2 file:font-sans file:text-[13px] file:font-semibold file:text-surface"
-        />
-        <button type="submit" className="rounded-md bg-primary px-4 py-2.5 font-sans text-[14px] font-semibold text-surface transition hover:opacity-90">
-          Μεταφόρτωση εικόνων
-        </button>
-      </form>
+      <ImageUploader tourId={tourId} />
     </div>
   );
 }
