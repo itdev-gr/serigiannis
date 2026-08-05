@@ -1,7 +1,10 @@
+'use client';
+import { useState } from 'react';
 import Link from 'next/link';
 import type { Category, Tour } from '@/types/db';
 import { Button } from '@/components/ui/Button';
 import { adminInput, adminLabel } from '@/components/admin/ui';
+import { slugify, slugNeedsCleanup } from '@/lib/excursions';
 
 const STATUSES = [
   { v: 'published', l: 'Δημοσιευμένη' },
@@ -19,14 +22,37 @@ export function TourForm({
   categories: Category[];
   action: (formData: FormData) => void | Promise<void>;
 }) {
+  const isNew = !tour?.id;
   const primaryCat = tour?.categories?.[0]?.slug ?? categories[0]?.slug;
+
+  // New tours: the slug tracks the title live until the clerk edits it
+  // themselves — then their choice wins. Existing tours: the slug is never
+  // rewritten automatically; we only warn and offer a one-click fix.
+  const [slug, setSlug] = useState(tour?.slug ?? '');
+  const [slugTouched, setSlugTouched] = useState(false);
+
+  const cleanSlug = slugify(slug);
+  const showSlugWarning = !isNew && slugNeedsCleanup(slug);
+
   return (
     <form action={action} className="grid max-w-2xl gap-5">
       {tour?.id && <input type="hidden" name="id" value={tour.id} />}
 
       <label className="block">
         <span className={adminLabel}>Τίτλος *</span>
-        <input name="title" required defaultValue={tour?.title ?? ''} className={adminInput} />
+        <input
+          name="title"
+          required
+          defaultValue={tour?.title ?? ''}
+          className={adminInput}
+          onChange={
+            isNew
+              ? (e) => {
+                  if (!slugTouched) setSlug(slugify(e.target.value));
+                }
+              : undefined
+          }
+        />
       </label>
 
       <label className="block">
@@ -36,7 +62,38 @@ export function TourForm({
 
       <label className="block">
         <span className={adminLabel}>Slug (URL) *</span>
-        <input name="slug" required defaultValue={tour?.slug ?? ''} className={adminInput} placeholder="π.χ. meteora-monoimeri" />
+        <input
+          name="slug"
+          required
+          value={slug}
+          onChange={(e) => {
+            setSlug(e.target.value);
+            setSlugTouched(true);
+          }}
+          className={adminInput}
+          placeholder="π.χ. meteora-monoimeri"
+        />
+        {!isNew && (
+          <span className="mt-1 block text-[12px] text-muted">
+            Η αλλαγή του slug αλλάζει τη διεύθυνση της σελίδας της εκδρομής.
+          </span>
+        )}
+        {showSlugWarning && (
+          <p className="mt-1 text-[12px] text-cta">
+            Το slug περιέχει κεφαλαία, κενά ή άλλους μη επιτρεπτούς χαρακτήρες για διεύθυνση URL. Προτεινόμενο:{' '}
+            <code className="font-mono">{cleanSlug}</code>{' '}
+            <button
+              type="button"
+              onClick={() => {
+                setSlug(cleanSlug);
+                setSlugTouched(true);
+              }}
+              className="font-semibold underline underline-offset-2"
+            >
+              Χρήση προτεινόμενου
+            </button>
+          </p>
+        )}
       </label>
 
       <label className="block">
