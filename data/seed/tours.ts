@@ -26,7 +26,7 @@ function mk(i: number, s: SeedInput): Tour {
     id, slug: s.slug, title: s.title, subtitle: null, summary: s.desc, body: {},
     price_from: s.price, price_original: s.original ?? null, currency: 'EUR',
     duration_label: s.duration, departure_note: s.dates, meeting_point: null,
-    status: 'published', is_featured: s.featured ?? false, cover_image_id: imgId,
+    status: 'published', is_featured: s.featured ?? false, bookings_open: true, cover_image_id: imgId,
     seo_title: null, seo_description: null, source_url: null, sort_order: i, published_at: null,
     categories: [{ id: s.cat, slug: s.cat, name_el: CAT_NAME[s.cat], description_el: null, sort_order: 0 }],
     images: [{ id: imgId, tour_id: id, storage_path: s.photo, alt_el: s.alt, width: 1600, height: 1200, blurhash: null, position: 0 }],

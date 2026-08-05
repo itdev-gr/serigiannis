@@ -225,6 +225,7 @@ export async function upsertTour(formData: FormData) {
     departure_note: (String(formData.get('departure_note') || '').trim() || null) as string | null,
     status,
     is_featured: formData.get('is_featured') === 'on',
+    bookings_open: formData.get('bookings_closed') !== 'on',
   };
 
   let tourId = id;

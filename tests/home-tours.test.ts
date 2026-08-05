@@ -6,7 +6,7 @@ const t = (o: Partial<Tour>): Tour => ({
   id: 'x', slug: 'x', title: 'x', subtitle: null, summary: null, body: {},
   price_from: null, price_original: null, currency: 'EUR', duration_label: null,
   departure_note: null, meeting_point: null, status: 'published', is_featured: false,
-  cover_image_id: null, seo_title: null, seo_description: null, source_url: null,
+  bookings_open: true, cover_image_id: null, seo_title: null, seo_description: null, source_url: null,
   sort_order: 0, published_at: null, categories: [], images: [], ...o,
 });
 

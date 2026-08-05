@@ -60,6 +60,7 @@ export type Tour = {
   meeting_point: string | null;
   status: TourStatus;
   is_featured: boolean;
+  bookings_open: boolean;
   cover_image_id: string | null;
   seo_title: string | null;
   seo_description: string | null;

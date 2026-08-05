@@ -74,6 +74,10 @@ export function TourForm({
           <input type="checkbox" name="is_featured" defaultChecked={tour?.is_featured ?? false} className="h-4 w-4 accent-cta" />
           <span className="font-sans text-[14px] text-body">Προβεβλημένη (αρχική)</span>
         </label>
+        <label className="flex items-center gap-3 pt-7">
+          <input type="checkbox" name="bookings_closed" defaultChecked={tour ? !tour.bookings_open : false} className="h-4 w-4 accent-cta" />
+          <span className="font-sans text-[14px] text-body">Κλειστή για κρατήσεις (ορατή στο site)</span>
+        </label>
       </div>
 
       <div className="mt-2 flex items-center gap-4">
