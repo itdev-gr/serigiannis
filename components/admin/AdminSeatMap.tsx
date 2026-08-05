@@ -7,9 +7,25 @@ import type { AdminSeatClaim } from '@/lib/queries/ticketing';
 import type { LayoutJson } from '@/types/ticketing';
 
 /** Live seat dashboard for one trip: green=free, blue=booked, amber=hold,
- *  dark=blocked. Click a seat to block/unblock it. */
-export function AdminSeatMap({ tripId, layout, claims }: { tripId: string; layout: LayoutJson; claims: AdminSeatClaim[] }) {
-  const [selected, setSelected] = useState<string | null>(null);
+ *  dark=blocked. Click a seat to block/unblock it, or to hand the seat to a
+ *  parent (e.g. the manual-booking form) via `selected`/`onSelect`. Both are
+ *  optional — falls back to internal state when the caller doesn't share it. */
+export function AdminSeatMap({
+  tripId,
+  layout,
+  claims,
+  selected: selectedProp,
+  onSelect,
+}: {
+  tripId: string;
+  layout: LayoutJson;
+  claims: AdminSeatClaim[];
+  selected?: string | null;
+  onSelect?: (seat: string | null) => void;
+}) {
+  const [internalSelected, setInternalSelected] = useState<string | null>(null);
+  const selected = selectedProp !== undefined ? selectedProp : internalSelected;
+  const setSelected = onSelect ?? setInternalSelected;
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
