@@ -1,4 +1,14 @@
 import type { Tour } from '@/types/db';
+import { normalizeGreek } from '@/lib/odigos-search';
+
+/**
+ * Κανονικοποίηση κειμένου για αναζήτηση σε λίστες admin: πεζά, χωρίς τόνους
+ * (μέσω `normalizeGreek`) και με τελικό «ς» ενοποιημένο σε «σ», ώστε
+ * «Ναύπλιος» να ταιριάζει με «ναυπλιοσ».
+ */
+export function searchNormalize(s: string): string {
+  return normalizeGreek(s).replace(/ς/g, 'σ');
+}
 
 export const PRICE_BANDS = {
   lte25: [0, 25],

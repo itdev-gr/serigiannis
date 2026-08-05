@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { filterTours, sortTours } from '@/lib/filters';
+import { filterTours, sortTours, searchNormalize } from '@/lib/filters';
 import type { Tour } from '@/types/db';
 
 const t = (o: Partial<Tour>): Tour => ({
@@ -65,5 +65,25 @@ describe('sortTours', () => {
     const arr = [t({ id: 'a', price_from: 2 }), t({ id: 'b', price_from: 1 })];
     sortTours(arr, 'price-asc');
     expect(arr.map((x) => x.id)).toEqual(['a', 'b']);
+  });
+});
+
+describe('searchNormalize', () => {
+  it('strips accents so «Ναύπλιο» matches «ναυπλιο»', () => {
+    expect(searchNormalize('Ναύπλιο')).toBe(searchNormalize('ναυπλιο'));
+  });
+
+  it('lowercases uppercase input', () => {
+    expect(searchNormalize('ΑΘΗΝΑ')).toBe(searchNormalize('αθηνα'));
+    expect(searchNormalize('ABC')).toBe('abc');
+  });
+
+  it('folds final sigma «ς» and medial sigma «σ» to the same character', () => {
+    expect(searchNormalize('Ναύπλιος')).toBe(searchNormalize('Ναυπλιοσ'));
+    expect(searchNormalize('ς')).toBe(searchNormalize('σ'));
+  });
+
+  it('returns an empty string for empty input', () => {
+    expect(searchNormalize('')).toBe('');
   });
 });

@@ -3,6 +3,8 @@ import { Plus, Pencil, Eye, EyeOff, Trash2 } from 'lucide-react';
 import { getAdminPosts } from '@/lib/queries/posts';
 import { setPostStatus, deletePost } from '../actions';
 import { ConfirmForm } from '@/components/admin/ConfirmForm';
+import { AdminSearch } from '@/components/admin/AdminSearch';
+import { searchNormalize } from '@/lib/filters';
 
 const STATUS_STYLE: Record<string, string> = {
   published: 'bg-olive/15 text-olive',
@@ -14,20 +16,34 @@ const STATUS_LABEL: Record<string, string> = {
   published: 'Δημοσιευμένο', draft: 'Πρόχειρο', hidden: 'Κρυμμένο', archived: 'Αρχειοθετημένο',
 };
 
-export default async function AdminPostsPage() {
-  const posts = await getAdminPosts();
-  const published = posts.filter((p) => p.status === 'published').length;
+export default async function AdminPostsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
+  const { q } = await searchParams;
+  const allPosts = await getAdminPosts();
+  const published = allPosts.filter((p) => p.status === 'published').length;
+  let posts = allPosts;
+  if (q) {
+    const needle = searchNormalize(q);
+    posts = posts.filter((p) => [p.title, p.slug].some((v) => v && searchNormalize(v).includes(needle)));
+  }
 
   return (
     <div>
       <div className="mb-8 flex items-end justify-between">
         <div>
           <h1 className="font-display text-4xl font-semibold text-primary">Νέα</h1>
-          <p className="mt-1 text-muted">{posts.length} συνολικά · {published} δημοσιευμένα</p>
+          <p className="mt-1 text-muted">{allPosts.length} συνολικά · {published} δημοσιευμένα</p>
         </div>
         <Link href="/admin/posts/new" className="inline-flex items-center gap-1.5 rounded-full bg-cta px-4 py-2 font-sans text-[13px] font-semibold text-surface hover:bg-cta-hover">
           <Plus className="h-4 w-4" strokeWidth={2} /> Νέο Άρθρο
         </Link>
+      </div>
+
+      <div className="mb-4 flex">
+        <AdminSearch action="/admin/posts" placeholder="Αναζήτηση τίτλου / slug…" defaultValue={q} />
       </div>
 
       <div className="overflow-hidden rounded-lg border border-border bg-surface">

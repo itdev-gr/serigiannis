@@ -4,6 +4,8 @@ import { createExcursion } from '../ticketing-actions';
 import { Button } from '@/components/ui/Button';
 import { FlashBanner } from '@/components/admin/FlashBanner';
 import { AdminCard, AdminPageHeader, Pill, adminInput } from '@/components/admin/ui';
+import { AdminSearch } from '@/components/admin/AdminSearch';
+import { searchNormalize } from '@/lib/filters';
 import { formatCents, routeLabel } from '@/lib/ticketing';
 import type { FareType } from '@/types/ticketing';
 
@@ -26,17 +28,21 @@ function kanonikoCents(fares: FareType[]): number {
 export default async function ExcursionsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ saved?: string; error?: string }>;
+  searchParams: Promise<{ saved?: string; error?: string; q?: string }>;
 }) {
   const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Athens' });
   const in30 = addDays(today, 30);
-  const [routes, patterns, trips, allFares, sp] = await Promise.all([
+  const [allRoutes, patterns, trips, allFares, sp] = await Promise.all([
     getAdminRoutes(),
     getAdminPatterns(),
     getAdminTrips(today, in30),
     getAdminAllFares(),
     searchParams,
   ]);
+  const q = sp.q;
+  const routes = q
+    ? allRoutes.filter((r) => searchNormalize(routeLabel(r)).includes(searchNormalize(q)))
+    : allRoutes;
 
   // trips arrive ordered by departure_at asc → first per route is the next one
   const tripsByRoute = new Map<string, { count: number; next: string }>();
@@ -67,6 +73,10 @@ export default async function ExcursionsPage({
         subtitle="Οι εκδρομές που πωλούνται online: στοιχεία, τιμές, πρόγραμμα και δρομολόγια — όλα σε μία σελίδα."
       />
       <FlashBanner saved={sp.saved} error={sp.error} />
+
+      <div className="mb-4 flex">
+        <AdminSearch action="/admin/excursions" placeholder="Αναζήτηση τίτλου εκδρομής…" defaultValue={q} />
+      </div>
 
       <AdminCard className="mb-8 p-5">
         <h2 className="font-display text-lg font-semibold text-primary">Νέα εκδρομή</h2>
