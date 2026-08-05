@@ -87,3 +87,45 @@ export function routeLabel(r: {
 }): string {
   return r.title?.trim() || `${r.origin?.name ?? '—'} → ${r.destination?.name ?? '—'}`;
 }
+
+/** Φυσική σειρά θέσεων: «2» πριν από «10», «12A» αμέσως μετά τη «12». */
+export function sortSeatsNatural(seats: string[]): string[] {
+  const parse = (s: string) => {
+    const m = s.match(/^(\d+)(.*)$/);
+    return m ? { num: Number(m[1]), rest: m[2] } : { num: Number.MAX_SAFE_INTEGER, rest: s };
+  };
+  return [...seats].sort((a, b) => {
+    const pa = parse(a);
+    const pb = parse(b);
+    return pa.num - pb.num || pa.rest.localeCompare(pb.rest, 'el');
+  });
+}
+
+/** Οι πιασμένες θέσεις ενός δρομολογίου: κρατημένες, κλειδωμένες και
+ *  δεσμεύσεις που δεν έχουν λήξει. Μία αλήθεια για κάτοψη και φόρμες. */
+export function takenSeatNumbers(
+  claims: { seat_no: string; claim_type: string; expires_at?: string | null }[],
+  now: number
+): string[] {
+  return claims
+    .filter((c) => c.claim_type !== 'hold' || !c.expires_at || new Date(c.expires_at).getTime() > now)
+    .map((c) => c.seat_no);
+}
+
+/** Η θέση που θα προτείνει η φόρμα τηλεφωνικής κράτησης: η πρώτη ελεύθερη
+ *  μετά την `after` (ώστε ο υπάλληλος να προχωράει 11 → 12), αλλιώς η πρώτη
+ *  ελεύθερη του οχήματος. `null` όταν δεν έχει μείνει καμία. */
+export function nextFreeSeat(allSeats: string[], taken: string[], after?: string | null): string | null {
+  const ordered = sortSeatsNatural(allSeats);
+  const busy = new Set(taken);
+  const free = ordered.filter((s) => !busy.has(s));
+  if (free.length === 0) return null;
+  if (after) {
+    const index = ordered.indexOf(after);
+    if (index >= 0) {
+      const ahead = ordered.slice(index + 1).find((s) => !busy.has(s));
+      if (ahead) return ahead;
+    }
+  }
+  return free[0];
+}
