@@ -157,21 +157,10 @@ export function TourGallery({ images }: { images: GalleryImage[] }) {
             {visible.slice(1).map((image, i) => cell(image, i + 1, '(max-width: 768px) 0px, 25vw', 'aspect-[4/3]'))}
           </div>
         ) : layout.variant === 'single' ? (
-          <div className="mx-auto max-w-3xl">
-            {cell(visible[0], 0, '(max-width: 768px) 0px, 768px', 'aspect-[4/3]')}
-          </div>
+          cell(visible[0], 0, '(max-width: 768px) 0px, 100vw', 'aspect-[4/3]')
         ) : (
-          <div
-            className={cn(
-              'grid gap-2',
-              layout.variant === 'duo' && 'grid-cols-2',
-              layout.variant === 'trio' && 'grid-cols-3',
-              layout.variant === 'quad' && 'grid-cols-4'
-            )}
-          >
-            {visible.map((image, i) =>
-              cell(image, i, layout.variant === 'duo' ? '(max-width: 768px) 0px, 50vw' : '(max-width: 768px) 0px, 33vw', 'aspect-[4/3]')
-            )}
+          <div className="grid grid-cols-2 gap-2">
+            {visible.map((image, i) => cell(image, i, '(max-width: 768px) 0px, 50vw', 'aspect-[4/3]'))}
           </div>
         )}
       </div>

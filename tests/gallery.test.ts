@@ -19,10 +19,13 @@ describe('galleryLayout', () => {
     expect(galleryLayout(1)).toEqual({ variant: 'single', visibleCount: 1, showSeeAll: false });
   });
 
-  it('2–4 photos → duo/trio/quad, all visible, no See-all', () => {
+  it('2 photos → duo, both visible, no See-all', () => {
     expect(galleryLayout(2)).toEqual({ variant: 'duo', visibleCount: 2, showSeeAll: false });
-    expect(galleryLayout(3)).toEqual({ variant: 'trio', visibleCount: 3, showSeeAll: false });
-    expect(galleryLayout(4)).toEqual({ variant: 'quad', visibleCount: 4, showSeeAll: false });
+  });
+
+  it('3–4 photos → one photo plus the See-all button', () => {
+    expect(galleryLayout(3)).toEqual({ variant: 'single', visibleCount: 1, showSeeAll: true });
+    expect(galleryLayout(4)).toEqual({ variant: 'single', visibleCount: 1, showSeeAll: true });
   });
 
   it('5+ photos → hero grid (1 big + 4 small) with the See-all pill', () => {

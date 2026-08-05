@@ -29,10 +29,15 @@ describe('TourGallery', () => {
     expect(screen.getByText('Δείτε και τις 7')).toBeInTheDocument();
   });
 
-  it('shows every photo and no pill when there are three', () => {
+  it('shows one cell and the See-all pill when there are three', () => {
     render(<TourGallery images={photos(3)} />);
-    expect(screen.getAllByTestId('gallery-cell')).toHaveLength(3);
-    expect(screen.queryByText(/Δείτε και τις/)).not.toBeInTheDocument();
+    expect(screen.getAllByTestId('gallery-cell')).toHaveLength(1);
+    expect(screen.getByText('Δείτε και τις 3')).toBeInTheDocument();
+  });
+
+  it('still lists all three photos in the lightbox', () => {
+    render(<TourGallery images={photos(3)} />);
+    expect(screen.getAllByTestId('lightbox-photo')).toHaveLength(3);
   });
 
   it('lists every photo in the lightbox, including the ones not shown inline', () => {

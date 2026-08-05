@@ -5,7 +5,7 @@
 import { imageUrl } from '@/lib/images';
 import type { TourImage } from '@/types/db';
 
-export type GalleryVariant = 'single' | 'duo' | 'trio' | 'quad' | 'hero';
+export type GalleryVariant = 'single' | 'duo' | 'hero';
 
 export type GalleryLayout = {
   /** Desktop layout variant, chosen by photo count. */
@@ -16,12 +16,14 @@ export type GalleryLayout = {
   showSeeAll: boolean;
 };
 
-/** Map a photo count (assumed ≥ 0) to its desktop gallery layout. */
+/** Map a photo count (assumed ≥ 0) to its desktop gallery layout.
+ *  1 → μία· 2 → δύο δίπλα-δίπλα· 3–4 → μία με το κουμπί «Δείτε και τις N»,
+ *  γιατί μια σειρά από τρεις μικρές φωτογραφίες δεν έδειχνε καμία τους καλά·
+ *  5+ → το πλέγμα με τη μεγάλη και τις τέσσερις μικρές. */
 export function galleryLayout(count: number): GalleryLayout {
   if (count <= 1) return { variant: 'single', visibleCount: count <= 0 ? 0 : 1, showSeeAll: false };
   if (count === 2) return { variant: 'duo', visibleCount: 2, showSeeAll: false };
-  if (count === 3) return { variant: 'trio', visibleCount: 3, showSeeAll: false };
-  if (count === 4) return { variant: 'quad', visibleCount: 4, showSeeAll: false };
+  if (count <= 4) return { variant: 'single', visibleCount: 1, showSeeAll: true };
   // 5+ → signature hero grid; extras are reachable through the lightbox.
   return { variant: 'hero', visibleCount: 5, showSeeAll: true };
 }
