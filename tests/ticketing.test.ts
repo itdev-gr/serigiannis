@@ -6,6 +6,8 @@ import {
   layoutOnlineSeats,
   refundPolicyText,
   splitRoundPrice,
+  sortSeatsNatural,
+  nextFreeSeat,
 } from '@/lib/ticketing';
 import type { LayoutJson } from '@/types/ticketing';
 
@@ -89,5 +91,53 @@ describe('refundPolicyText', () => {
     expect(refundPolicyText({ refund_cutoff_hours: 8, refund_pct_early: 70, refund_pct_late: 50 })).toBe(
       'Ακύρωση έως 8 ώρες πριν την αναχώρηση: επιστροφή 70% · εντός 8 ωρών: 50%.'
     );
+  });
+});
+
+describe('sortSeatsNatural', () => {
+  it('βάζει το 2 πριν από το 10', () => {
+    expect(sortSeatsNatural(['10', '2', '1'])).toEqual(['1', '2', '10']);
+  });
+
+  it('βάζει το 12A αμέσως μετά το 12', () => {
+    expect(sortSeatsNatural(['12A', '13', '12'])).toEqual(['12', '12A', '13']);
+  });
+
+  it('δεν πειράζει την είσοδο', () => {
+    const input = ['3', '1'];
+    sortSeatsNatural(input);
+    expect(input).toEqual(['3', '1']);
+  });
+});
+
+describe('nextFreeSeat', () => {
+  const all = ['1', '2', '3', '4', '5'];
+
+  it('χωρίς σημείο εκκίνησης δίνει την πρώτη ελεύθερη', () => {
+    expect(nextFreeSeat(all, ['1', '2'])).toBe('3');
+  });
+
+  it('μετά από θέση δίνει την επόμενη ελεύθερη προς τα εμπρός', () => {
+    expect(nextFreeSeat(all, ['1', '3'], '3')).toBe('4');
+  });
+
+  it('προσπερνά τις πιασμένες προς τα εμπρός', () => {
+    expect(nextFreeSeat(all, ['2', '3', '4'], '1')).toBe('5');
+  });
+
+  it('γυρνά στην αρχή όταν δεν υπάρχει άλλη μετά', () => {
+    expect(nextFreeSeat(all, ['4', '5'], '4')).toBe('1');
+  });
+
+  it('δίνει null όταν είναι όλες πιασμένες', () => {
+    expect(nextFreeSeat(all, all, '2')).toBeNull();
+  });
+
+  it('αγνοεί άγνωστο σημείο εκκίνησης και ξεκινά από την αρχή', () => {
+    expect(nextFreeSeat(all, ['1'], '99')).toBe('2');
+  });
+
+  it('δουλεύει με άδεια λίστα θέσεων', () => {
+    expect(nextFreeSeat([], [])).toBeNull();
   });
 });

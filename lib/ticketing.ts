@@ -87,3 +87,34 @@ export function routeLabel(r: {
 }): string {
   return r.title?.trim() || `${r.origin?.name ?? '—'} → ${r.destination?.name ?? '—'}`;
 }
+
+/** Φυσική σειρά θέσεων: «2» πριν από «10», «12A» αμέσως μετά τη «12». */
+export function sortSeatsNatural(seats: string[]): string[] {
+  const parse = (s: string) => {
+    const m = s.match(/^(\d+)(.*)$/);
+    return m ? { num: Number(m[1]), rest: m[2] } : { num: Number.MAX_SAFE_INTEGER, rest: s };
+  };
+  return [...seats].sort((a, b) => {
+    const pa = parse(a);
+    const pb = parse(b);
+    return pa.num - pb.num || pa.rest.localeCompare(pb.rest, 'el');
+  });
+}
+
+/** Η θέση που θα προτείνει η φόρμα τηλεφωνικής κράτησης: η πρώτη ελεύθερη
+ *  μετά την `after` (ώστε ο υπάλληλος να προχωράει 11 → 12), αλλιώς η πρώτη
+ *  ελεύθερη του οχήματος. `null` όταν δεν έχει μείνει καμία. */
+export function nextFreeSeat(allSeats: string[], taken: string[], after?: string | null): string | null {
+  const ordered = sortSeatsNatural(allSeats);
+  const busy = new Set(taken);
+  const free = ordered.filter((s) => !busy.has(s));
+  if (free.length === 0) return null;
+  if (after) {
+    const index = ordered.indexOf(after);
+    if (index >= 0) {
+      const ahead = ordered.slice(index + 1).find((s) => !busy.has(s));
+      if (ahead) return ahead;
+    }
+  }
+  return free[0];
+}
