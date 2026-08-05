@@ -12,6 +12,23 @@ function revalidatePublic() {
   revalidatePath('/ekdromes');
 }
 
+/** Admin input for a euro amount stored in a numeric(10,2) column (euros, not
+ *  cents): "200" or "200,00" → 200. Empty/unparseable → null. Mirrors the
+ *  comma/dot handling of parseEuroToCents without the ×100 (see lib/booking.ts). */
+function parseEuroDecimal(raw: string): number | null {
+  const cleaned = raw.replace(/[^0-9.,-]/g, '').trim();
+  if (!cleaned) return null;
+  const lastComma = cleaned.lastIndexOf(',');
+  const lastDot = cleaned.lastIndexOf('.');
+  let normalized: string;
+  if (lastComma > lastDot) normalized = cleaned.replace(/\./g, '').replace(',', '.');
+  else if (lastDot > lastComma) normalized = cleaned.replace(/,/g, '');
+  else normalized = cleaned;
+  const n = Number(normalized);
+  if (!Number.isFinite(n) || n < 0) return null;
+  return Math.round(n * 100) / 100;
+}
+
 export async function saveSettings(formData: FormData) {
   const sb = await createServerClient();
   const g = (k: string) => String(formData.get(k) || '').trim();
@@ -218,11 +235,17 @@ export async function upsertTour(formData: FormData) {
   const status = String(formData.get('status') || 'draft');
   const payload = {
     title: String(formData.get('title') || '').trim(),
+    subtitle: (String(formData.get('subtitle') || '').trim() || null) as string | null,
     slug,
     summary: (String(formData.get('summary') || '').trim() || null) as string | null,
     price_from: formData.get('price_from') ? Number(formData.get('price_from')) : null,
+    price_original: parseEuroDecimal(String(formData.get('price_original') || '')),
     duration_label: (String(formData.get('duration_label') || '').trim() || null) as string | null,
     departure_note: (String(formData.get('departure_note') || '').trim() || null) as string | null,
+    meeting_point: (String(formData.get('meeting_point') || '').trim() || null) as string | null,
+    seo_title: (String(formData.get('seo_title') || '').trim() || null) as string | null,
+    seo_description: (String(formData.get('seo_description') || '').trim() || null) as string | null,
+    sort_order: formData.get('sort_order') ? Number(formData.get('sort_order')) : 0,
     status,
     is_featured: formData.get('is_featured') === 'on',
     bookings_open: formData.get('bookings_closed') !== 'on',
