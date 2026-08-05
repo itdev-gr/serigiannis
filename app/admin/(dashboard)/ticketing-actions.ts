@@ -364,7 +364,10 @@ export async function manualBooking(formData: FormData) {
     console.error('manualBooking begin:', error?.message ?? began);
     const code = (began as { error?: string } | null)?.error === 'seat_taken' ? 'seat_taken' : 'db';
     revalidatePath(`/admin/trips/${tripId}`);
-    redirect(`/admin/trips/${tripId}${flashQuery(false, code)}`);
+    // seat_taken → the seat the office just tried is gone; suggest the next free one
+    // so they don't have to hunt for it themselves.
+    const after = code === 'seat_taken' ? `&after=${encodeURIComponent(seat)}` : '';
+    redirect(`/admin/trips/${tripId}${flashQuery(false, code)}${after}`);
   }
   const b = began as { order_id: string; access_token: string };
   const { error: e2 } = await sb.rpc('finalize_checkout', {
@@ -383,7 +386,10 @@ export async function manualBooking(formData: FormData) {
   if (e2) console.error('manualBooking finalize:', e2.message);
   revalidatePath(`/admin/trips/${tripId}`);
   revalidatePath('/admin/orders');
-  redirect(`/admin/trips/${tripId}${flashQuery(!e2)}`);
+  // On success, tell the page which seat was just booked so it can suggest
+  // the next free one after it (11 → 12) instead of starting over.
+  const after = !e2 ? `&after=${encodeURIComponent(seat)}` : '';
+  redirect(`/admin/trips/${tripId}${flashQuery(!e2)}${after}`);
 }
 
 // --------------------------------------------------------------- orders
