@@ -49,3 +49,16 @@ export function slugify(input: string): string {
     .slice(0, 60)
     .replace(/-+$/g, '');
 }
+
+/** Slug for a title, falling back to a generic value when the title has no
+ *  alphanumerics to slugify — so callers never persist an empty slug. */
+export function slugifyWithFallback(input: string, fallback = 'ekdromi'): string {
+  return slugify(input) || fallback;
+}
+
+/** True when a slug contains characters outside a-z, 0-9 and '-' (e.g.
+ *  uppercase or spaces). Used to warn — never to silently rewrite — when an
+ *  existing tour's slug isn't a clean URL segment. */
+export function slugNeedsCleanup(slug: string): boolean {
+  return slug !== '' && /[^a-z0-9-]/.test(slug);
+}

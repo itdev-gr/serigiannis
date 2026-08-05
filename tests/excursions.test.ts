@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { groupRouteDates, parseBoardingPoints, resolveInitialRoute, slugify } from '@/lib/excursions';
+import {
+  groupRouteDates,
+  parseBoardingPoints,
+  resolveInitialRoute,
+  slugify,
+  slugifyWithFallback,
+  slugNeedsCleanup,
+} from '@/lib/excursions';
 
 describe('groupRouteDates', () => {
   it('groups, dedupes and sorts dates per route', () => {
@@ -64,5 +71,36 @@ describe('slugify', () => {
 
   it('keeps digits', () => {
     expect(slugify('Εκδρομή 2026')).toBe('ekdromi-2026');
+  });
+});
+
+describe('slugifyWithFallback', () => {
+  it('slugifies normally when the input has alphanumerics', () => {
+    expect(slugifyWithFallback('Μονοήμερη Ναύπλιο')).toBe('monoimeri-nayplio');
+  });
+
+  it('falls back to the generic default when nothing survives', () => {
+    expect(slugifyWithFallback('—!!—')).toBe('ekdromi');
+    expect(slugifyWithFallback('')).toBe('ekdromi');
+  });
+
+  it('accepts a custom fallback', () => {
+    expect(slugifyWithFallback('', 'tour')).toBe('tour');
+  });
+});
+
+describe('slugNeedsCleanup', () => {
+  it('flags uppercase and spaces', () => {
+    expect(slugNeedsCleanup('THESSALONIKI DIHMERH EKDROMH')).toBe(true);
+    expect(slugNeedsCleanup('ekdromi sta lixadonisia')).toBe(true);
+  });
+
+  it('accepts already-clean slugs', () => {
+    expect(slugNeedsCleanup('meteora-monoimeri')).toBe(false);
+    expect(slugNeedsCleanup('ekdromi-2026')).toBe(false);
+  });
+
+  it('treats an empty slug as nothing to flag', () => {
+    expect(slugNeedsCleanup('')).toBe(false);
   });
 });

@@ -5,7 +5,7 @@ import { createServerClient } from '@/lib/supabase/server';
 import type { SettingsData } from '@/types/db';
 import { resolvePublishedAt } from '@/lib/posts-publish';
 import { parseEuroToCents } from '@/lib/booking';
-import { parseBoardingPoints } from '@/lib/excursions';
+import { parseBoardingPoints, slugifyWithFallback } from '@/lib/excursions';
 import { flashQuery } from '@/lib/admin-flash';
 
 function revalidatePublic() {
@@ -252,8 +252,14 @@ export async function deleteTour(id: string) {
 export async function upsertTour(formData: FormData) {
   const sb = await createServerClient();
   const id = (formData.get('id') as string) || null;
-  const slug = String(formData.get('slug') || '').trim();
+  const title = String(formData.get('title') || '').trim();
   const status = String(formData.get('status') || 'draft');
+  // Safety net only: an empty slug gets generated from the title. A non-empty
+  // slug is saved exactly as submitted — never silently normalised — since
+  // that would rewrite the public URL of an existing tour behind the
+  // office's back. The admin form is where deliberate cleanup happens.
+  const rawSlug = String(formData.get('slug') || '').trim();
+  const slug = rawSlug || slugifyWithFallback(title);
 
   // Needed after the write to also revalidate the OLD /tour/<slug> if the
   // slug changed — otherwise the tour stays live at its old URL.
@@ -264,7 +270,7 @@ export async function upsertTour(formData: FormData) {
   }
 
   const payload = {
-    title: String(formData.get('title') || '').trim(),
+    title,
     subtitle: (String(formData.get('subtitle') || '').trim() || null) as string | null,
     slug,
     summary: (String(formData.get('summary') || '').trim() || null) as string | null,
