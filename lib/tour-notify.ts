@@ -59,6 +59,14 @@ export async function notifyTourOrder(accessToken: string): Promise<void> {
           ${esc(formatCents(order.amount_total_cents))}</td></tr>
     </table>`;
 
+  const passengerRows = (order.passengers ?? [])
+    .map((p) => `<li>${esc(p.name)}${p.phone ? ` — ${esc(p.phone)}` : ''}</li>`)
+    .join('');
+  const passengersHtml = passengerRows
+    ? `<p style="margin:14px 0 4px;color:#16233b;font-weight:600">Ταξιδιώτες</p>
+       <ul style="margin:0 0 12px;padding-left:18px;color:#16233b">${passengerRows}</ul>`
+    : '';
+
   const from = process.env.RESEND_FROM || 'Sergiani Travel <onboarding@resend.dev>';
 
   if (order.email) {
@@ -95,6 +103,7 @@ export async function notifyTourOrder(accessToken: string): Promise<void> {
       <p style="color:#16233b">${esc(order.customer_name)} · ${esc(order.phone)} · ${esc(order.email)}</p>
       <p style="color:#16233b">${order.party_size} άτομα · ${esc(STATUS_LINE[order.status] ?? order.status)}</p>
       ${summary}
+      ${passengersHtml}
       ${order.notes ? `<p style="color:#5b6b82;font-size:13px">Σημειώσεις πελάτη: ${esc(order.notes)}</p>` : ''}
       <p style="color:#5b6b82;font-size:13px">Διαχείριση: <a href="${site}/admin/bookings/${order.id}">/admin/bookings</a></p>
     </div>`;

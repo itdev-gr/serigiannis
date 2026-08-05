@@ -86,6 +86,9 @@ export type TourOrderItem = {
 
 export type TourOrderStatus = 'pending' | 'awaiting_payment' | 'paid' | 'offline' | 'cancelled' | 'expired';
 
+/** One traveller captured on a tour order (sanitised server-side: only name + phone kept). */
+export type TourPassenger = { name: string; phone: string | null };
+
 export type TourOrder = {
   id: string;
   public_code: string;
@@ -102,6 +105,7 @@ export type TourOrder = {
   email: string | null;
   phone: string | null;
   notes: string | null;
+  passengers: TourPassenger[];
   payment_provider: string | null;
   paid_at: string | null;
   created_at: string;

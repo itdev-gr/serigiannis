@@ -60,6 +60,22 @@ export default async function TourBookingDetailPage({ params }: { params: Promis
         </table>
       </div>
 
+      {order.passengers.length > 0 && (
+        <div className="mt-6 rounded-lg border border-border bg-surface p-6">
+          <h2 className="font-sans text-[13px] font-semibold uppercase tracking-[0.1em] text-primary">Ταξιδιώτες</h2>
+          <ul className="mt-3 divide-y divide-border/60 text-[15px]">
+            {order.passengers.map((p, i) => (
+              <li key={i} className="flex items-center justify-between gap-3 py-2">
+                <span className="text-body">{p.name}</span>
+                {p.phone && (
+                  <a href={`tel:${p.phone.replace(/\s+/g, '')}`} className="text-[13px] text-primary hover:text-cta">{p.phone}</a>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       <div className="mt-6 rounded-lg border border-border bg-surface p-6">
         <h2 className="font-sans text-[13px] font-semibold uppercase tracking-[0.1em] text-primary">Κατάσταση</h2>
         <div className="mt-3 flex flex-wrap gap-2">

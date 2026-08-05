@@ -1,5 +1,5 @@
 'use client';
-import { useState, useTransition, type ReactNode } from 'react';
+import { useMemo, useState, useTransition, type ReactNode } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -18,6 +18,11 @@ const ERROR_TEXT: Record<string, string> = {
   db: 'Κάτι πήγε στραβά. Δοκιμάστε ξανά ή καλέστε μας.',
 };
 
+const PassengerSchema = z.object({
+  name: z.string().min(2, 'Συμπληρώστε ονοματεπώνυμο.'),
+  phone: z.string().optional(),
+});
+
 const Schema = z.object({
   customer_name: z.string().min(2, 'Συμπληρώστε ονοματεπώνυμο.'),
   email: z.string().email('Μη έγκυρο email.'),
@@ -25,6 +30,7 @@ const Schema = z.object({
   notes: z.string().optional(),
   marketing_opt_in: z.boolean().optional(),
   accept_terms: z.literal(true, { errorMap: () => ({ message: 'Απαιτείται αποδοχή των όρων.' }) }),
+  passengers: z.array(PassengerSchema),
 });
 type Fields = z.infer<typeof Schema>;
 
@@ -41,12 +47,35 @@ function Field({ label, error, children }: { label: string; error?: string; chil
   );
 }
 
+/** One label per person, in item order («Το άτομο σε δίκλινο 1», «Παιδί 1»…), falling
+ *  back to «Ταξιδιώτης N» from party_size if the order carries no items snapshot. */
+function passengerLabels(order: TourOrder): string[] {
+  const labels: string[] = [];
+  for (const item of order.items ?? []) {
+    for (let i = 1; i <= item.qty; i++) labels.push(`${item.label} ${i}`);
+  }
+  if (labels.length === 0) {
+    for (let i = 1; i <= Math.max(order.party_size, 0); i++) labels.push(`Ταξιδιώτης ${i}`);
+  }
+  return labels;
+}
+
 export function TourCheckoutForm({ order, token, offline }: { order: TourOrder; token: string; offline: boolean }) {
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
-  const { register, handleSubmit, formState: { errors } } = useForm<Fields>({
+  const labels = useMemo(() => passengerLabels(order), [order]);
+  const {
+    register,
+    handleSubmit,
+    getValues,
+    setValue,
+    formState: { errors },
+  } = useForm<Fields>({
     resolver: zodResolver(Schema),
-    defaultValues: { marketing_opt_in: false },
+    defaultValues: {
+      marketing_opt_in: false,
+      passengers: labels.map(() => ({ name: '', phone: '' })),
+    },
   });
 
   return (
@@ -65,6 +94,7 @@ export function TourCheckoutForm({ order, token, offline }: { order: TourOrder; 
               notes: d.notes,
               marketing_opt_in: !!d.marketing_opt_in,
               accept_terms: true,
+              passengers: d.passengers.map((p) => ({ name: p.name.trim(), phone: p.phone?.trim() || null })),
             },
           });
           if (res && !res.ok) setError(ERROR_TEXT[res.error] ?? ERROR_TEXT.db);
@@ -86,6 +116,38 @@ export function TourCheckoutForm({ order, token, offline }: { order: TourOrder; 
       <Field label="Σημειώσεις">
         <textarea rows={3} {...register('notes')} className={inputCls} placeholder="π.χ. σημείο επιβίβασης, ειδικές ανάγκες" />
       </Field>
+
+      {labels.length > 0 && (
+        <div className="grid gap-4">
+          <h2 className="font-display text-2xl font-semibold text-primary">Στοιχεία ταξιδιωτών</h2>
+          <div className="grid gap-4">
+            {labels.map((label, i) => (
+              <div key={i} className="rounded-md border border-border/70 bg-background/50 p-4">
+                <div className="mb-3 flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+                  <span className="font-sans text-[13px] font-semibold uppercase tracking-[0.1em] text-primary">{label}</span>
+                  {i === 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setValue('passengers.0.name', getValues('customer_name'), { shouldValidate: true })}
+                      className="font-sans text-[12px] font-medium text-primary underline hover:text-cta"
+                    >
+                      Ίδιος με τον υπεύθυνο κράτησης
+                    </button>
+                  )}
+                </div>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <Field label="Ονοματεπώνυμο *" error={errors.passengers?.[i]?.name?.message}>
+                    <input {...register(`passengers.${i}.name` as const)} className={inputCls} autoComplete="off" />
+                  </Field>
+                  <Field label="Τηλέφωνο">
+                    <input {...register(`passengers.${i}.phone` as const)} type="tel" className={inputCls} autoComplete="off" />
+                  </Field>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <label className="flex items-start gap-3 text-[14px] text-body">
         <input type="checkbox" {...register('marketing_opt_in')} className="mt-1 h-4 w-4 accent-primary" />
