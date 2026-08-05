@@ -4,13 +4,19 @@ import { deleteLayout } from '../ticketing-actions';
 import { Button } from '@/components/ui/Button';
 import { ConfirmForm } from '@/components/admin/ConfirmForm';
 import { FlashBanner } from '@/components/admin/FlashBanner';
+import { AdminSearch } from '@/components/admin/AdminSearch';
+import { searchNormalize } from '@/lib/filters';
 
 export default async function LayoutsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ saved?: string; error?: string }>;
+  searchParams: Promise<{ saved?: string; error?: string; q?: string }>;
 }) {
-  const [layouts, sp] = await Promise.all([getAdminLayouts(), searchParams]);
+  const [allLayouts, sp] = await Promise.all([getAdminLayouts(), searchParams]);
+  const q = sp.q;
+  const layouts = q
+    ? allLayouts.filter((l) => searchNormalize(l.name).includes(searchNormalize(q)))
+    : allLayouts;
   return (
     <div className="max-w-3xl">
       <FlashBanner saved={sp.saved} error={sp.error} />
@@ -22,7 +28,11 @@ export default async function LayoutsPage({
         Οι κατόψεις θέσεων που ανατίθενται στα δρομολόγια. Η αλλαγή διάταξης δεν επηρεάζει ήδη υλοποιημένα δρομολόγια.
       </p>
 
-      <div className="mt-8 overflow-hidden rounded-lg border border-border bg-surface">
+      <div className="mt-4 flex">
+        <AdminSearch action="/admin/layouts" placeholder="Αναζήτηση ονόματος διάταξης…" defaultValue={q} />
+      </div>
+
+      <div className="mt-4 overflow-hidden rounded-lg border border-border bg-surface">
         {layouts.map((l) => (
           <div key={l.id} className="flex items-center justify-between gap-3 border-b border-border/60 px-4 py-3 last:border-0">
             <Link href={`/admin/layouts/${l.id}`} className="font-medium text-primary hover:underline">{l.name}</Link>

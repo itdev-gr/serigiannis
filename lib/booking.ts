@@ -78,6 +78,12 @@ export function headlinePrice(tiers: TourPriceTier[]): { cents: number; original
   return { cents: cheapest.price_cents, originalCents: original };
 }
 
+/** Δέχεται κρατήσεις: έχει ενεργές κατηγορίες τιμών ΚΑΙ το γραφείο δεν την έχει κλείσει.
+ *  `bookings_open` λείπει (undefined) μόνο σε παλιές seed γραμμές — αντιμετωπίζεται ως ανοιχτή. */
+export function isBookable(tour: { bookings_open?: boolean }, activeTiers: unknown[]): boolean {
+  return activeTiers.length > 0 && tour.bookings_open !== false;
+}
+
 /** Departures a customer may still pick: active and not in the past.
  *  `today` is an ISO 'YYYY-MM-DD' so callers stay timezone-explicit. */
 export function bookableDepartures(departures: TourDeparture[], today: string): TourDeparture[] {

@@ -1,11 +1,12 @@
 'use client';
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
-import { Pencil, Eye, EyeOff, Star, Trash2, Search } from 'lucide-react';
+import { Pencil, Eye, EyeOff, Star, Trash2 } from 'lucide-react';
 import type { Category } from '@/types/db';
 import type { AdminTourRow } from '@/lib/queries/tours';
 import { setStatus, setFeatured, deleteTour } from '@/app/admin/(dashboard)/actions';
 import { ConfirmForm } from '@/components/admin/ConfirmForm';
+import { searchNormalize } from '@/lib/filters';
 import { cn } from '@/lib/utils';
 
 const STATUS_STYLE: Record<string, string> = {
@@ -30,10 +31,10 @@ export function AdminToursTable({ tours, categories }: { tours: AdminTourRow[]; 
   const [q, setQ] = useState('');
 
   const filtered = useMemo(() => {
-    const term = q.trim().toLowerCase();
+    const term = searchNormalize(q.trim());
     return tours.filter((t) => {
       const catOk = cat === 'all' || t.categories.some((c) => c.slug === cat);
-      const qOk = !term || t.title.toLowerCase().includes(term) || t.slug.toLowerCase().includes(term);
+      const qOk = !term || searchNormalize(t.title).includes(term) || searchNormalize(t.slug).includes(term);
       return catOk && qOk;
     });
   }, [tours, cat, q]);
@@ -47,17 +48,14 @@ export function AdminToursTable({ tours, categories }: { tours: AdminTourRow[]; 
             <button key={c.slug} type="button" onClick={() => setCat(c.slug)} className={tabCls(cat === c.slug)}>{c.name_el}</button>
           ))}
         </div>
-        <div className="relative lg:w-72">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" strokeWidth={1.75} aria-hidden="true" />
-          <input
-            type="search"
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Αναζήτηση εκδρομής…"
-            aria-label="Αναζήτηση εκδρομής"
-            className="w-full rounded-md border border-border bg-surface py-2 pl-9 pr-3 text-[14px] text-body focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10"
-          />
-        </div>
+        <input
+          type="search"
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="Αναζήτηση τίτλου / slug…"
+          aria-label="Αναζήτηση τίτλου / slug…"
+          className="w-64 rounded-md border border-border bg-surface px-3 py-2 text-[14px] focus:border-primary focus:outline-none"
+        />
       </div>
 
       <p className="mb-3 text-[13px] text-muted">{filtered.length} από {tours.length} εκδρομές</p>
@@ -112,7 +110,10 @@ export function AdminToursTable({ tours, categories }: { tours: AdminTourRow[]; 
                     <Link href={`/admin/tours/${t.id}/edit`} title="Επεξεργασία" className="grid h-8 w-8 place-items-center rounded-md text-muted hover:bg-background hover:text-primary">
                       <Pencil className="h-4 w-4" strokeWidth={1.75} />
                     </Link>
-                    <ConfirmForm action={deleteTour.bind(null, t.id)} message={`Διαγραφή «${t.title}»;`}>
+                    <ConfirmForm
+                      action={deleteTour.bind(null, t.id)}
+                      message={`Διαγραφή «${t.title}»; Θα διαγραφεί από το site μαζί με τις φωτογραφίες της· τυχόν κρατήσεις παραμένουν στο αρχείο.`}
+                    >
                       <button type="submit" title="Διαγραφή" className="grid h-8 w-8 place-items-center rounded-md text-muted hover:bg-cta/10 hover:text-cta">
                         <Trash2 className="h-4 w-4" strokeWidth={1.75} />
                       </button>

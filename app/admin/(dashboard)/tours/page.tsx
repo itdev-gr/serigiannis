@@ -6,6 +6,7 @@ import { AdminToursTable } from '@/components/admin/AdminToursTable';
 import { upsertCategory, deleteCategory } from '../actions';
 import { Button } from '@/components/ui/Button';
 import { ConfirmForm } from '@/components/admin/ConfirmForm';
+import { FlashBanner } from '@/components/admin/FlashBanner';
 import { adminInput } from '@/components/admin/ui';
 import { cn } from '@/lib/utils';
 
@@ -17,7 +18,11 @@ type TabKey = (typeof TABS)[number]['key'];
 
 const CAT_ROW = 'grid grid-cols-[1fr_1fr_6rem_auto] items-center gap-3';
 
-export default async function AdminToursPage({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
+export default async function AdminToursPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ tab?: string; saved?: string; error?: string }>;
+}) {
   const sp = await searchParams;
   const tab: TabKey = TABS.find((t) => t.key === sp.tab)?.key ?? 'ekdromes';
 
@@ -26,6 +31,7 @@ export default async function AdminToursPage({ searchParams }: { searchParams: P
 
   return (
     <div>
+      <FlashBanner saved={sp.saved} error={sp.error} />
       <div className="mb-8 flex items-end justify-between">
         <div>
           <h1 className="font-display text-4xl font-semibold text-primary">Σελίδες Εκδρομών</h1>

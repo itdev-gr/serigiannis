@@ -12,7 +12,7 @@ import { getTourBySlug, getTours, getPublishedSlugs } from '@/lib/queries/tours'
 import { getSettings } from '@/lib/queries/settings';
 import { getPaymentProvider } from '@/lib/payments';
 import { athensToday } from '@/lib/athens-time';
-import { bookableDepartures, headlinePrice } from '@/lib/booking';
+import { bookableDepartures, headlinePrice, isBookable } from '@/lib/booking';
 import { galleryImages } from '@/lib/gallery';
 import { coverImage, imageUrl } from '@/lib/images';
 import { telHref } from '@/lib/phone';
@@ -59,10 +59,36 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
   // Tours with price categories book online; the rest keep the enquiry form.
   const tiers = (tour.price_tiers ?? []).filter((t) => t.is_active);
   const departures = bookableDepartures(tour.departures ?? [], athensToday());
-  const bookable = tiers.length > 0;
+  // Έχει τιμές = μπορεί τεχνικά να πουλήσει· ανοιχτή = το γραφείο το επιτρέπει.
+  const hasPricing = tiers.length > 0;
+  // Το migration που προσθέτει τη στήλη bookings_open έχει πλέον εφαρμοστεί·
+  // το isBookable αντιμετωπίζει την τιμή undefined ως ανοιχτή μόνο ως ασφάλεια
+  // για τυχόν παλιές seed γραμμές.
+  const bookable = isBookable(tour, tiers);
   const photos = galleryImages(tour);
   const headline = headlinePrice(tiers);
   const offerPrice = headline ? headline.cents / 100 : tour.price_from;
+
+  const detailsCard = (tour.duration_label || tour.departure_note || tour.meeting_point || phone) ? (
+    <div className="rounded-lg border border-border bg-surface p-6">
+      <ul className="space-y-4 text-[15px]">
+        {tour.duration_label && (
+          <li className="flex items-center gap-3"><Clock className="h-5 w-5 shrink-0 text-primary/60" strokeWidth={1.75} /><span>{tour.duration_label}</span></li>
+        )}
+        {tour.departure_note && (
+          <li className="flex items-center gap-3"><Calendar className="h-5 w-5 shrink-0 text-primary/60" strokeWidth={1.75} /><span>{tour.departure_note}</span></li>
+        )}
+        {tour.meeting_point && (
+          <li className="flex items-center gap-3"><MapPin className="h-5 w-5 shrink-0 text-primary/60" strokeWidth={1.75} /><span>{tour.meeting_point}</span></li>
+        )}
+      </ul>
+      {phone && (
+        <a href={telHref(phone)} className="mt-5 flex items-center justify-center gap-2 font-sans text-[14px] font-semibold text-primary hover:text-cta">
+          <Phone className="h-4 w-4" strokeWidth={1.75} /> {phone}
+        </a>
+      )}
+    </div>
+  ) : null;
 
   const coverUrl = imageUrl(cover);
   const tourUrl = `${SITE_URL}/tour/${tour.slug}`;
@@ -79,7 +105,7 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
             '@type': 'Offer',
             price: offerPrice,
             priceCurrency: tour.currency,
-            availability: 'https://schema.org/InStock',
+            availability: bookable ? 'https://schema.org/InStock' : 'https://schema.org/SoldOut',
             url: tourUrl,
           },
         }
@@ -149,26 +175,22 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
                   departures={departures}
                   payOnline={getPaymentProvider().id !== 'offline'}
                 />
-                {(tour.duration_label || tour.departure_note || tour.meeting_point || phone) && (
-                  <div className="rounded-lg border border-border bg-surface p-6">
-                    <ul className="space-y-4 text-[15px]">
-                      {tour.duration_label && (
-                        <li className="flex items-center gap-3"><Clock className="h-5 w-5 shrink-0 text-primary/60" strokeWidth={1.75} /><span>{tour.duration_label}</span></li>
-                      )}
-                      {tour.departure_note && (
-                        <li className="flex items-center gap-3"><Calendar className="h-5 w-5 shrink-0 text-primary/60" strokeWidth={1.75} /><span>{tour.departure_note}</span></li>
-                      )}
-                      {tour.meeting_point && (
-                        <li className="flex items-center gap-3"><MapPin className="h-5 w-5 shrink-0 text-primary/60" strokeWidth={1.75} /><span>{tour.meeting_point}</span></li>
-                      )}
-                    </ul>
-                    {phone && (
-                      <a href={telHref(phone)} className="mt-5 flex items-center justify-center gap-2 font-sans text-[14px] font-semibold text-primary hover:text-cta">
-                        <Phone className="h-4 w-4" strokeWidth={1.75} /> {phone}
-                      </a>
-                    )}
-                  </div>
-                )}
+                {detailsCard}
+              </div>
+            ) : hasPricing ? (
+              <div className="sticky top-28 space-y-5">
+                <div className="rounded-lg border border-border bg-surface p-6 shadow-card">
+                  <h3 className="font-display text-xl font-bold text-primary">Οι κρατήσεις έχουν κλείσει</h3>
+                  <p className="mt-3 text-[15px] text-muted">
+                    Για αυτή την εκδρομή δεν δεχόμαστε online κρατήσεις αυτή τη στιγμή. Καλέστε μας για διαθεσιμότητα.
+                  </p>
+                  {phone && (
+                    <a href={telHref(phone)} className="mt-5 flex items-center justify-center gap-2 font-sans text-[14px] font-semibold text-primary hover:text-cta">
+                      <Phone className="h-4 w-4" strokeWidth={1.75} /> {phone}
+                    </a>
+                  )}
+                </div>
+                {detailsCard}
               </div>
             ) : (
             <>

@@ -2,7 +2,10 @@ import Link from 'next/link';
 import { getLeads, groupClients } from '@/lib/queries/leads';
 import { StatusBadge, TypeBadge } from '@/components/admin/StatusBadge';
 import { AdminPageHeader } from '@/components/admin/ui';
+import { AdminSearch } from '@/components/admin/AdminSearch';
+import { searchNormalize } from '@/lib/filters';
 import { cn } from '@/lib/utils';
+import type { Lead, Client } from '@/types/db';
 
 const TABS = [
   { key: 'ola', label: 'Όλα' },
@@ -14,13 +17,29 @@ type TabKey = (typeof TABS)[number]['key'];
 const TH = 'px-5 py-3';
 const THEAD = 'border-b border-border bg-background/50 font-sans text-[12px] uppercase tracking-[0.1em] text-muted';
 
-export default async function RequestsPage({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
+function leadMatches(l: Lead, needle: string): boolean {
+  return [l.name, l.phone, l.email, l.subject, l.tour_title].some((v) => v && searchNormalize(v).includes(needle));
+}
+
+function clientMatches(c: Client, needle: string): boolean {
+  return [c.name, c.phone, c.email].some((v) => v && searchNormalize(v).includes(needle));
+}
+
+export default async function RequestsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ tab?: string; q?: string }>;
+}) {
   const sp = await searchParams;
   const tab: TabKey = TABS.find((t) => t.key === sp.tab)?.key ?? 'ola';
+  const q = sp.q;
 
-  const leads = await getLeads();
+  const allLeads = await getLeads();
+  const needle = q ? searchNormalize(q) : '';
+  const leads = needle ? allLeads.filter((l) => leadMatches(l, needle)) : allLeads;
   const bookings = leads.filter((l) => l.status === 'booked');
-  const clients = groupClients(leads);
+  const allClients = groupClients(allLeads);
+  const clients = needle ? allClients.filter((c) => clientMatches(c, needle)) : allClients;
 
   const count = tab === 'kratiseis' ? bookings.length : tab === 'pelates' ? clients.length : leads.length;
   const countLabel =
@@ -48,6 +67,12 @@ export default async function RequestsPage({ searchParams }: { searchParams: Pro
             {t.label}
           </Link>
         ))}
+        <AdminSearch
+          action="/admin/requests"
+          placeholder="Αναζήτηση ονόματος / τηλεφώνου / email / θέματος…"
+          defaultValue={q}
+          hidden={{ tab: tab !== 'ola' ? tab : undefined }}
+        />
       </div>
 
       <p className="mb-4 text-muted">{count} {countLabel}</p>
