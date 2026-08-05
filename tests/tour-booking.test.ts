@@ -7,6 +7,7 @@ import {
   departureLabel,
   formatCents,
   headlinePrice,
+  isBookable,
   itemsPartySize,
   itemsTotalCents,
   parseEuroToCents,
@@ -133,6 +134,24 @@ describe('euro parsing', () => {
   it('round-trips through the admin input', () => {
     expect(parseEuroToCents(centsToEuroInput(17050))).toBe(17050);
     expect(centsToEuroInput(null)).toBe('');
+  });
+});
+
+describe('isBookable', () => {
+  it('open + tiers → true', () => {
+    expect(isBookable({ bookings_open: true }, [tier({ id: 'a' })])).toBe(true);
+  });
+
+  it('closed + tiers → false', () => {
+    expect(isBookable({ bookings_open: false }, [tier({ id: 'a' })])).toBe(false);
+  });
+
+  it('open + no tiers → false', () => {
+    expect(isBookable({ bookings_open: true }, [])).toBe(false);
+  });
+
+  it('undefined bookings_open + tiers → true (seed rows without the column)', () => {
+    expect(isBookable({}, [tier({ id: 'a' })])).toBe(true);
   });
 });
 

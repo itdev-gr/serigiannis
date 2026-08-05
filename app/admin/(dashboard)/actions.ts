@@ -5,6 +5,7 @@ import { createServerClient } from '@/lib/supabase/server';
 import type { SettingsData } from '@/types/db';
 import { resolvePublishedAt } from '@/lib/posts-publish';
 import { parseEuroToCents } from '@/lib/booking';
+import { flashQuery } from '@/lib/admin-flash';
 
 function revalidatePublic() {
   revalidatePath('/admin');
@@ -13,20 +14,19 @@ function revalidatePublic() {
 }
 
 /** Admin input for a euro amount stored in a numeric(10,2) column (euros, not
- *  cents): "200" or "200,00" → 200. Empty/unparseable → null. Mirrors the
- *  comma/dot handling of parseEuroToCents without the ×100 (see lib/booking.ts). */
+ *  cents): "200" or "200,00" → 200. Empty/unparseable → null. Reuses the
+ *  tested comma/dot handling of parseEuroToCents (lib/booking.ts). */
 function parseEuroDecimal(raw: string): number | null {
-  const cleaned = raw.replace(/[^0-9.,-]/g, '').trim();
-  if (!cleaned) return null;
-  const lastComma = cleaned.lastIndexOf(',');
-  const lastDot = cleaned.lastIndexOf('.');
-  let normalized: string;
-  if (lastComma > lastDot) normalized = cleaned.replace(/\./g, '').replace(',', '.');
-  else if (lastDot > lastComma) normalized = cleaned.replace(/,/g, '');
-  else normalized = cleaned;
-  const n = Number(normalized);
-  if (!Number.isFinite(n) || n < 0) return null;
-  return Math.round(n * 100) / 100;
+  const cents = parseEuroToCents(raw);
+  return cents == null ? null : cents / 100;
+}
+
+/** Maps a failed tour insert/update to a specific admin-flash code when the
+ *  Postgres error tells us something actionable; otherwise the generic 'db'. */
+function tourSaveErrorCode(error: { code?: string } | null | undefined): string {
+  if (error?.code === '23505') return 'duplicate_slug'; // unique_violation on slug
+  if (error?.code === '22003') return 'invalid_price'; // numeric_value_out_of_range on price_original
+  return 'db';
 }
 
 export async function saveSettings(formData: FormData) {
@@ -227,11 +227,22 @@ export async function deleteTour(id: string) {
   const { data: tour } = await sb.from('tours').select('slug').eq('id', id).maybeSingle();
   const { data: images } = await sb.from('tour_images').select('storage_path').eq('tour_id', id);
   const paths = (images ?? []).map((i) => i.storage_path).filter(Boolean);
-  if (paths.length) {
-    const { error } = await sb.storage.from('tour-images').remove(paths);
-    if (error) console.error('deleteTour storage:', error.message);
+
+  // Row delete first, verified via .select('id'): under RLS a denied DELETE
+  // returns success with zero rows and no error, so we must check a row
+  // actually came back before touching storage — otherwise a denied delete
+  // would leave the tour live with its gallery already destroyed.
+  const { data: deletedRows, error } = await sb.from('tours').delete().eq('id', id).select('id');
+  if (error || !deletedRows || deletedRows.length === 0) {
+    console.error('deleteTour:', error?.message ?? 'delete returned no rows (RLS denied?)');
+    redirect('/admin/tours?error=delete');
   }
-  await sb.from('tours').delete().eq('id', id);
+
+  if (paths.length) {
+    const { error: storageError } = await sb.storage.from('tour-images').remove(paths);
+    if (storageError) console.error('deleteTour storage:', storageError.message);
+  }
+
   revalidatePublic();
   if (tour?.slug) revalidatePath(`/tour/${tour.slug}`);
   redirect('/admin/tours');
@@ -242,6 +253,15 @@ export async function upsertTour(formData: FormData) {
   const id = (formData.get('id') as string) || null;
   const slug = String(formData.get('slug') || '').trim();
   const status = String(formData.get('status') || 'draft');
+
+  // Needed after the write to also revalidate the OLD /tour/<slug> if the
+  // slug changed — otherwise the tour stays live at its old URL.
+  let previousSlug: string | null = null;
+  if (id) {
+    const { data: existing } = await sb.from('tours').select('slug').eq('id', id).maybeSingle();
+    previousSlug = existing?.slug ?? null;
+  }
+
   const payload = {
     title: String(formData.get('title') || '').trim(),
     subtitle: (String(formData.get('subtitle') || '').trim() || null) as string | null,
@@ -262,12 +282,20 @@ export async function upsertTour(formData: FormData) {
 
   let tourId = id;
   if (id) {
-    await sb.from('tours').update(payload).eq('id', id);
+    const { error } = await sb.from('tours').update(payload).eq('id', id);
+    if (error) {
+      console.error('upsertTour update:', error.message);
+      redirect(`/admin/tours/${id}/edit${flashQuery(false, tourSaveErrorCode(error))}`);
+    }
   } else {
-    const { data } = await sb.from('tours')
+    const { data, error } = await sb.from('tours')
       .insert({ ...payload, published_at: status === 'published' ? new Date().toISOString() : null })
       .select('id').single();
-    tourId = data?.id ?? null;
+    if (error || !data) {
+      console.error('upsertTour insert:', error?.message);
+      redirect(`/admin/tours/new${flashQuery(false, tourSaveErrorCode(error))}`);
+    }
+    tourId = data.id;
   }
   if (!tourId) return;
 
@@ -282,6 +310,11 @@ export async function upsertTour(formData: FormData) {
   }
 
   revalidatePublic();
+  // The tour's own page isn't covered by revalidatePublic() and is cached for
+  // up to an hour (revalidate = 3600) — without this a closed-for-bookings
+  // tour (or a slug change) keeps serving the stale page/URL.
+  if (slug) revalidatePath(`/tour/${slug}`);
+  if (previousSlug && previousSlug !== slug) revalidatePath(`/tour/${previousSlug}`);
   redirect('/admin/tours');
 }
 

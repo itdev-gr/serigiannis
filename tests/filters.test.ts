@@ -86,4 +86,9 @@ describe('searchNormalize', () => {
   it('returns an empty string for empty input', () => {
     expect(searchNormalize('')).toBe('');
   });
+
+  it('does not throw on non-string input (e.g. repeated ?q= query params)', () => {
+    expect(() => searchNormalize(['a', 'b'] as unknown as string)).not.toThrow();
+    expect(() => searchNormalize(undefined as unknown as string)).not.toThrow();
+  });
 });

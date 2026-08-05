@@ -3,6 +3,8 @@ import { getAdminTourOrders } from '@/lib/queries/tour-orders';
 import { formatCents } from '@/lib/booking';
 import { OrderStatusBadge } from '@/components/admin/StatusBadge';
 import { AdminPageHeader } from '@/components/admin/ui';
+import { AdminSearch } from '@/components/admin/AdminSearch';
+import { searchNormalize } from '@/lib/filters';
 
 const FILTERS: { key: string; label: string }[] = [
   { key: '', label: 'Όλες' },
@@ -21,9 +23,9 @@ export default async function TourBookingsPage({
   const { status, q } = await searchParams;
   let orders = await getAdminTourOrders(status || undefined);
   if (q) {
-    const needle = q.toLowerCase();
+    const needle = searchNormalize(q);
     orders = orders.filter((o) =>
-      [o.public_code, o.customer_name, o.email, o.phone, o.tour_title].some((v) => v?.toLowerCase().includes(needle))
+      [o.public_code, o.customer_name, o.email, o.phone, o.tour_title].some((v) => v && searchNormalize(v).includes(needle))
     );
   }
 
@@ -46,15 +48,12 @@ export default async function TourBookingsPage({
             {f.label}
           </Link>
         ))}
-        <form className="ml-auto" action="/admin/bookings">
-          {status && <input type="hidden" name="status" value={status} />}
-          <input
-            name="q"
-            defaultValue={q ?? ''}
-            placeholder="Αναζήτηση κωδικού / ονόματος…"
-            className="w-64 rounded-md border border-border bg-surface px-3 py-2 text-[14px] focus:border-primary focus:outline-none"
-          />
-        </form>
+        <AdminSearch
+          action="/admin/bookings"
+          placeholder="Αναζήτηση κωδικού / ονόματος…"
+          defaultValue={q}
+          hidden={{ status }}
+        />
       </div>
 
       <div className="overflow-x-auto">

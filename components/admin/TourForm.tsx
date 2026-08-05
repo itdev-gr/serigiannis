@@ -94,7 +94,9 @@ export function TourForm({
         <label className="block">
           <span className={adminLabel}>Σειρά εμφάνισης</span>
           <input name="sort_order" type="number" step="1" defaultValue={tour?.sort_order ?? 0} className={adminInput} />
-          <span className="mt-1 block text-[12px] text-muted">Μικρότερος αριθμός = πιο ψηλά.</span>
+          <span className="mt-1 block text-[12px] text-muted">
+            Μικρότερος αριθμός = πιο ψηλά στη λίστα «Εκδρομές». Μεγαλύτερος αριθμός = πιο ψηλά στις «Προτεινόμενες εκδρομές» της αρχικής σελίδας.
+          </span>
         </label>
       </div>
 

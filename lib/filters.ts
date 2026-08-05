@@ -7,7 +7,9 @@ import { normalizeGreek } from '@/lib/odigos-search';
  * «Ναύπλιος» να ταιριάζει με «ναυπλιοσ».
  */
 export function searchNormalize(s: string): string {
-  return normalizeGreek(s).replace(/ς/g, 'σ');
+  // Next hands back string[] for repeated query params (?q=a&q=b); guard so a
+  // malformed URL 500s instead of just failing to match.
+  return normalizeGreek(String(s ?? '')).replace(/ς/g, 'σ');
 }
 
 export const PRICE_BANDS = {

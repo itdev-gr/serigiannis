@@ -12,7 +12,7 @@ import { getTourBySlug, getTours, getPublishedSlugs } from '@/lib/queries/tours'
 import { getSettings } from '@/lib/queries/settings';
 import { getPaymentProvider } from '@/lib/payments';
 import { athensToday } from '@/lib/athens-time';
-import { bookableDepartures, headlinePrice } from '@/lib/booking';
+import { bookableDepartures, headlinePrice, isBookable } from '@/lib/booking';
 import { galleryImages } from '@/lib/gallery';
 import { coverImage, imageUrl } from '@/lib/images';
 import { telHref } from '@/lib/phone';
@@ -61,9 +61,10 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
   const departures = bookableDepartures(tour.departures ?? [], athensToday());
   // Έχει τιμές = μπορεί τεχνικά να πουλήσει· ανοιχτή = το γραφείο το επιτρέπει.
   const hasPricing = tiers.length > 0;
-  // `!== false` και όχι σκέτο boolean: αν ο κώδικας βγει πριν εφαρμοστεί το
-  // migration, η στήλη λείπει και οι κρατήσεις πρέπει να μείνουν ανοιχτές.
-  const bookable = hasPricing && tour.bookings_open !== false;
+  // Το migration που προσθέτει τη στήλη bookings_open έχει πλέον εφαρμοστεί·
+  // το isBookable αντιμετωπίζει την τιμή undefined ως ανοιχτή μόνο ως ασφάλεια
+  // για τυχόν παλιές seed γραμμές.
+  const bookable = isBookable(tour, tiers);
   const photos = galleryImages(tour);
   const headline = headlinePrice(tiers);
   const offerPrice = headline ? headline.cents / 100 : tour.price_from;
@@ -104,7 +105,7 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
             '@type': 'Offer',
             price: offerPrice,
             priceCurrency: tour.currency,
-            availability: 'https://schema.org/InStock',
+            availability: bookable ? 'https://schema.org/InStock' : 'https://schema.org/SoldOut',
             url: tourUrl,
           },
         }

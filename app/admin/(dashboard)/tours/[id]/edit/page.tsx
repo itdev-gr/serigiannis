@@ -7,11 +7,19 @@ import { GalleryManager } from '@/components/admin/GalleryManager';
 import { TourBookingEditor } from '@/components/admin/TourBookingEditor';
 import { getTourBookingSetup } from '@/lib/queries/tour-orders';
 import { ConfirmForm } from '@/components/admin/ConfirmForm';
+import { FlashBanner } from '@/components/admin/FlashBanner';
 import { Button } from '@/components/ui/Button';
 import { deleteTour, saveTourBooking, setStatus, upsertTour } from '../../../actions';
 
-export default async function EditTourPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function EditTourPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ saved?: string; error?: string }>;
+}) {
   const { id } = await params;
+  const { saved, error } = await searchParams;
   const sb = await createServerClient();
   const [{ data: row }, categories, { data: images }, booking, ordersCount] = await Promise.all([
     sb.from('tours').select('*, categories:tour_categories(category:categories(*))').eq('id', id).maybeSingle(),
@@ -40,6 +48,7 @@ export default async function EditTourPage({ params }: { params: Promise<{ id: s
     <div>
       <h1 className="mb-2 font-display text-4xl font-semibold text-primary">Επεξεργασία</h1>
       <p className="mb-8 text-muted">{tour.title}</p>
+      <FlashBanner saved={saved} error={error} />
       <TourForm tour={tour} categories={categories} action={upsertTour} />
       <TourBookingEditor tourId={id} tiers={booking.tiers} departures={booking.departures} action={saveTourBooking} />
       <GalleryManager tourId={id} images={(images ?? []) as TourImage[]} coverImageId={row.cover_image_id} />
