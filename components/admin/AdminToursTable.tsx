@@ -110,7 +110,10 @@ export function AdminToursTable({ tours, categories }: { tours: AdminTourRow[]; 
                     <Link href={`/admin/tours/${t.id}/edit`} title="Επεξεργασία" className="grid h-8 w-8 place-items-center rounded-md text-muted hover:bg-background hover:text-primary">
                       <Pencil className="h-4 w-4" strokeWidth={1.75} />
                     </Link>
-                    <ConfirmForm action={deleteTour.bind(null, t.id)} message={`Διαγραφή «${t.title}»;`}>
+                    <ConfirmForm
+                      action={deleteTour.bind(null, t.id)}
+                      message={`Διαγραφή «${t.title}»; Θα διαγραφεί από το site μαζί με τις φωτογραφίες της· τυχόν κρατήσεις παραμένουν στο αρχείο.`}
+                    >
                       <button type="submit" title="Διαγραφή" className="grid h-8 w-8 place-items-center rounded-md text-muted hover:bg-cta/10 hover:text-cta">
                         <Trash2 className="h-4 w-4" strokeWidth={1.75} />
                       </button>

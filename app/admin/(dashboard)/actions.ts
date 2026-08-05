@@ -224,8 +224,17 @@ export async function setFeatured(id: string, is_featured: boolean) {
 
 export async function deleteTour(id: string) {
   const sb = await createServerClient();
+  const { data: tour } = await sb.from('tours').select('slug').eq('id', id).maybeSingle();
+  const { data: images } = await sb.from('tour_images').select('storage_path').eq('tour_id', id);
+  const paths = (images ?? []).map((i) => i.storage_path).filter(Boolean);
+  if (paths.length) {
+    const { error } = await sb.storage.from('tour-images').remove(paths);
+    if (error) console.error('deleteTour storage:', error.message);
+  }
   await sb.from('tours').delete().eq('id', id);
   revalidatePublic();
+  if (tour?.slug) revalidatePath(`/tour/${tour.slug}`);
+  redirect('/admin/tours');
 }
 
 export async function upsertTour(formData: FormData) {
