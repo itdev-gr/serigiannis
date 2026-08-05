@@ -33,6 +33,7 @@ export function setupChecklist(input: TourSetupInput): TourSetupItem[] {
       id: 'summary',
       label: 'Περιγραφή',
       done: hasSummary,
+      hint: hasSummary ? undefined : 'Χωρίς περιγραφή, η σελίδα της εκδρομής δείχνει ένα γενικό κείμενο αντί για δικό της.',
     },
     {
       id: 'photos',

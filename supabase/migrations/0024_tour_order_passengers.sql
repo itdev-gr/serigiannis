@@ -17,22 +17,26 @@ alter table public.tour_orders
 -- public: write the customer details and hand off to the gateway -----------
 -- p_customer = { customer_name, email, phone, notes?, marketing_opt_in?, accept_terms, passengers?, meeting_point? }
 -- passengers (new, optional) = [ { name, phone? }, ... ] — sanitised server-side:
--- only name/phone are kept, the list is capped at 40 entries, and anything that
--- is not a JSON array is ignored entirely. Live deploy note: old client code
--- (mid-rollout) posts p_customer without a `passengers` key at all — that must
--- keep working exactly as before, landing '[]' in the new column. Every other
--- check, the status transition and the return shape are unchanged from 0021.
+-- only name/phone are kept, name capped at 120 chars and phone at 40 (also
+-- covers a nested-object value, whose ->> text would otherwise land verbatim),
+-- the list is capped at 40 accepted entries (200 elements read at most), and
+-- anything that is not a JSON array is ignored entirely. Live deploy note: old
+-- client code (mid-rollout) posts p_customer without a `passengers` key at
+-- all — that must keep working exactly as before, landing '[]' in the new
+-- column. Every other check, the status transition and the return shape are
+-- unchanged from 0021.
 -- meeting_point (new, optional) — same validation shape as the ticketing side's
 -- finalize_checkout/boarding_point (0020): required and checked against the
--- tour's meeting_points only when that list is non-empty; otherwise ignored,
--- so tours without configured points (the default) never require one.
+-- tour's meeting_points, capped at 200 chars, only when that list is
+-- non-empty; otherwise the submitted value is discarded (not merely
+-- unvalidated) so a tour without a list can never end up with one stored.
 create or replace function public.finalize_tour_order(
   p_order_id uuid, p_token uuid, p_customer jsonb, p_provider text)
 returns jsonb
 language plpgsql volatile security definer set search_path = '' as $$
 declare
   v_order public.tour_orders;
-  v_tour public.tours;
+  v_tour_meeting_points text[];
   v_passengers jsonb := '[]'::jsonb;
   v_raw jsonb;
   v_p jsonb;
@@ -66,26 +70,31 @@ begin
 
   -- meeting point must be one of the tour's configured meeting_points, only
   -- when that list is non-empty (tours with no points configured — the
-  -- default — never require one; v_tour stays all-null when tour_id is null,
-  -- which coalesce()s to 0 below, same as a genuinely empty array).
-  select * into v_tour from public.tours where id = v_order.tour_id;
-  if coalesce(array_length(v_tour.meeting_points, 1), 0) > 0 then
+  -- default — never require one; v_tour_meeting_points stays null when
+  -- tour_id is null, which coalesce()s to 0 below, same as an empty array).
+  select meeting_points into v_tour_meeting_points from public.tours where id = v_order.tour_id;
+  if coalesce(array_length(v_tour_meeting_points, 1), 0) > 0 then
     if coalesce(p_customer->>'meeting_point', '') = ''
-       or not (p_customer->>'meeting_point' = any (v_tour.meeting_points)) then
+       or not (p_customer->>'meeting_point' = any (v_tour_meeting_points)) then
       return jsonb_build_object('ok', false, 'error', 'invalid_meeting_point');
     end if;
   end if;
 
-  -- sanitise the passenger list: keep only name/phone, cap at 40, ignore
-  -- anything that isn't a JSON array (including an absent key — old clients).
+  -- sanitise the passenger list: keep only name/phone, cap at 40 accepted
+  -- entries, ignore anything that isn't a JSON array (including an absent
+  -- key — old clients). The source itself is also capped (limit 200) so a
+  -- hostile array of a million elements can't be iterated in full while this
+  -- row is held `for update`. Deliberate: no check that count(passengers)
+  -- equals party_size — the client form already requires one name per seat,
+  -- and a missing name costs a phone call, not a lost sale; do not "fix" this.
   v_raw := p_customer->'passengers';
   if jsonb_typeof(v_raw) = 'array' then
-    for v_p in select * from jsonb_array_elements(v_raw) loop
+    for v_p in select value from jsonb_array_elements(v_raw) limit 200 loop
       exit when v_count >= 40;
       continue when jsonb_typeof(v_p) <> 'object';
-      v_name := nullif(trim(coalesce(v_p->>'name', '')), '');
+      v_name := nullif(left(trim(coalesce(v_p->>'name', '')), 120), '');
       continue when v_name is null;
-      v_phone := nullif(trim(coalesce(v_p->>'phone', '')), '');
+      v_phone := nullif(left(trim(coalesce(v_p->>'phone', '')), 40), '');
       v_passengers := v_passengers || jsonb_build_object('name', v_name, 'phone', v_phone);
       v_count := v_count + 1;
     end loop;
@@ -98,7 +107,9 @@ begin
       notes = nullif(trim(coalesce(p_customer->>'notes', '')), ''),
       marketing_opt_in = coalesce((p_customer->>'marketing_opt_in')::boolean, false),
       passengers = v_passengers,
-      meeting_point = nullif(trim(coalesce(p_customer->>'meeting_point', '')), ''),
+      meeting_point = case when coalesce(array_length(v_tour_meeting_points, 1), 0) > 0
+                           then left(trim(p_customer->>'meeting_point'), 200)
+                           else null end,
       accepted_terms_at = now(),
       payment_provider = p_provider,
       status = case when p_provider = 'offline' then 'offline'::public.order_status

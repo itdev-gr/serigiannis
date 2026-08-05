@@ -11,8 +11,9 @@ import {
   itemsPartySize,
   itemsTotalCents,
   parseEuroToCents,
+  passengerLabels,
 } from '@/lib/booking';
-import type { TourDeparture, TourPriceTier } from '@/types/db';
+import type { TourDeparture, TourOrderItem, TourPriceTier } from '@/types/db';
 
 const tier = (over: Partial<TourPriceTier> & { id: string }): TourPriceTier => ({
   tour_id: 't1',
@@ -152,6 +153,31 @@ describe('isBookable', () => {
 
   it('undefined bookings_open + tiers → true (seed rows without the column)', () => {
     expect(isBookable({}, [tier({ id: 'a' })])).toBe(true);
+  });
+});
+
+describe('passengerLabels', () => {
+  const item = (over: Partial<TourOrderItem> & { label: string; qty: number }): TourOrderItem => ({
+    tier_id: 't',
+    unit_cents: 0,
+    line_cents: 0,
+    ...over,
+  });
+
+  it('expands each item’s qty into labelled rows, in order', () => {
+    const labels = passengerLabels({
+      items: [item({ label: 'Δίκλινο', qty: 2 }), item({ label: 'Παιδί', qty: 1 })],
+      party_size: 3,
+    });
+    expect(labels).toEqual(['Δίκλινο 1', 'Δίκλινο 2', 'Παιδί 1']);
+  });
+
+  it('falls back to «Ταξιδιώτης N» from party_size when items is empty', () => {
+    expect(passengerLabels({ items: [], party_size: 3 })).toEqual(['Ταξιδιώτης 1', 'Ταξιδιώτης 2', 'Ταξιδιώτης 3']);
+  });
+
+  it('is empty for party_size 0 and no items', () => {
+    expect(passengerLabels({ items: [], party_size: 0 })).toEqual([]);
   });
 });
 

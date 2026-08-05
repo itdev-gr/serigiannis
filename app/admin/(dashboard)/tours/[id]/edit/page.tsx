@@ -57,7 +57,7 @@ export default async function EditTourPage({
         bookings_open={row.bookings_open}
         summary={row.summary}
         imageCount={images?.length ?? 0}
-        tierCount={booking.tiers.length}
+        tierCount={booking.tiers.filter((t) => t.is_active).length}
         futureDepartureCount={bookableDepartures(booking.departures, athensToday()).length}
       />
       <TourForm tour={tour} categories={categories} action={upsertTour} />

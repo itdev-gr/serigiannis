@@ -6,6 +6,7 @@ import { z } from 'zod';
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { cancelTourBooking, submitTourCheckout } from '@/app/(site)/kratisi/actions';
+import { passengerLabels } from '@/lib/booking';
 import type { TourOrder } from '@/types/db';
 
 const ERROR_TEXT: Record<string, string> = {
@@ -53,19 +54,6 @@ function Field({ label, error, children }: { label: string; error?: string; chil
       {error && <span className="mt-1 block text-[13px] text-cta">{error}</span>}
     </label>
   );
-}
-
-/** One label per person, in item order («Το άτομο σε δίκλινο 1», «Παιδί 1»…), falling
- *  back to «Ταξιδιώτης N» from party_size if the order carries no items snapshot. */
-function passengerLabels(order: TourOrder): string[] {
-  const labels: string[] = [];
-  for (const item of order.items ?? []) {
-    for (let i = 1; i <= item.qty; i++) labels.push(`${item.label} ${i}`);
-  }
-  if (labels.length === 0) {
-    for (let i = 1; i <= Math.max(order.party_size, 0); i++) labels.push(`Ταξιδιώτης ${i}`);
-  }
-  return labels;
 }
 
 export function TourCheckoutForm({

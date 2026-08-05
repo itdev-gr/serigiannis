@@ -93,10 +93,11 @@ export function TourForm({
           className={adminInput}
           placeholder={'Πλατεία Συντάγματος\nΣταθμός ΗΣΑΠ Πειραιά'}
         />
-        <span className="mt-1 block text-[12px] text-muted">
-          Αν συμπληρωθούν, ο πελάτης θα διαλέγει ένα από αυτά κατά την κράτηση.
-        </span>
       </label>
+      <p className="-mt-3 text-[12px] text-muted">
+        Το «Σημείο συνάντησης» από πάνω εμφανίζεται στη σελίδα της εκδρομής· τα «Σημεία συνάντησης» είναι η λίστα από την
+        οποία θα διαλέξει ο πελάτης κατά την κράτηση, αν συμπληρωθεί.
+      </p>
 
       <div className="grid gap-5 sm:grid-cols-2">
         <label className="block">
