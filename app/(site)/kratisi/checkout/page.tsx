@@ -34,7 +34,12 @@ export default async function TourCheckoutPage({
       <div className="container grid max-w-5xl gap-8 lg:grid-cols-12">
         <div className="lg:col-span-7">
           <h1 className="mb-6 font-display text-display-editorial text-primary">Ολοκλήρωση κράτησης</h1>
-          <TourCheckoutForm order={order} token={t} offline={getPaymentProvider().id === 'offline'} />
+          <TourCheckoutForm
+            order={order}
+            token={t}
+            offline={getPaymentProvider().id === 'offline'}
+            meetingPoints={bundle.meeting_points}
+          />
         </div>
         <aside className="lg:col-span-5">
           <div className="sticky top-28 space-y-6">

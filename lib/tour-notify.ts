@@ -53,6 +53,7 @@ export async function notifyTourOrder(accessToken: string): Promise<void> {
   const summary = `
     <p style="margin:0 0 4px;color:#16233b">Αναχώρηση: <strong>${esc(dateLine)}</strong></p>
     <p style="margin:0 0 12px;color:#16233b">Κωδικός κράτησης: <strong>${esc(order.public_code)}</strong></p>
+    ${order.meeting_point ? `<p style="margin:0 0 12px;color:#16233b">Σημείο συνάντησης: <strong>${esc(order.meeting_point)}</strong></p>` : ''}
     <table style="width:100%;max-width:520px;border-collapse:collapse">${itemRows}
       <tr><td style="padding-top:10px;border-top:1px solid #dbe2ec;font-weight:700;color:#00296b">Σύνολο</td>
         <td style="padding-top:10px;border-top:1px solid #dbe2ec;text-align:right;font-weight:700;color:#00296b">
