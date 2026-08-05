@@ -53,11 +53,20 @@ export async function notifyTourOrder(accessToken: string): Promise<void> {
   const summary = `
     <p style="margin:0 0 4px;color:#16233b">Αναχώρηση: <strong>${esc(dateLine)}</strong></p>
     <p style="margin:0 0 12px;color:#16233b">Κωδικός κράτησης: <strong>${esc(order.public_code)}</strong></p>
+    ${order.meeting_point ? `<p style="margin:0 0 12px;color:#16233b">Σημείο συνάντησης: <strong>${esc(order.meeting_point)}</strong></p>` : ''}
     <table style="width:100%;max-width:520px;border-collapse:collapse">${itemRows}
       <tr><td style="padding-top:10px;border-top:1px solid #dbe2ec;font-weight:700;color:#00296b">Σύνολο</td>
         <td style="padding-top:10px;border-top:1px solid #dbe2ec;text-align:right;font-weight:700;color:#00296b">
           ${esc(formatCents(order.amount_total_cents))}</td></tr>
     </table>`;
+
+  const passengerRows = (order.passengers ?? [])
+    .map((p) => `<li>${esc(p.name)}${p.phone ? ` — ${esc(p.phone)}` : ''}</li>`)
+    .join('');
+  const passengersHtml = passengerRows
+    ? `<p style="margin:14px 0 4px;color:#16233b;font-weight:600">Ταξιδιώτες</p>
+       <ul style="margin:0 0 12px;padding-left:18px;color:#16233b">${passengerRows}</ul>`
+    : '';
 
   const from = process.env.RESEND_FROM || 'Sergiani Travel <onboarding@resend.dev>';
 
@@ -95,6 +104,7 @@ export async function notifyTourOrder(accessToken: string): Promise<void> {
       <p style="color:#16233b">${esc(order.customer_name)} · ${esc(order.phone)} · ${esc(order.email)}</p>
       <p style="color:#16233b">${order.party_size} άτομα · ${esc(STATUS_LINE[order.status] ?? order.status)}</p>
       ${summary}
+      ${passengersHtml}
       ${order.notes ? `<p style="color:#5b6b82;font-size:13px">Σημειώσεις πελάτη: ${esc(order.notes)}</p>` : ''}
       <p style="color:#5b6b82;font-size:13px">Διαχείριση: <a href="${site}/admin/bookings/${order.id}">/admin/bookings</a></p>
     </div>`;

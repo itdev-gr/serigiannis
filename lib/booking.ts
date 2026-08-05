@@ -1,4 +1,4 @@
-import type { TourDeparture, TourOrderItem, TourPriceTier } from '@/types/db';
+import type { TourDeparture, TourOrder, TourOrderItem, TourPriceTier } from '@/types/db';
 
 /** "170,00 €" — one money formatter for the whole site. */
 export { formatCents } from '@/lib/ticketing';
@@ -63,6 +63,19 @@ export function itemsTotalCents(items: TourOrderItem[]): number {
 
 export function itemsPartySize(items: TourOrderItem[]): number {
   return items.reduce((sum, i) => sum + i.qty, 0);
+}
+
+/** One label per person, in item order («Το άτομο σε δίκλινο 1», «Παιδί 1»…), falling
+ *  back to «Ταξιδιώτης N» from party_size if the order carries no items snapshot. */
+export function passengerLabels(order: Pick<TourOrder, 'items' | 'party_size'>): string[] {
+  const labels: string[] = [];
+  for (const item of order.items ?? []) {
+    for (let i = 1; i <= item.qty; i++) labels.push(`${item.label} ${i}`);
+  }
+  if (labels.length === 0) {
+    for (let i = 1; i <= Math.max(order.party_size, 0); i++) labels.push(`Ταξιδιώτης ${i}`);
+  }
+  return labels;
 }
 
 /** The headline price of a tour page: the cheapest active tier, with its

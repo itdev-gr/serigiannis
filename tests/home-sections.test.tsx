@@ -25,7 +25,7 @@ const cats: Category[] = [
 const tour = (o: Partial<Tour>): Tour => ({
   id: 'a', slug: 'ydra', title: 'Ύδρα', subtitle: null, summary: 'Το νησί του Μιαούλη', body: {},
   price_from: 25, price_original: null, currency: 'EUR', duration_label: 'Μονοήμερη',
-  departure_note: null, meeting_point: null, status: 'published', is_featured: true,
+  departure_note: null, meeting_point: null, meeting_points: [], status: 'published', is_featured: true,
   bookings_open: true, cover_image_id: null, seo_title: null, seo_description: null, source_url: null,
   sort_order: 0, published_at: null, categories: [], images: [], ...o,
 });

@@ -58,6 +58,10 @@ export type Tour = {
   duration_label: string | null;
   departure_note: string | null;
   meeting_point: string | null;
+  /** Optional selectable meeting points (admin textarea, one per line). Empty
+   *  by default — the customer only sees a picker at checkout when this is
+   *  non-empty, mirroring bus_routes.boarding_points. */
+  meeting_points: string[];
   status: TourStatus;
   is_featured: boolean;
   bookings_open: boolean;
@@ -86,6 +90,9 @@ export type TourOrderItem = {
 
 export type TourOrderStatus = 'pending' | 'awaiting_payment' | 'paid' | 'offline' | 'cancelled' | 'expired';
 
+/** One traveller captured on a tour order (sanitised server-side: only name + phone kept). */
+export type TourPassenger = { name: string; phone: string | null };
+
 export type TourOrder = {
   id: string;
   public_code: string;
@@ -102,13 +109,21 @@ export type TourOrder = {
   email: string | null;
   phone: string | null;
   notes: string | null;
+  passengers: TourPassenger[];
+  /** The customer's chosen meeting point, once finalize_tour_order has stored
+   *  it — null before checkout and for tours without meeting_points. */
+  meeting_point: string | null;
   payment_provider: string | null;
   paid_at: string | null;
   created_at: string;
 };
 
-/** get_tour_order_by_token RPC result. */
-export type TourOrderBundle = { ok: true; order: TourOrder } | { ok: false; error: string };
+/** get_tour_order_by_token RPC result. meeting_points is the tour's own list
+ *  (not a TourOrder field) — read alongside the order so the checkout page
+ *  can render the picker without a second round trip. */
+export type TourOrderBundle =
+  | { ok: true; order: TourOrder; meeting_points: string[] }
+  | { ok: false; error: string };
 
 export type Post = {
   id: string;

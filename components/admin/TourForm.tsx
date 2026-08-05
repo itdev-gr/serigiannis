@@ -84,6 +84,21 @@ export function TourForm({
         <input name="meeting_point" defaultValue={tour?.meeting_point ?? ''} className={adminInput} placeholder="π.χ. Πλατεία Συντάγματος, 07:00" />
       </label>
 
+      <label className="block">
+        <span className={adminLabel}>Σημεία συνάντησης (ένα ανά γραμμή)</span>
+        <textarea
+          name="meeting_points"
+          rows={3}
+          defaultValue={(tour?.meeting_points ?? []).join('\n')}
+          className={adminInput}
+          placeholder={'Πλατεία Συντάγματος\nΣταθμός ΗΣΑΠ Πειραιά'}
+        />
+      </label>
+      <p className="-mt-3 text-[12px] text-muted">
+        Το «Σημείο συνάντησης» από πάνω εμφανίζεται στη σελίδα της εκδρομής· τα «Σημεία συνάντησης» είναι η λίστα από την
+        οποία θα διαλέξει ο πελάτης κατά την κράτηση, αν συμπληρωθεί.
+      </p>
+
       <div className="grid gap-5 sm:grid-cols-2">
         <label className="block">
           <span className={adminLabel}>Κατάσταση</span>

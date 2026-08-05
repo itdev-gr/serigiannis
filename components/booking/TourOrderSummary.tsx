@@ -26,6 +26,12 @@ export function TourOrderSummary({ order }: { order: TourOrder }) {
           <MapPin className="h-5 w-5 shrink-0 text-primary/60" strokeWidth={1.75} />
           <span>Κωδικός κράτησης: <strong className="font-mono tracking-[0.15em] text-primary">{order.public_code}</strong></span>
         </li>
+        {order.meeting_point && (
+          <li className="flex items-center gap-3">
+            <MapPin className="h-5 w-5 shrink-0 text-primary/60" strokeWidth={1.75} />
+            <span>Σημείο συνάντησης: <strong className="text-primary">{order.meeting_point}</strong></span>
+          </li>
+        )}
       </ul>
 
       <table className="mt-5 w-full border-t border-border text-[15px]">

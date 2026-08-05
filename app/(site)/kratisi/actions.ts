@@ -40,6 +40,11 @@ export type TourCheckoutInput = {
     notes?: string;
     marketing_opt_in?: boolean;
     accept_terms: boolean;
+    /** One entry per traveller; sanitised again server-side in finalize_tour_order. */
+    passengers?: { name: string; phone: string | null }[];
+    /** Required only when the tour has meeting_points configured — validated
+     *  server-side against that list in finalize_tour_order. */
+    meeting_point?: string;
   };
 };
 

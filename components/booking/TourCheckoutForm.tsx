@@ -1,11 +1,12 @@
 'use client';
-import { useState, useTransition, type ReactNode } from 'react';
+import { useMemo, useState, useTransition, type ReactNode } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { cancelTourBooking, submitTourCheckout } from '@/app/(site)/kratisi/actions';
+import { passengerLabels } from '@/lib/booking';
 import type { TourOrder } from '@/types/db';
 
 const ERROR_TEXT: Record<string, string> = {
@@ -14,19 +15,33 @@ const ERROR_TEXT: Record<string, string> = {
   order_not_payable: 'Η κράτηση δεν μπορεί να πληρωθεί. Επικοινωνήστε μαζί μας.',
   invalid_customer: 'Ελέγξτε τα στοιχεία επικοινωνίας.',
   terms_required: 'Πρέπει να αποδεχθείτε τους όρους κράτησης.',
+  invalid_meeting_point: 'Επιλέξτε ένα έγκυρο σημείο συνάντησης από τη λίστα.',
   payment_init: 'Η σύνδεση με την τράπεζα απέτυχε. Δοκιμάστε ξανά.',
   db: 'Κάτι πήγε στραβά. Δοκιμάστε ξανά ή καλέστε μας.',
 };
 
-const Schema = z.object({
-  customer_name: z.string().min(2, 'Συμπληρώστε ονοματεπώνυμο.'),
-  email: z.string().email('Μη έγκυρο email.'),
-  phone: z.string().min(8, 'Συμπληρώστε ένα έγκυρο τηλέφωνο.'),
-  notes: z.string().optional(),
-  marketing_opt_in: z.boolean().optional(),
-  accept_terms: z.literal(true, { errorMap: () => ({ message: 'Απαιτείται αποδοχή των όρων.' }) }),
+const PassengerSchema = z.object({
+  name: z.string().min(2, 'Συμπληρώστε ονοματεπώνυμο.'),
+  phone: z.string().optional(),
 });
-type Fields = z.infer<typeof Schema>;
+
+/** meeting_point is required only when the tour actually offers a list to
+ *  choose from — a tour with none must not force a choice. */
+function buildSchema(requireMeetingPoint: boolean) {
+  return z.object({
+    customer_name: z.string().min(2, 'Συμπληρώστε ονοματεπώνυμο.'),
+    email: z.string().email('Μη έγκυρο email.'),
+    phone: z.string().min(8, 'Συμπληρώστε ένα έγκυρο τηλέφωνο.'),
+    notes: z.string().optional(),
+    marketing_opt_in: z.boolean().optional(),
+    accept_terms: z.literal(true, { errorMap: () => ({ message: 'Απαιτείται αποδοχή των όρων.' }) }),
+    passengers: z.array(PassengerSchema),
+    meeting_point: requireMeetingPoint
+      ? z.string().min(1, 'Επιλέξτε σημείο συνάντησης.')
+      : z.string().optional(),
+  });
+}
+type Fields = z.infer<ReturnType<typeof buildSchema>>;
 
 const inputCls =
   'w-full rounded-md border border-border bg-surface px-4 py-2.5 font-sans text-[15px] text-body transition focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10';
@@ -41,12 +56,35 @@ function Field({ label, error, children }: { label: string; error?: string; chil
   );
 }
 
-export function TourCheckoutForm({ order, token, offline }: { order: TourOrder; token: string; offline: boolean }) {
+export function TourCheckoutForm({
+  order,
+  token,
+  offline,
+  meetingPoints,
+}: {
+  order: TourOrder;
+  token: string;
+  offline: boolean;
+  /** The tour's configured meeting points. Empty (the default for most
+   *  tours) means no picker is shown and none is required. */
+  meetingPoints: string[];
+}) {
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
-  const { register, handleSubmit, formState: { errors } } = useForm<Fields>({
-    resolver: zodResolver(Schema),
-    defaultValues: { marketing_opt_in: false },
+  const labels = useMemo(() => passengerLabels(order), [order]);
+  const schema = useMemo(() => buildSchema(meetingPoints.length > 0), [meetingPoints.length]);
+  const {
+    register,
+    handleSubmit,
+    getValues,
+    setValue,
+    formState: { errors },
+  } = useForm<Fields>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      marketing_opt_in: false,
+      passengers: labels.map(() => ({ name: '', phone: '' })),
+    },
   });
 
   return (
@@ -65,6 +103,8 @@ export function TourCheckoutForm({ order, token, offline }: { order: TourOrder; 
               notes: d.notes,
               marketing_opt_in: !!d.marketing_opt_in,
               accept_terms: true,
+              passengers: d.passengers.map((p) => ({ name: p.name.trim(), phone: p.phone?.trim() || null })),
+              meeting_point: d.meeting_point || undefined,
             },
           });
           if (res && !res.ok) setError(ERROR_TEXT[res.error] ?? ERROR_TEXT.db);
@@ -86,6 +126,51 @@ export function TourCheckoutForm({ order, token, offline }: { order: TourOrder; 
       <Field label="Σημειώσεις">
         <textarea rows={3} {...register('notes')} className={inputCls} placeholder="π.χ. σημείο επιβίβασης, ειδικές ανάγκες" />
       </Field>
+
+      {meetingPoints.length > 0 && (
+        <Field label="Σημείο συνάντησης *" error={errors.meeting_point?.message}>
+          <select {...register('meeting_point')} className={inputCls} defaultValue="">
+            <option value="">— Επιλέξτε σημείο συνάντησης —</option>
+            {meetingPoints.map((point) => (
+              <option key={point} value={point}>
+                {point}
+              </option>
+            ))}
+          </select>
+        </Field>
+      )}
+
+      {labels.length > 0 && (
+        <div className="grid gap-4">
+          <h2 className="font-display text-2xl font-semibold text-primary">Στοιχεία ταξιδιωτών</h2>
+          <div className="grid gap-4">
+            {labels.map((label, i) => (
+              <div key={i} className="rounded-md border border-border/70 bg-background/50 p-4">
+                <div className="mb-3 flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+                  <span className="font-sans text-[13px] font-semibold uppercase tracking-[0.1em] text-primary">{label}</span>
+                  {i === 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setValue('passengers.0.name', getValues('customer_name'), { shouldValidate: true })}
+                      className="font-sans text-[12px] font-medium text-primary underline hover:text-cta"
+                    >
+                      Ίδιος με τον υπεύθυνο κράτησης
+                    </button>
+                  )}
+                </div>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <Field label="Ονοματεπώνυμο *" error={errors.passengers?.[i]?.name?.message}>
+                    <input {...register(`passengers.${i}.name` as const)} className={inputCls} autoComplete="off" />
+                  </Field>
+                  <Field label="Τηλέφωνο">
+                    <input {...register(`passengers.${i}.phone` as const)} type="tel" className={inputCls} autoComplete="off" />
+                  </Field>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <label className="flex items-start gap-3 text-[14px] text-body">
         <input type="checkbox" {...register('marketing_opt_in')} className="mt-1 h-4 w-4 accent-primary" />
