@@ -5,10 +5,13 @@ import { getCategories } from '@/lib/queries/categories';
 import { TourForm } from '@/components/admin/TourForm';
 import { GalleryManager } from '@/components/admin/GalleryManager';
 import { TourBookingEditor } from '@/components/admin/TourBookingEditor';
+import { TourSetupChecklist } from '@/components/admin/TourSetupChecklist';
 import { getTourBookingSetup } from '@/lib/queries/tour-orders';
 import { ConfirmForm } from '@/components/admin/ConfirmForm';
 import { FlashBanner } from '@/components/admin/FlashBanner';
 import { Button } from '@/components/ui/Button';
+import { athensToday } from '@/lib/athens-time';
+import { bookableDepartures } from '@/lib/booking';
 import { deleteTour, saveTourBooking, setStatus, upsertTour } from '../../../actions';
 
 export default async function EditTourPage({
@@ -49,6 +52,14 @@ export default async function EditTourPage({
       <h1 className="mb-2 font-display text-4xl font-semibold text-primary">Επεξεργασία</h1>
       <p className="mb-8 text-muted">{tour.title}</p>
       <FlashBanner saved={saved} error={error} />
+      <TourSetupChecklist
+        status={row.status}
+        bookings_open={row.bookings_open}
+        summary={row.summary}
+        imageCount={images?.length ?? 0}
+        tierCount={booking.tiers.length}
+        futureDepartureCount={bookableDepartures(booking.departures, athensToday()).length}
+      />
       <TourForm tour={tour} categories={categories} action={upsertTour} />
       <TourBookingEditor tourId={id} tiers={booking.tiers} departures={booking.departures} action={saveTourBooking} />
       <GalleryManager tourId={id} images={(images ?? []) as TourImage[]} coverImageId={row.cover_image_id} />
