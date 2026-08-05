@@ -88,7 +88,11 @@ export function ImageUploader({ tourId }: { tourId: string }) {
           ...failed,
           { name: '—', message: 'Η αποστολή απέτυχε. Δοκιμάστε ξανά με λιγότερες φωτογραφίες τη φορά.' },
         ]);
-        setStatus(null);
+        setStatus(
+          uploaded > 0
+            ? `Ανέβηκαν ${uploaded} ${uploaded === 1 ? 'φωτογραφία' : 'φωτογραφίες'}, αλλά η υπόλοιπη αποστολή απέτυχε.`
+            : null
+        );
       }
       if (inputRef.current) inputRef.current.value = '';
     });
