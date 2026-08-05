@@ -2,16 +2,15 @@
 import { useState, type ReactNode } from 'react';
 import { AdminSeatMap } from '@/components/admin/AdminSeatMap';
 import { ManualBookingForm } from '@/components/admin/ManualBookingForm';
+import { takenSeatNumbers } from '@/lib/ticketing';
 import type { AdminSeatClaim } from '@/lib/queries/ticketing';
 import type { FareType, LayoutJson } from '@/types/ticketing';
 
 /** True when a seat is currently unavailable — booked, blocked, or an
- *  unexpired hold. Mirrors AdminSeatMap's own `activeClaim` rule. */
+ *  unexpired hold. Shares its rule with AdminSeatMap and the trip page
+ *  via `takenSeatNumbers` in lib/ticketing.ts. */
 function isTaken(claims: AdminSeatClaim[], seat: string): boolean {
-  const claim = claims.find((c) => c.seat_no === seat);
-  if (!claim) return false;
-  if (claim.claim_type === 'hold' && claim.expires_at && new Date(claim.expires_at).getTime() <= Date.now()) return false;
-  return true;
+  return takenSeatNumbers(claims, Date.now()).includes(seat);
 }
 
 /** Shares seat selection between the live seat map and the phone-booking

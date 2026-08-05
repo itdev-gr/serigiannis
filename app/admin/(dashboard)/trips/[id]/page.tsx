@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/Button';
 import { TripSeatPanel } from '@/components/admin/TripSeatPanel';
 import { FlashBanner } from '@/components/admin/FlashBanner';
 import { AdminPageHeader, Pill, adminInput } from '@/components/admin/ui';
-import { routeLabel, layoutAllSeats, nextFreeSeat } from '@/lib/ticketing';
+import { routeLabel, layoutAllSeats, nextFreeSeat, takenSeatNumbers } from '@/lib/ticketing';
 
 export default async function TripDashboardPage({
   params,
@@ -29,10 +29,8 @@ export default async function TripDashboardPage({
   const booked = claims.filter((c) => c.claim_type === 'booked').length;
   const blocked = claims.filter((c) => c.claim_type === 'blocked').length;
 
-  // Taken = booked, blocked, or an unexpired hold — same rule AdminSeatMap uses.
-  const takenSeats = claims
-    .filter((c) => c.claim_type !== 'hold' || !c.expires_at || new Date(c.expires_at).getTime() > Date.now())
-    .map((c) => c.seat_no);
+  // Taken = booked, blocked, or an unexpired hold — same rule AdminSeatMap/TripSeatPanel use.
+  const takenSeats = takenSeatNumbers(claims, Date.now());
   const allSeats = layoutAllSeats(layout.layout);
   const suggested = nextFreeSeat(allSeats, takenSeats, sp.after ?? null);
   const seatsLeft = allSeats.length - takenSeats.length;
@@ -55,7 +53,14 @@ export default async function TripDashboardPage({
         <FlashBanner saved={sp.saved} error={sp.error} />
       </div>
 
+      {/* Keying on `after` remounts the panel (and its seat state) once per
+          booking, when a fresh `suggested` seat is available — but NOT on
+          unrelated re-renders (e.g. the revalidatePath after block/unblock),
+          so a clerk's manually typed seat survives those. Do not key on
+          `suggested`: that would wipe the clerk's typing whenever the map
+          changes for reasons unrelated to a booking. */}
       <TripSeatPanel
+        key={sp.after ?? 'first'}
         tripId={trip.id}
         layout={layout.layout}
         claims={claims}

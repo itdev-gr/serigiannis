@@ -3,6 +3,7 @@ import { useState, useTransition } from 'react';
 import { DoorOpen, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { blockSeat, unblockSeat } from '@/app/admin/(dashboard)/ticketing-actions';
+import { takenSeatNumbers } from '@/lib/ticketing';
 import type { AdminSeatClaim } from '@/lib/queries/ticketing';
 import type { LayoutJson } from '@/types/ticketing';
 
@@ -30,12 +31,11 @@ export function AdminSeatMap({
   const [pending, startTransition] = useTransition();
 
   const claimBySeat = new Map(claims.map((c) => [c.seat_no, c]));
-  const activeClaim = (seat: string) => {
-    const c = claimBySeat.get(seat);
-    if (!c) return null;
-    if (c.claim_type === 'hold' && c.expires_at && new Date(c.expires_at).getTime() <= Date.now()) return null;
-    return c;
-  };
+  const taken = new Set(takenSeatNumbers(claims, Date.now()));
+  // Same taken-seat rule as TripSeatPanel/the trip page (lib/ticketing.ts);
+  // only surface the map lookup for seats that rule counts as taken, so an
+  // expired hold still in `claims` doesn't render as active here.
+  const activeClaim = (seat: string) => (taken.has(seat) ? (claimBySeat.get(seat) ?? null) : null);
   const sel = selected ? activeClaim(selected) : null;
 
   return (

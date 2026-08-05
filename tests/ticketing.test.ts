@@ -8,6 +8,7 @@ import {
   splitRoundPrice,
   sortSeatsNatural,
   nextFreeSeat,
+  takenSeatNumbers,
 } from '@/lib/ticketing';
 import type { LayoutJson } from '@/types/ticketing';
 
@@ -139,5 +140,33 @@ describe('nextFreeSeat', () => {
 
   it('δουλεύει με άδεια λίστα θέσεων', () => {
     expect(nextFreeSeat([], [])).toBeNull();
+  });
+});
+
+describe('takenSeatNumbers', () => {
+  const now = 1_700_000_000_000;
+
+  it('μετράει μια κρατημένη θέση', () => {
+    const claims = [{ seat_no: '1', claim_type: 'booked', expires_at: null }];
+    expect(takenSeatNumbers(claims, now)).toEqual(['1']);
+  });
+
+  it('μετράει μια κλειδωμένη θέση', () => {
+    const claims = [{ seat_no: '2', claim_type: 'blocked', expires_at: null }];
+    expect(takenSeatNumbers(claims, now)).toEqual(['2']);
+  });
+
+  it('μετράει μια δέσμευση που δεν έχει λήξει', () => {
+    const claims = [{ seat_no: '3', claim_type: 'hold', expires_at: new Date(now + 60_000).toISOString() }];
+    expect(takenSeatNumbers(claims, now)).toEqual(['3']);
+  });
+
+  it('δεν μετράει μια δέσμευση που έχει λήξει', () => {
+    const claims = [{ seat_no: '4', claim_type: 'hold', expires_at: new Date(now - 60_000).toISOString() }];
+    expect(takenSeatNumbers(claims, now)).toEqual([]);
+  });
+
+  it('δίνει άδεια λίστα για άδεια είσοδο', () => {
+    expect(takenSeatNumbers([], now)).toEqual([]);
   });
 });

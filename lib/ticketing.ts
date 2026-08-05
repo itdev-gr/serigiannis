@@ -101,6 +101,17 @@ export function sortSeatsNatural(seats: string[]): string[] {
   });
 }
 
+/** Οι πιασμένες θέσεις ενός δρομολογίου: κρατημένες, κλειδωμένες και
+ *  δεσμεύσεις που δεν έχουν λήξει. Μία αλήθεια για κάτοψη και φόρμες. */
+export function takenSeatNumbers(
+  claims: { seat_no: string; claim_type: string; expires_at?: string | null }[],
+  now: number
+): string[] {
+  return claims
+    .filter((c) => c.claim_type !== 'hold' || !c.expires_at || new Date(c.expires_at).getTime() > now)
+    .map((c) => c.seat_no);
+}
+
 /** Η θέση που θα προτείνει η φόρμα τηλεφωνικής κράτησης: η πρώτη ελεύθερη
  *  μετά την `after` (ώστε ο υπάλληλος να προχωράει 11 → 12), αλλιώς η πρώτη
  *  ελεύθερη του οχήματος. `null` όταν δεν έχει μείνει καμία. */
