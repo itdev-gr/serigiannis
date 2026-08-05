@@ -79,7 +79,9 @@ export function ImageUploader({ tourId }: { tourId: string }) {
         setErrors((prev) => [...prev, ...failed]);
         setStatus(
           uploaded > 0
-            ? `Ανέβηκαν ${uploaded} ${uploaded === 1 ? 'φωτογραφία' : 'φωτογραφίες'}.`
+            ? uploaded === 1
+              ? 'Ανέβηκε 1 φωτογραφία.'
+              : `Ανέβηκαν ${uploaded} φωτογραφίες.`
             : 'Δεν ανέβηκε καμία φωτογραφία.'
         );
       } catch {
@@ -90,7 +92,9 @@ export function ImageUploader({ tourId }: { tourId: string }) {
         ]);
         setStatus(
           uploaded > 0
-            ? `Ανέβηκαν ${uploaded} ${uploaded === 1 ? 'φωτογραφία' : 'φωτογραφίες'}, αλλά η υπόλοιπη αποστολή απέτυχε.`
+            ? uploaded === 1
+              ? 'Ανέβηκε 1 φωτογραφία, αλλά η υπόλοιπη αποστολή απέτυχε.'
+              : `Ανέβηκαν ${uploaded} φωτογραφίες, αλλά η υπόλοιπη αποστολή απέτυχε.`
             : null
         );
       }
