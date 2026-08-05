@@ -61,7 +61,9 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
   const departures = bookableDepartures(tour.departures ?? [], athensToday());
   // Έχει τιμές = μπορεί τεχνικά να πουλήσει· ανοιχτή = το γραφείο το επιτρέπει.
   const hasPricing = tiers.length > 0;
-  const bookable = hasPricing && tour.bookings_open;
+  // `!== false` και όχι σκέτο boolean: αν ο κώδικας βγει πριν εφαρμοστεί το
+  // migration, η στήλη λείπει και οι κρατήσεις πρέπει να μείνουν ανοιχτές.
+  const bookable = hasPricing && tour.bookings_open !== false;
   const photos = galleryImages(tour);
   const headline = headlinePrice(tiers);
   const offerPrice = headline ? headline.cents / 100 : tour.price_from;
