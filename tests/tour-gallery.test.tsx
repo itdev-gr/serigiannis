@@ -35,6 +35,13 @@ describe('TourGallery', () => {
     expect(screen.getByText('Δείτε και τις 3')).toBeInTheDocument();
   });
 
+  it('shows one cell and the See-all pill when there are four', () => {
+    render(<TourGallery images={photos(4)} />);
+    expect(screen.getAllByTestId('gallery-cell')).toHaveLength(1);
+    expect(screen.getByText('Δείτε και τις 4')).toBeInTheDocument();
+    expect(screen.getAllByTestId('lightbox-photo')).toHaveLength(4);
+  });
+
   it('still lists all three photos in the lightbox', () => {
     render(<TourGallery images={photos(3)} />);
     expect(screen.getAllByTestId('lightbox-photo')).toHaveLength(3);

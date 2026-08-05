@@ -157,7 +157,7 @@ export function TourGallery({ images }: { images: GalleryImage[] }) {
             {visible.slice(1).map((image, i) => cell(image, i + 1, '(max-width: 768px) 0px, 25vw', 'aspect-[4/3]'))}
           </div>
         ) : layout.variant === 'single' ? (
-          cell(visible[0], 0, '(max-width: 768px) 0px, 100vw', 'aspect-[4/3]')
+          cell(visible[0], 0, '(max-width: 768px) 0px, min(100vw, 1280px)', 'aspect-[4/3]')
         ) : (
           <div className="grid grid-cols-2 gap-2">
             {visible.map((image, i) => cell(image, i, '(max-width: 768px) 0px, 50vw', 'aspect-[4/3]'))}
