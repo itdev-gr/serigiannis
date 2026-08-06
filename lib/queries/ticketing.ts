@@ -67,6 +67,23 @@ export async function getExcursions(): Promise<Excursion[]> {
   }));
 }
 
+/** Αν το συνδεδεμένο δρομολόγιο πούλμαν είναι δημοσιευμένο — δηλαδή αν η σελίδα
+ *  εκδρομής επιτρέπεται να δείξει κουμπί κράτησης θέσης. False όταν δεν υπάρχει
+ *  σύνδεση, δεν βρέθηκε ή είναι πρόχειρο. Χωρίς join σε ημερομηνίες: εδώ
+ *  χρειάζεται μόνο ύπαρξη και κατάσταση. */
+export async function isRoutePublished(routeId: string | null | undefined): Promise<boolean> {
+  if (!routeId || !isDbConfigured()) return false;
+  const sb = createPublicClient();
+  const { data, error } = await sb
+    .from('bus_routes')
+    .select('id')
+    .eq('id', routeId)
+    .eq('status', 'published')
+    .maybeSingle();
+  if (error) { console.error('isRoutePublished:', error.message); return false; }
+  return data != null;
+}
+
 export async function getTripWithLayout(tripId: string): Promise<{ trip: Trip; layout: BusLayout } | null> {
   if (!isDbConfigured()) return null;
   const sb = createPublicClient();
@@ -112,6 +129,15 @@ export async function getAdminRouteFares(routeId: string): Promise<FareType[]> {
   const sb = await createServerClient();
   const { data } = await sb.from('fare_types').select('*').eq('route_id', routeId).order('position');
   return (data ?? []) as FareType[];
+}
+
+/** Ποιες σελίδες εκδρομών δείχνουν σε αυτό το δρομολόγιο. Ο υπάλληλος πρέπει να
+ *  βλέπει τη σύνδεση και από τις δύο μεριές, αλλιώς γίνεται κρυφή κατάσταση. */
+export async function getRouteLinkedTours(routeId: string): Promise<{ id: string; title: string }[]> {
+  const sb = await createServerClient();
+  const { data, error } = await sb.from('tours').select('id, title').eq('route_id', routeId).order('title');
+  if (error) { console.error('getRouteLinkedTours:', error.message); return []; }
+  return (data ?? []) as { id: string; title: string }[];
 }
 
 /** All fares across every route — for the excursions list (avoids per-route N+1). */

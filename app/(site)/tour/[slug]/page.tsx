@@ -10,9 +10,10 @@ import { TourBookingWidget } from '@/components/booking/TourBookingWidget';
 import { Button } from '@/components/ui/Button';
 import { getTourBySlug, getTours, getPublishedSlugs } from '@/lib/queries/tours';
 import { getSettings } from '@/lib/queries/settings';
+import { isRoutePublished } from '@/lib/queries/ticketing';
 import { getPaymentProvider } from '@/lib/payments';
 import { athensToday } from '@/lib/athens-time';
-import { bookableDepartures, headlinePrice, isBookable } from '@/lib/booking';
+import { bookableDepartures, headlinePrice, isBookable, tourRouteCta } from '@/lib/booking';
 import { galleryImages } from '@/lib/gallery';
 import { coverImage, imageUrl } from '@/lib/images';
 import { telHref } from '@/lib/phone';
@@ -50,7 +51,11 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
 
   const cover = coverImage(tour);
   const primaryCat = tour.categories?.[0] ?? null;
-  const [all, settings] = await Promise.all([getTours(), getSettings()]);
+  const [all, settings, routePublished] = await Promise.all([
+    getTours(),
+    getSettings(),
+    isRoutePublished(tour.route_id),
+  ]);
   const phone = settings.phones[0] ?? null;
   const related = all
     .filter((t) => t.slug !== tour.slug && t.categories?.some((c) => primaryCat && c.slug === primaryCat.slug))
@@ -68,6 +73,15 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
   const photos = galleryImages(tour);
   const headline = headlinePrice(tiers);
   const offerPrice = headline ? headline.cents / 100 : tour.price_from;
+
+  // Η σύνδεση με εκδρομή πούλμαν: κύριο κουμπί όταν η σελίδα δεν πουλάει μόνη
+  // της, δευτερεύων σύνδεσμος όταν πουλάει, τίποτα όταν είναι κλειστή.
+  const routeCta = tourRouteCta({
+    routeId: tour.route_id,
+    routePublished,
+    hasActiveTiers: hasPricing,
+    bookingsOpen: tour.bookings_open !== false,
+  });
 
   const detailsCard = (tour.duration_label || tour.departure_note || tour.meeting_point || phone) ? (
     <div className="rounded-lg border border-border bg-surface p-6">
@@ -173,6 +187,14 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
                   departures={departures}
                   payOnline={getPaymentProvider().id !== 'offline'}
                 />
+                {routeCta && !routeCta.primary && (
+                  <Link
+                    href={routeCta.href}
+                    className="block text-center font-sans text-[14px] font-semibold text-primary underline underline-offset-4 transition-colors hover:text-cta motion-reduce:transition-none"
+                  >
+                    Ή διαλέξτε συγκεκριμένη θέση στο πούλμαν →
+                  </Link>
+                )}
                 {detailsCard}
               </div>
             ) : hasPricing ? (
@@ -212,9 +234,20 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
                   <li className="flex items-center gap-3"><MapPin className="h-5 w-5 shrink-0 text-primary/60" strokeWidth={1.75} /><span>{tour.meeting_point}</span></li>
                 )}
               </ul>
-              <Button asChild variant="accent" size="lg" className="mt-8 w-full">
-                <Link href="#kratisi">Ζητήστε Κράτηση / Προσφορά</Link>
-              </Button>
+              {routeCta?.primary ? (
+                <>
+                  <Button asChild variant="accent" size="lg" className="mt-8 w-full">
+                    <Link href={routeCta.href}>Κλείστε Online Θέση</Link>
+                  </Button>
+                  <Button asChild variant="outline" size="lg" className="mt-3 w-full">
+                    <Link href="#kratisi">Ζητήστε Προσφορά</Link>
+                  </Button>
+                </>
+              ) : (
+                <Button asChild variant="accent" size="lg" className="mt-8 w-full">
+                  <Link href="#kratisi">Ζητήστε Κράτηση / Προσφορά</Link>
+                </Button>
+              )}
               {phone && (
                 <a href={telHref(phone)} className="mt-3 flex items-center justify-center gap-2 font-sans text-[14px] font-semibold text-primary hover:text-cta">
                   <Phone className="h-4 w-4" strokeWidth={1.75} /> {phone}

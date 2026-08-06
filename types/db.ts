@@ -62,6 +62,9 @@ export type Tour = {
    *  by default — the customer only sees a picker at checkout when this is
    *  non-empty, mirroring bus_routes.boarding_points. */
   meeting_points: string[];
+  /** Προαιρετική σύνδεση με bookable εκδρομή πούλμαν (bus_routes.id): η σελίδα
+   *  δείχνει τότε στον οδηγό κρατήσεων. Ποτέ δεν αντιγράφει τιμές ή ημερομηνίες. */
+  route_id: string | null;
   status: TourStatus;
   is_featured: boolean;
   bookings_open: boolean;

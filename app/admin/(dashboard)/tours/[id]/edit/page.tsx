@@ -7,6 +7,8 @@ import { GalleryManager } from '@/components/admin/GalleryManager';
 import { TourBookingEditor } from '@/components/admin/TourBookingEditor';
 import { TourSetupChecklist } from '@/components/admin/TourSetupChecklist';
 import { getTourBookingSetup } from '@/lib/queries/tour-orders';
+import { getAdminRoutes } from '@/lib/queries/ticketing';
+import { routeLabel } from '@/lib/ticketing';
 import { ConfirmForm } from '@/components/admin/ConfirmForm';
 import { FlashBanner } from '@/components/admin/FlashBanner';
 import { Button } from '@/components/ui/Button';
@@ -24,12 +26,13 @@ export default async function EditTourPage({
   const { id } = await params;
   const { saved, error } = await searchParams;
   const sb = await createServerClient();
-  const [{ data: row }, categories, { data: images }, booking, ordersCount] = await Promise.all([
+  const [{ data: row }, categories, { data: images }, booking, ordersCount, allRoutes] = await Promise.all([
     sb.from('tours').select('*, categories:tour_categories(category:categories(*))').eq('id', id).maybeSingle(),
     getCategories(),
     sb.from('tour_images').select('*').eq('tour_id', id).order('position'),
     getTourBookingSetup(id),
     sb.from('tour_orders').select('id', { count: 'exact', head: true }).eq('tour_id', id),
+    getAdminRoutes(),
   ]);
   if (!row) notFound();
 
@@ -39,6 +42,16 @@ export default async function EditTourPage({
       .map((c) => c.category)
       .filter((c): c is Category => Boolean(c)),
   };
+
+  // Τα πρόχειρα δρομολόγια δεν προτείνονται, αλλά αν η εκδρομή είναι ήδη
+  // συνδεδεμένη με ένα, μένει επιλεγμένο — αλλιώς η επόμενη αποθήκευση θα
+  // έκοβε τη σύνδεση χωρίς να το ζητήσει κανείς.
+  const routes = allRoutes.filter((r) => r.status === 'published');
+  const linkedId = tour.route_id as string | null;
+  if (linkedId && !routes.some((r) => r.id === linkedId)) {
+    const linked = allRoutes.find((r) => r.id === linkedId);
+    if (linked) routes.push({ ...linked, title: `${routeLabel(linked)} (πρόχειρη)` });
+  }
 
   // Fall back to the generic message rather than blocking the delete if the count query failed.
   const bookingsCount = ordersCount.error ? null : (ordersCount.count ?? 0);
@@ -60,7 +73,7 @@ export default async function EditTourPage({
         tierCount={booking.tiers.filter((t) => t.is_active).length}
         futureDepartureCount={bookableDepartures(booking.departures, athensToday()).length}
       />
-      <TourForm tour={tour} categories={categories} action={upsertTour} />
+      <TourForm tour={tour} categories={categories} routes={routes} action={upsertTour} />
       <TourBookingEditor tourId={id} tiers={booking.tiers} departures={booking.departures} action={saveTourBooking} />
       <GalleryManager tourId={id} images={(images ?? []) as TourImage[]} coverImageId={row.cover_image_id} />
 

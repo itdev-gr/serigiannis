@@ -2,6 +2,8 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import type { Category, Tour } from '@/types/db';
+import type { AdminRoute } from '@/lib/queries/ticketing';
+import { routeLabel } from '@/lib/ticketing';
 import { Button } from '@/components/ui/Button';
 import { adminInput, adminLabel } from '@/components/admin/ui';
 import { slugify, slugNeedsCleanup } from '@/lib/excursions';
@@ -16,10 +18,12 @@ const STATUSES = [
 export function TourForm({
   tour,
   categories,
+  routes = [],
   action,
 }: {
   tour?: Tour | null;
   categories: Category[];
+  routes?: AdminRoute[];
   action: (formData: FormData) => void | Promise<void>;
 }) {
   const isNew = !tour?.id;
@@ -155,6 +159,18 @@ export function TourForm({
         Το «Σημείο συνάντησης» από πάνω εμφανίζεται στη σελίδα της εκδρομής· τα «Σημεία συνάντησης» είναι η λίστα από την
         οποία θα διαλέξει ο πελάτης κατά την κράτηση, αν συμπληρωθεί.
       </p>
+
+      <label className="block">
+        <span className={adminLabel}>Σύνδεση με εκδρομή πούλμαν (προαιρετικό)</span>
+        <select name="route_id" defaultValue={tour?.route_id ?? ''} className={adminInput}>
+          <option value="">— Χωρίς σύνδεση —</option>
+          {routes.map((r) => <option key={r.id} value={r.id}>{routeLabel(r)}</option>)}
+        </select>
+        <span className="mt-1.5 block text-[13px] text-muted">
+          Αν η ίδια εκδρομή πουλάει θέσεις με αριθμό στο «Εκδρομές &amp; Πρόγραμμα», διαλέξτε την εδώ: η σελίδα θα
+          στέλνει τον επισκέπτη κατευθείαν στην κράτηση θέσης. Δεν αντιγράφονται τιμές ούτε ημερομηνίες.
+        </span>
+      </label>
 
       <div className="grid gap-5 sm:grid-cols-2">
         <label className="block">

@@ -7,6 +7,7 @@ import {
   getAdminRoute,
   getAdminRouteFares,
   getAdminTrips,
+  getRouteLinkedTours,
   getTripsOccupancy,
   type AdminTrip,
 } from '@/lib/queries/ticketing';
@@ -63,10 +64,11 @@ export default async function ExcursionDetailPage({
   const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Athens' });
   const in30 = addDays(today, 30);
 
-  const [fares, allPatterns, layouts] = await Promise.all([
+  const [fares, allPatterns, layouts, linkedTours] = await Promise.all([
     getAdminRouteFares(id),
     getAdminPatterns(),
     getAdminLayouts(),
+    getRouteLinkedTours(id),
   ]);
   const patterns = allPatterns.filter((p) => p.route_id === id);
 
@@ -117,6 +119,30 @@ export default async function ExcursionDetailPage({
 
       {tab === 'stoixeia' && (
         <div className="space-y-8">
+          <AdminCard className="border-primary/20 bg-primary/5">
+            <h2 className="font-sans text-[15px] font-semibold text-primary">Σελίδα εκδρομής στο site</h2>
+            {linkedTours.length > 0 ? (
+              <ul className="mt-2 space-y-1 text-[14px] text-body">
+                {linkedTours.map((t) => (
+                  <li key={t.id}>
+                    <Link href={`/admin/tours/${t.id}/edit`} className="font-semibold underline underline-offset-2 hover:text-cta">
+                      {t.title}
+                    </Link>{' '}
+                    — στέλνει τους επισκέπτες της εδώ για κράτηση θέσης.
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-2 text-[14px] text-muted">
+                Καμία σελίδα του site δεν δείχνει σε αυτή την εκδρομή. Τη σύνδεση την ορίζετε από τη{' '}
+                <Link href="/admin/tours" className="underline underline-offset-2 hover:text-cta">
+                  σελίδα της εκδρομής
+                </Link>
+                , στο πεδίο «Σύνδεση με εκδρομή πούλμαν».
+              </p>
+            )}
+          </AdminCard>
+
           <form action={upsertRoute} className="grid gap-4 rounded-lg border border-border bg-surface p-6 sm:grid-cols-2">
             <input type="hidden" name="id" value={route.id} />
             <input type="hidden" name="origin_station_id" value={route.origin_station_id} />

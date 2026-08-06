@@ -1,4 +1,5 @@
 import type { TourDeparture, TourOrder, TourOrderItem, TourPriceTier } from '@/types/db';
+import { excursionDeepLink } from '@/lib/excursions';
 
 /** "170,00 €" — one money formatter for the whole site. */
 export { formatCents } from '@/lib/ticketing';
@@ -111,4 +112,24 @@ export function departureLabel(d: Pick<TourDeparture, 'starts_on' | 'ends_on' | 
     new Date(`${iso}T12:00:00`).toLocaleDateString('el-GR', { day: '2-digit', month: 'short', year: 'numeric' });
   const range = d.ends_on && d.ends_on !== d.starts_on ? `${fmt(d.starts_on)} – ${fmt(d.ends_on)}` : fmt(d.starts_on);
   return d.note ? `${range} · ${d.note}` : range;
+}
+
+/** Τι δείχνει η σελίδα εκδρομής για τη συνδεδεμένη εκδρομή πούλμαν:
+ *  `primary` = γίνεται το κύριο κουμπί, αλλιώς μπαίνει ως δευτερεύων σύνδεσμος
+ *  κάτω από το υπάρχον κουτί κράτησης. Null = δεν δείχνουμε τίποτα. */
+export type TourRouteCta = { href: string; primary: boolean } | null;
+
+/** Ο κανόνας: δείχνουμε σύνδεσμο μόνο όταν υπάρχει σύνδεση, το δρομολόγιο είναι
+ *  δημοσιευμένο και το γραφείο δεν έχει κλείσει την εκδρομή για κρατήσεις.
+ *  Το «κλειστή» υπερισχύει — μια σελίδα δεν λέει «κλειστά» και «κλείστε θέση» μαζί. */
+export function tourRouteCta(input: {
+  routeId: string | null | undefined;
+  routePublished: boolean;
+  hasActiveTiers: boolean;
+  bookingsOpen: boolean;
+}): TourRouteCta {
+  if (!input.bookingsOpen || !input.routePublished) return null;
+  const href = excursionDeepLink(input.routeId);
+  if (!href) return null;
+  return { href, primary: !input.hasActiveTiers };
 }
