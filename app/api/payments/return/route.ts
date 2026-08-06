@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getPaymentProvider } from '@/lib/payments';
+import { flagPaymentAmountMismatch, looksLikeOrderId } from '@/lib/payments/confirm';
 import { createServiceClient } from '@/lib/supabase/server';
 
 /** Browser returns from the hosted payment page. Verify server-side (never trust
@@ -18,7 +19,7 @@ export async function GET(req: Request) {
   }
 
   const verdict = await provider.verifyReturn(url.searchParams);
-  if (!verdict.ok || !verdict.orderId) {
+  if (!verdict.ok || !looksLikeOrderId(verdict.orderId)) {
     return NextResponse.redirect(failUrl);
   }
 
@@ -39,6 +40,7 @@ export async function GET(req: Request) {
     });
     if (error) console.error('tour return confirm:', error.message);
     const res = data as { ok: boolean; already_paid?: boolean } | null;
+    if (res?.ok) await flagPaymentAmountMismatch(sb, 'tour', order.id, verdict.amountCents);
     if (res?.ok && !res.already_paid) {
       try {
         const { notifyTourOrder } = await import('@/lib/tour-notify');
@@ -64,6 +66,7 @@ export async function GET(req: Request) {
   });
   if (error) console.error('return confirm:', error.message);
   const res = data as { ok: boolean; already_paid?: boolean } | null;
+  if (res?.ok) await flagPaymentAmountMismatch(sb, 'ticket', order.id, verdict.amountCents);
   if (res?.ok && !res.already_paid) {
     try {
       const { notifyTicketOrder } = await import('@/lib/ticket-notify');
