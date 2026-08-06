@@ -67,23 +67,21 @@ export async function getExcursions(): Promise<Excursion[]> {
   }));
 }
 
-/** Ο τίτλος του συνδεδεμένου δρομολογίου, μόνο αν είναι δημοσιευμένο. Null όταν
- *  δεν υπάρχει σύνδεση, δεν βρέθηκε ή είναι πρόχειρο — η σελίδα εκδρομής το
- *  χρησιμοποιεί ως «επιτρέπεται να δείξω κουμπί κράτησης θέσης;». Χωρίς join σε
- *  ημερομηνίες: εδώ χρειάζεται μόνο ύπαρξη και κατάσταση. */
-export async function getPublishedRouteTitle(routeId: string | null | undefined): Promise<string | null> {
-  if (!routeId || !isDbConfigured()) return null;
+/** Αν το συνδεδεμένο δρομολόγιο πούλμαν είναι δημοσιευμένο — δηλαδή αν η σελίδα
+ *  εκδρομής επιτρέπεται να δείξει κουμπί κράτησης θέσης. False όταν δεν υπάρχει
+ *  σύνδεση, δεν βρέθηκε ή είναι πρόχειρο. Χωρίς join σε ημερομηνίες: εδώ
+ *  χρειάζεται μόνο ύπαρξη και κατάσταση. */
+export async function isRoutePublished(routeId: string | null | undefined): Promise<boolean> {
+  if (!routeId || !isDbConfigured()) return false;
   const sb = createPublicClient();
   const { data, error } = await sb
     .from('bus_routes')
-    .select('title, destination:stations!bus_routes_destination_station_id_fkey(name)')
+    .select('id')
     .eq('id', routeId)
     .eq('status', 'published')
     .maybeSingle();
-  if (error) { console.error('getPublishedRouteTitle:', error.message); return null; }
-  if (!data) return null;
-  const row = data as unknown as { title: string | null; destination: { name: string } | null };
-  return row.title?.trim() || row.destination?.name || null;
+  if (error) { console.error('isRoutePublished:', error.message); return false; }
+  return data != null;
 }
 
 export async function getTripWithLayout(tripId: string): Promise<{ trip: Trip; layout: BusLayout } | null> {

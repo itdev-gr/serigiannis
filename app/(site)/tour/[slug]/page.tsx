@@ -10,7 +10,7 @@ import { TourBookingWidget } from '@/components/booking/TourBookingWidget';
 import { Button } from '@/components/ui/Button';
 import { getTourBySlug, getTours, getPublishedSlugs } from '@/lib/queries/tours';
 import { getSettings } from '@/lib/queries/settings';
-import { getPublishedRouteTitle } from '@/lib/queries/ticketing';
+import { isRoutePublished } from '@/lib/queries/ticketing';
 import { getPaymentProvider } from '@/lib/payments';
 import { athensToday } from '@/lib/athens-time';
 import { bookableDepartures, headlinePrice, isBookable, tourRouteCta } from '@/lib/booking';
@@ -51,10 +51,10 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
 
   const cover = coverImage(tour);
   const primaryCat = tour.categories?.[0] ?? null;
-  const [all, settings, linkedRouteTitle] = await Promise.all([
+  const [all, settings, routePublished] = await Promise.all([
     getTours(),
     getSettings(),
-    getPublishedRouteTitle(tour.route_id),
+    isRoutePublished(tour.route_id),
   ]);
   const phone = settings.phones[0] ?? null;
   const related = all
@@ -78,7 +78,7 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
   // της, δευτερεύων σύνδεσμος όταν πουλάει, τίποτα όταν είναι κλειστή.
   const routeCta = tourRouteCta({
     routeId: tour.route_id,
-    routePublished: linkedRouteTitle != null,
+    routePublished,
     hasActiveTiers: hasPricing,
     bookingsOpen: tour.bookings_open !== false,
   });
