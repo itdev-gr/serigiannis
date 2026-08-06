@@ -11,8 +11,15 @@
  *  `params.slug` ήδη αποκωδικοποιημένο.
  */
 const TOUR_ALIASES: Record<string, string> = {
+  // Slug με κενά/κεφαλαία που καθαρίστηκαν (2026-08-06).
   'THESSALONIKI DIHMERH EKDROMH': 'thessaloniki-diimeri-ekdromi',
   'ekdromi sta lixadonisia': 'ekdromi-sta-lixadonisia',
+  // Διπλοεγγραφές από το αρχικό import της 2/7/2026 (1 εικόνα, σύνοψη ~140
+  // χαρακτήρων, καμία τιμή/ημερομηνία/κράτηση). Αποσύρθηκαν από το site ως
+  // «Κρυμμένες» — δεν διαγράφηκαν — και οι διευθύνσεις τους δείχνουν στην
+  // πλήρη εκδοχή της ίδιας εκδρομής.
+  'moni-agioy-pasioy-soyrotis-thessaloniki-diimeri-proskynimatiki-ekdromi': 'thessaloniki-diimeri-ekdromi',
+  'lixadonisia-kavos-sergiani-travel': 'ekdromi-sta-lixadonisia',
 };
 
 /** Το νέο slug για μια παλιά διεύθυνση, ή null όταν δεν είναι γνωστή παλιά μορφή.
