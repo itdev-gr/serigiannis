@@ -169,7 +169,7 @@ export function Navbar({ phones = [], phone24h = null }: { phones?: string[]; ph
       {/* Mobile overlay */}
       <div
         className={cn(
-          'fixed inset-0 z-50 bg-deep-ink transition-all duration-500 ease-editorial xl:hidden',
+          'fixed inset-0 z-50 overflow-y-auto overscroll-contain bg-deep-ink transition-all duration-500 ease-editorial xl:hidden',
           mobileOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
         )}
         role="dialog"
@@ -198,7 +198,7 @@ export function Navbar({ phones = [], phone24h = null }: { phones?: string[]; ph
                 href={to}
                 aria-current={active ? 'page' : undefined}
                 className={cn(
-                  'flex items-center gap-4 rounded-lg px-4 py-4 font-display text-3xl transition-colors',
+                  'flex items-center gap-4 rounded-lg px-4 py-4 font-display text-2xl transition-colors sm:text-3xl',
                   active ? 'text-cta' : 'text-surface hover:text-sea'
                 )}
               >

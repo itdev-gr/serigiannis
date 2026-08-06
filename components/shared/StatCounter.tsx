@@ -38,7 +38,7 @@ export function StatCounter({ stat }: { stat: Stat }) {
 
   return (
     <div ref={scopeRef} className="text-center md:text-left">
-      <div className="font-display text-6xl font-bold text-gold tabular md:text-7xl">
+      <div className="font-display text-4xl font-bold text-gold tabular sm:text-6xl md:text-7xl">
         <span data-value>0</span>
       </div>
       <div className="mt-3 font-sans text-[12px] font-semibold uppercase tracking-[0.18em] text-white">{stat.label}</div>
