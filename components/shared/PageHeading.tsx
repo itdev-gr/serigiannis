@@ -21,7 +21,12 @@ type Props = {
 export function PageHeading({ eyebrow, title, subtitle, breadcrumbs }: Props) {
   return (
     <section className="w-full">
-      <div className="container pb-8 pt-24 sm:pb-10 sm:pt-[7.75rem] md:pt-32">
+      {/* Το padding-top καθαρίζει το fixed Navbar. ΜΕΤΡΗΜΕΝΑ ύψη header:
+          <640px ~64px (χωρίς μπάρα τηλεφώνων) · 640-768px ~119px · ≥768px 138px
+          (μπάρα 61px + κύρια γραμμή 64px, από `sm:grid` και πάνω).
+          Οι τιμές αφήνουν ~24px ανάσα. Μην τις κατεβάσεις «για συμπαγέστερο
+          look»: με 128px στο md η διαδρομή έμπαινε κάτω από το header. */}
+      <div className="container pb-8 pt-24 sm:pb-10 sm:pt-36 md:pt-40">
         {breadcrumbs && (
           <nav
             aria-label="breadcrumb"
