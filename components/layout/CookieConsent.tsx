@@ -161,14 +161,14 @@ export function CookieConsent() {
           <button
             type="button"
             onClick={() => closeWith(allAccepted, 'accepted')}
-            className="rounded-lg bg-gold px-3 py-2 font-sans text-[11px] font-bold uppercase tracking-[0.06em] text-deep-ink transition hover:bg-gold-hover"
+            className="rounded-lg bg-gold px-4 py-3 font-sans text-[13px] font-bold uppercase tracking-[0.06em] text-deep-ink transition hover:bg-gold-hover"
           >
             Αποδοχή όλων
           </button>
           <button
             type="button"
             onClick={() => closeWith(defaultOptional, 'declined')}
-            className="rounded-lg border border-white/40 bg-transparent px-3 py-2 font-sans text-[11px] font-bold uppercase tracking-[0.06em] text-white transition hover:border-white hover:bg-white/5"
+            className="rounded-lg border border-white/40 bg-transparent px-4 py-3 font-sans text-[13px] font-bold uppercase tracking-[0.06em] text-white transition hover:border-white hover:bg-white/5"
           >
             Απόρριψη όλων
           </button>
@@ -177,7 +177,7 @@ export function CookieConsent() {
         <button
           type="button"
           onClick={() => setShowDetails((v) => !v)}
-          className="mt-2.5 flex w-full items-center justify-center gap-1.5 font-sans text-[10px] font-semibold uppercase tracking-[0.1em] text-white/90 transition hover:text-white"
+          className="mt-2.5 flex w-full items-center justify-center gap-1.5 py-2.5 font-sans text-[13px] font-semibold uppercase tracking-[0.1em] text-white/90 transition hover:text-white"
         >
           <Settings className="h-3.5 w-3.5" strokeWidth={1.75} />
           {showDetails ? 'Απόκρυψη λεπτομερειών' : 'Εμφάνιση λεπτομερειών'}
