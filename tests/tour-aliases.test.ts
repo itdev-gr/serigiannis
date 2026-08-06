@@ -17,6 +17,12 @@ describe('resolveTourAlias', () => {
     expect(resolveTourAlias('EKDROMI STA LIXADONISIA')).toBe('ekdromi-sta-lixadonisia');
   });
 
+  it('στέλνει τις αποσυρμένες διπλοεγγραφές στην πλήρη εκδοχή', () => {
+    expect(resolveTourAlias('moni-agioy-pasioy-soyrotis-thessaloniki-diimeri-proskynimatiki-ekdromi'))
+      .toBe('thessaloniki-diimeri-ekdromi');
+    expect(resolveTourAlias('lixadonisia-kavos-sergiani-travel')).toBe('ekdromi-sta-lixadonisia');
+  });
+
   it('null για άγνωστο ή κενό slug', () => {
     expect(resolveTourAlias('kati-allo')).toBeNull();
     expect(resolveTourAlias('')).toBeNull();

@@ -1,4 +1,4 @@
-import { CalendarDays, MapPin } from 'lucide-react';
+import { CalendarDays, MapPin, Users } from 'lucide-react';
 import { formatCents } from '@/lib/booking';
 import type { TourOrder } from '@/types/db';
 
@@ -55,6 +55,24 @@ export function TourOrderSummary({ order }: { order: TourOrder }) {
           </tr>
         </tbody>
       </table>
+      {/* Ο πελάτης πληκτρολογεί τα ονόματα στο checkout· χωρίς αυτά εδώ δεν έχει
+          πουθενά να ελέγξει ότι τα έγραψε σωστά. Παλιές κρατήσεις (πριν το 0024)
+          δεν έχουν καθόλου το πεδίο — εξ ου το `?? []`. */}
+      {(order.passengers ?? []).length > 0 && (
+        <div className="mt-5 border-t border-border pt-4">
+          <h3 className="font-sans text-[13px] font-semibold uppercase tracking-[0.1em] text-primary">Ταξιδιώτες</h3>
+          <ul className="mt-2.5 space-y-1.5 text-[15px] text-body">
+            {(order.passengers ?? []).map((p, i) => (
+              <li key={i} className="flex items-center gap-2">
+                <Users className="h-4 w-4 shrink-0 text-primary/60" strokeWidth={1.75} />
+                <span>{p.name}</span>
+                {p.phone && <span className="text-[13px] text-muted">· {p.phone}</span>}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       {order.notes && <p className="mt-4 text-[14px] text-muted">Σημειώσεις: {order.notes}</p>}
     </div>
   );
