@@ -6,6 +6,7 @@ import type { Category } from '@/types/db';
 import type { AdminTourRow } from '@/lib/queries/tours';
 import { setStatus, setFeatured, deleteTour } from '@/app/admin/(dashboard)/actions';
 import { ConfirmForm } from '@/components/admin/ConfirmForm';
+import { Pill } from '@/components/admin/ui';
 import { searchNormalize } from '@/lib/filters';
 import { cn } from '@/lib/utils';
 
@@ -90,9 +91,12 @@ export function AdminToursTable({ tours, categories }: { tours: AdminTourRow[]; 
                   </div>
                 </td>
                 <td className="px-5 py-3">
-                  <span className={`inline-flex rounded-full px-2.5 py-1 font-sans text-[11px] font-semibold uppercase tracking-[0.08em] ${STATUS_STYLE[t.status] ?? ''}`}>
-                    {STATUS_LABEL[t.status] ?? t.status}
-                  </span>
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <span className={`inline-flex rounded-full px-2.5 py-1 font-sans text-[11px] font-semibold uppercase tracking-[0.08em] ${STATUS_STYLE[t.status] ?? ''}`}>
+                      {STATUS_LABEL[t.status] ?? t.status}
+                    </span>
+                    {!t.bookings_open && <Pill tone="warn">Κλειστή</Pill>}
+                  </div>
                 </td>
                 <td className="px-5 py-3 text-body">{t.price_from != null ? `από ${t.price_from}€` : '—'}</td>
                 <td className="px-5 py-3">
