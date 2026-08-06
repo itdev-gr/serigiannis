@@ -44,7 +44,7 @@ function QtyInput({
         type="button"
         aria-label={`Μείωση, ${label}`}
         onClick={() => onChange(Math.max(0, value - 1))}
-        className="grid h-10 w-9 shrink-0 place-items-center text-muted transition hover:text-primary disabled:opacity-40"
+        className="grid h-11 w-11 shrink-0 place-items-center text-muted transition hover:text-primary disabled:opacity-40"
         disabled={value <= 0}
       >
         <Minus className="h-4 w-4" strokeWidth={2} />
@@ -63,7 +63,7 @@ function QtyInput({
         type="button"
         aria-label={`Αύξηση, ${label}`}
         onClick={() => onChange(Math.min(max, value + 1))}
-        className="grid h-10 w-9 shrink-0 place-items-center text-muted transition hover:text-primary disabled:opacity-40"
+        className="grid h-11 w-11 shrink-0 place-items-center text-muted transition hover:text-primary disabled:opacity-40"
         disabled={value >= max}
       >
         <Plus className="h-4 w-4" strokeWidth={2} />

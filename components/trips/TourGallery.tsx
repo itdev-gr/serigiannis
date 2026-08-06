@@ -122,7 +122,7 @@ export function TourGallery({ images }: { images: GalleryImage[] }) {
               type="button"
               onClick={() => go(slide - 1)}
               aria-label="Προηγούμενη φωτογραφία"
-              className="absolute left-2 top-1/2 z-10 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full bg-surface/95 text-primary shadow-card"
+              className="absolute left-3 top-1/2 z-10 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-surface/95 text-primary shadow-card"
             >
               <ChevronLeft className="h-5 w-5" strokeWidth={2.5} />
             </button>
@@ -130,7 +130,7 @@ export function TourGallery({ images }: { images: GalleryImage[] }) {
               type="button"
               onClick={() => go(slide + 1)}
               aria-label="Επόμενη φωτογραφία"
-              className="absolute right-2 top-1/2 z-10 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full bg-surface/95 text-primary shadow-card"
+              className="absolute right-3 top-1/2 z-10 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-surface/95 text-primary shadow-card"
             >
               <ChevronRight className="h-5 w-5" strokeWidth={2.5} />
             </button>
@@ -197,7 +197,7 @@ export function TourGallery({ images }: { images: GalleryImage[] }) {
                   key={`${image.url}-full-${i}`}
                   data-photo={i}
                   data-testid="lightbox-photo"
-                  className="relative h-[70vh] w-full"
+                  className="relative h-[60svh] w-full"
                 >
                   <Image src={image.url} alt={image.alt} fill sizes="(max-width: 1024px) 100vw, 1024px" className="object-contain" />
                 </figure>

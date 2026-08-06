@@ -87,7 +87,7 @@ export function OnlineBookingForm({
       <Field label="Ονοματεπώνυμο *" error={errors.name?.message}><input {...register('name')} className={inputCls} /></Field>
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Τηλέφωνο *" error={errors.phone?.message}><input {...register('phone')} type="tel" className={inputCls} /></Field>
-        <Field label="Email" error={errors.email?.message}><input {...register('email')} className={inputCls} /></Field>
+        <Field label="Email" error={errors.email?.message}><input {...register('email')} type="email" autoComplete="email" className={inputCls} /></Field>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Ημερομηνία"><input type="date" {...register('date')} className={inputCls} /></Field>

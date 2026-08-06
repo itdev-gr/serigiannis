@@ -71,7 +71,7 @@ export default async function LegacyHomePage() {
               </Button>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-10 md:col-span-7 md:gap-14">
+          <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 md:col-span-7 md:gap-14">
             {stats.map((stat) => <StatCounter key={stat.id} stat={stat} />)}
           </div>
         </div>

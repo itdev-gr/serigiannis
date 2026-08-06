@@ -73,13 +73,15 @@ export function SeatSelection({
               {selections[i].length > 0 && `: ${[...selections[i]].sort((a, b) => Number(a) - Number(b)).join(', ')}`}
             </div>
             <div className="bg-surface px-3 py-6">
-              <SeatMap
-                layout={leg.layout}
-                taken={leg.taken}
-                selected={selections[i]}
-                maxSeats={requiredSeats ?? MAX_SEATS}
-                onToggle={(seat) => toggle(i, seat)}
-              />
+              <div className="overflow-x-auto">
+                <SeatMap
+                  layout={leg.layout}
+                  taken={leg.taken}
+                  selected={selections[i]}
+                  maxSeats={requiredSeats ?? MAX_SEATS}
+                  onToggle={(seat) => toggle(i, seat)}
+                />
+              </div>
               <SeatLegend />
             </div>
           </div>

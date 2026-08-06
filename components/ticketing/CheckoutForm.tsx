@@ -140,7 +140,7 @@ export function CheckoutForm({ bundle, token, offline, boardingPoint }: { bundle
           <Field label="Τηλέφωνο *" error={errors.phone?.message}><input {...register('phone')} type="tel" className={inputCls} /></Field>
           <Field label="Διεύθυνση *" error={errors.address?.message}><input {...register('address')} className={inputCls} /></Field>
           <Field label="Πόλη *" error={errors.city?.message}><input {...register('city')} className={inputCls} /></Field>
-          <Field label="Ταχυδρομικός Κώδικας *" error={errors.postal_code?.message}><input {...register('postal_code')} className={inputCls} /></Field>
+          <Field label="Ταχυδρομικός Κώδικας *" error={errors.postal_code?.message}><input {...register('postal_code')} inputMode="numeric" className={inputCls} /></Field>
           <Field label="Περιφέρεια *" error={errors.region?.message}>
             <select {...register('region')} className={inputCls}>
               <option value="">Επιλέξτε</option>

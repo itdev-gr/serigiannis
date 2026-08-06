@@ -27,7 +27,7 @@ export function Home1About({ content = homeContent.about, stats = defaultStats }
           </div>
         </div>
         <div className="md:col-span-7">
-          <div className="grid grid-cols-2 gap-10 md:gap-14">
+          <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 md:gap-14">
             {stats.map((stat) => <StatCounter key={stat.id} stat={stat} />)}
           </div>
           <ul className="mt-14 grid gap-6 sm:grid-cols-2">
