@@ -82,21 +82,50 @@ export function suggestTours<T extends SuggestCandidate>(
   const wanted = pathTokens(wantedPath);
   if (wanted.length === 0 || !Array.isArray(candidates)) return [];
 
-  const scored: { c: T; hits: number; ratio: number }[] = [];
-  for (const c of candidates) {
-    if (!c?.slug) continue;
-    const tokens = candidateTokens(c);
-    let hits = 0;
-    for (const w of wanted) if (tokenHits(foldGreeklish(w), tokens)) hits++;
-    if (hits > 0) scored.push({ c, hits, ratio: hits / wanted.length });
+  const usable = candidates.filter((c) => c?.slug);
+  if (usable.length === 0) return [];
+
+  const folded = wanted.map(foldGreeklish);
+  const tokensOf = new Map<T, Set<string>>();
+  for (const c of usable) tokensOf.set(c, candidateTokens(c));
+
+  // Πόσο σπάνια είναι κάθε λέξη: «ekdromi» και «monoimeri» υπάρχουν σχεδόν
+  // παντού και δεν λένε τίποτα για το τι έψαχνε ο επισκέπτης· «meteora» λέει
+  // τα πάντα. Χωρίς αυτό, μια αναζήτηση για Μετέωρα προτείνει και Ναύπλιο
+  // επειδή έχουν κοινή τη λέξη «μονοήμερη».
+  const weight = new Map<string, number>();
+  for (const w of folded) {
+    let df = 0;
+    for (const c of usable) if (tokenHits(w, tokensOf.get(c)!)) df++;
+    weight.set(w, df === 0 ? 0 : Math.log(usable.length / df));
   }
 
+  const scored: { c: T; score: number; hits: number }[] = [];
+  for (const c of usable) {
+    const tokens = tokensOf.get(c)!;
+    let score = 0;
+    let hits = 0;
+    for (const w of folded) {
+      if (!tokenHits(w, tokens)) continue;
+      hits++;
+      score += weight.get(w) ?? 0;
+    }
+    if (hits > 0 && score > 0) scored.push({ c, score, hits });
+  }
+  if (scored.length === 0) return [];
+
   scored.sort((a, b) => {
+    if (b.score !== a.score) return b.score - a.score;
     if (b.hits !== a.hits) return b.hits - a.hits;
-    if (b.ratio !== a.ratio) return b.ratio - a.ratio;
     // Ισοπαλία: η πιο «σφιχτή» εκδρομή πρώτη — λιγότερος θόρυβος στον τίτλο.
     return a.c.slug.length - b.c.slug.length;
   });
 
-  return scored.slice(0, limit).map((s) => s.c);
+  // Κόβουμε ό,τι είναι πολύ πιο αδύναμο από την καλύτερη πρόταση: καλύτερα δύο
+  // σωστές παρά τέσσερις εκ των οποίων οι δύο άσχετες.
+  const best = scored[0].score;
+  return scored
+    .filter((s) => s.score >= best * 0.4)
+    .slice(0, limit)
+    .map((s) => s.c);
 }

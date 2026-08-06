@@ -82,6 +82,22 @@ describe('suggestTours', () => {
     expect(suggestTours('/tour/moni-agiou-paisiou', tours)[0].slug).toBe('thessaloniki-diimeri-ekdromi');
   });
 
+  it('αγνοεί τις κοινότοπες λέξεις και δεν προτείνει άσχετα', () => {
+    // Πραγματικό παράδειγμα: «/tour/meteora-monoimeri-ekdromi» πρότεινε και
+    // Ναύπλιο, επειδή μοιράζονταν το «monoimeri» και το «ekdromi».
+    const catalogue = [
+      { slug: 'meteora-kalampaka-monoimeri-ekdromi', title: 'Μετέωρα Καλαμπάκα Μονοήμερη Εκδρομή' },
+      { slug: 'nayplio-monoimeri-ekdromi', title: 'Ναύπλιο Μονοήμερη Εκδρομή' },
+      { slug: 'ydra-monoimeri-ekdromi', title: 'Ύδρα Μονοήμερη Εκδρομή' },
+      { slug: 'aigina-monoimeri-ekdromi', title: 'Αίγινα Μονοήμερη Εκδρομή' },
+      { slug: 'poros-monoimeri-ekdromi', title: 'Πόρος Μονοήμερη Εκδρομή' },
+    ];
+    const s = suggestTours('/tour/meteora-monoimeri-ekdromi', catalogue);
+    expect(s[0].slug).toBe('meteora-kalampaka-monoimeri-ekdromi');
+    // Οι υπόλοιπες μοιράζονται μόνο τις κοινότοπες λέξεις — δεν προτείνονται.
+    expect(s.map((x) => x.slug)).not.toContain('nayplio-monoimeri-ekdromi');
+  });
+
   it('δεν διαλύει λέξεις με «th» ενώ εξομαλύνει το «h»', () => {
     // «thessaloniki» πρέπει να μείνει αναγνωρίσιμο, όχι να γίνει «tiessaloniki»
     expect(suggestTours('/tour/thessaloniki', tours)[0].slug).toBe('thessaloniki-diimeri-ekdromi');
