@@ -133,6 +133,15 @@ export async function getAdminRouteFares(routeId: string): Promise<FareType[]> {
   return (data ?? []) as FareType[];
 }
 
+/** Ποιες σελίδες εκδρομών δείχνουν σε αυτό το δρομολόγιο. Ο υπάλληλος πρέπει να
+ *  βλέπει τη σύνδεση και από τις δύο μεριές, αλλιώς γίνεται κρυφή κατάσταση. */
+export async function getRouteLinkedTours(routeId: string): Promise<{ id: string; title: string }[]> {
+  const sb = await createServerClient();
+  const { data, error } = await sb.from('tours').select('id, title').eq('route_id', routeId).order('title');
+  if (error) { console.error('getRouteLinkedTours:', error.message); return []; }
+  return (data ?? []) as { id: string; title: string }[];
+}
+
 /** All fares across every route — for the excursions list (avoids per-route N+1). */
 export async function getAdminAllFares(): Promise<FareType[]> {
   const sb = await createServerClient();
