@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import { Clock, Calendar, MapPin, Phone, Check } from 'lucide-react';
 import { PageHeading } from '@/components/shared/PageHeading';
 import { TourCard } from '@/components/trips/TourCard';
@@ -19,6 +19,7 @@ import { coverImage, imageUrl } from '@/lib/images';
 import { telHref } from '@/lib/phone';
 import { SITE_URL, jsonLdHtml } from '@/lib/seo';
 import { decodeSlugParam } from '@/lib/slug';
+import { resolveTourAlias } from '@/lib/tour-aliases';
 
 export const revalidate = 3600;
 
@@ -46,8 +47,15 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function TourDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const tour = await getTourBySlug(decodeSlugParam(slug));
-  if (!tour) notFound();
+  const decoded = decodeSlugParam(slug);
+  const tour = await getTourBySlug(decoded);
+  if (!tour) {
+    // Παλιά διεύθυνση εκδρομής που άλλαξε: μόνιμη ανακατεύθυνση αντί για 404,
+    // ώστε οι ήδη μοιρασμένοι σύνδεσμοι να συνεχίσουν να δουλεύουν.
+    const alias = resolveTourAlias(decoded);
+    if (alias) permanentRedirect(`/tour/${alias}`);
+    notFound();
+  }
 
   const cover = coverImage(tour);
   const primaryCat = tour.categories?.[0] ?? null;
