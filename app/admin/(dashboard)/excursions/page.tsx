@@ -133,7 +133,11 @@ export default async function ExcursionsPage({
               </div>
             );
           })}
-          {routes.length === 0 && <p className="px-4 py-6 text-[14px] text-muted">Δεν υπάρχουν εκδρομές.</p>}
+          {routes.length === 0 && (
+            <p className="px-4 py-6 text-[14px] text-muted">
+              {q ? `Δεν βρέθηκαν αποτελέσματα για «${q}».` : 'Δεν υπάρχουν εκδρομές.'}
+            </p>
+          )}
         </div>
       </div>
     </div>

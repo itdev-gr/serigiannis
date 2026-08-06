@@ -91,7 +91,11 @@ export default async function TourBookingsPage({
               </span>
             </Link>
           ))}
-          {orders.length === 0 && <p className="px-4 py-6 text-[14px] text-muted">Δεν υπάρχουν κρατήσεις εκδρομών.</p>}
+          {orders.length === 0 && (
+            <p className="px-4 py-6 text-[14px] text-muted">
+              {q ? `Δεν βρέθηκαν αποτελέσματα για «${q}».` : 'Δεν υπάρχουν κρατήσεις εκδρομών.'}
+            </p>
+          )}
         </div>
       </div>
     </div>
