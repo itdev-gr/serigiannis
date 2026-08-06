@@ -12,32 +12,13 @@ export function searchNormalize(s: string): string {
   return normalizeGreek(String(s ?? '')).replace(/ς/g, 'σ');
 }
 
-export const PRICE_BANDS = {
-  lte25: [0, 25],
-  '25to75': [25, 75],
-  gte75: [75, Infinity],
-} as const;
-
-export type PriceBand = keyof typeof PRICE_BANDS;
 export type SortKey = 'popular' | 'price-asc' | 'price-desc' | 'date';
 
-export const PRICE_BAND_LABELS: Record<PriceBand, string> = {
-  lte25: 'Έως 25€',
-  '25to75': '25–75€',
-  gte75: '75€+',
-};
-
-export function filterTours(
-  tours: Tour[],
-  f: { category?: string; priceBand?: PriceBand }
-): Tour[] {
+/** Φιλτράρισμα καταλόγου εκδρομών. Φίλτρο τιμής δεν υπάρχει και δεν προστίθεται:
+ *  απόφαση του γραφείου να μη γίνεται η επιλογή εκδρομής αναζήτηση με τιμή. */
+export function filterTours(tours: Tour[], f: { category?: string }): Tour[] {
   return tours.filter((t) => {
     if (f.category && !(t.categories ?? []).some((c) => c.slug === f.category)) return false;
-    if (f.priceBand) {
-      const [lo, hi] = PRICE_BANDS[f.priceBand];
-      const p = t.price_from ?? 0;
-      if (p < lo || p >= hi) return false;
-    }
     return true;
   });
 }

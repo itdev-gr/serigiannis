@@ -4,13 +4,7 @@ import { ArrowDownUp, SearchX, X } from 'lucide-react';
 import type { Tour, Category } from '@/types/db';
 import { TourCard } from '@/components/trips/TourCard';
 import { Pagination } from '@/components/trips/Pagination';
-import {
-  filterTours,
-  sortTours,
-  PRICE_BAND_LABELS,
-  type PriceBand,
-  type SortKey,
-} from '@/lib/filters';
+import { filterTours, sortTours, type SortKey } from '@/lib/filters';
 import { cn } from '@/lib/utils';
 
 const PAGE_SIZE = 9;
@@ -20,7 +14,6 @@ const SORTS: { key: SortKey; label: string }[] = [
   { key: 'price-desc', label: 'Τιμή (υψηλή → χαμηλή)' },
   { key: 'date', label: 'Ημερομηνία' },
 ];
-const BANDS = Object.keys(PRICE_BAND_LABELS) as PriceBand[];
 
 function plural(n: number): string {
   return n === 1 ? '1 εκδρομή' : `${n} εκδρομές`;
@@ -62,28 +55,26 @@ export function ToursExplorer({
   lockedCategory?: string;
 }) {
   const [category, setCategory] = useState<string | undefined>(lockedCategory);
-  const [band, setBand] = useState<PriceBand | undefined>(undefined);
   const [sort, setSort] = useState<SortKey>('date');
   const [page, setPage] = useState(1);
 
   const filtered = useMemo(() => {
-    const f = filterTours(tours, { category: lockedCategory ?? category, priceBand: band });
+    const f = filterTours(tours, { category: lockedCategory ?? category });
     return sortTours(f, sort);
-  }, [tours, lockedCategory, category, band, sort]);
+  }, [tours, lockedCategory, category, sort]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const current = Math.min(page, totalPages);
   const pageItems = filtered.slice((current - 1) * PAGE_SIZE, current * PAGE_SIZE);
 
   const activeCategory = lockedCategory ?? category;
-  const hasFilters = Boolean(activeCategory || band);
+  const hasFilters = Boolean(activeCategory);
   const categoryLabel = activeCategory
     ? categories.find((c) => c.slug === activeCategory)?.name_el ?? activeCategory
     : null;
 
   const reset = () => {
     setCategory(lockedCategory);
-    setBand(undefined);
     setSort('date');
     setPage(1);
   };
@@ -150,32 +141,6 @@ export function ToursExplorer({
               </div>
             )}
 
-            <div>
-              <p className="mb-3 font-sans text-[12px] font-semibold uppercase tracking-[0.14em] text-muted">Τιμή</p>
-              <div className="flex flex-wrap gap-2">
-                <FilterChip
-                  active={!band}
-                  onClick={() => {
-                    setBand(undefined);
-                    setPage(1);
-                  }}
-                >
-                  Όλες οι τιμές
-                </FilterChip>
-                {BANDS.map((b) => (
-                  <FilterChip
-                    key={b}
-                    active={band === b}
-                    onClick={() => {
-                      setBand(b);
-                      setPage(1);
-                    }}
-                  >
-                    {PRICE_BAND_LABELS[b]}
-                  </FilterChip>
-                ))}
-              </div>
-            </div>
 
             {hasFilters && (
               <div className="flex flex-wrap items-center gap-2 border-t border-border pt-4">
@@ -190,20 +155,6 @@ export function ToursExplorer({
                     className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5 font-sans text-[13px] font-medium text-primary transition hover:bg-primary/15"
                   >
                     {categoryLabel}
-                    <X className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
-                    <span className="sr-only">Αφαίρεση</span>
-                  </button>
-                )}
-                {band && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setBand(undefined);
-                      setPage(1);
-                    }}
-                    className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5 font-sans text-[13px] font-medium text-primary transition hover:bg-primary/15"
-                  >
-                    {PRICE_BAND_LABELS[band]}
                     <X className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
                     <span className="sr-only">Αφαίρεση</span>
                   </button>
