@@ -197,7 +197,7 @@ export function TourGallery({ images }: { images: GalleryImage[] }) {
                   key={`${image.url}-full-${i}`}
                   data-photo={i}
                   data-testid="lightbox-photo"
-                  className="relative h-[70vh] w-full"
+                  className="relative h-[60svh] w-full"
                 >
                   <Image src={image.url} alt={image.alt} fill sizes="(max-width: 1024px) 100vw, 1024px" className="object-contain" />
                 </figure>

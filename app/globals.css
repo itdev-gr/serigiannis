@@ -92,6 +92,7 @@
     color: rgb(var(--color-muted));
     font-size: 17px;
     line-height: 1.75;
+    overflow-wrap: anywhere;
   }
   .post-body > * + * {
     margin-top: 1.25rem;
@@ -147,6 +148,19 @@
   }
   .post-body strong {
     color: rgb(var(--color-body));
+  }
+  .post-body table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+  }
+  .post-body iframe {
+    max-width: 100%;
+  }
+  .post-body pre {
+    max-width: 100%;
+    overflow-x: auto;
   }
 }
 
