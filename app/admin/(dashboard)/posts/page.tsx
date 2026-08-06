@@ -23,12 +23,15 @@ export default async function AdminPostsPage({
 }) {
   const { q } = await searchParams;
   const allPosts = await getAdminPosts();
-  const published = allPosts.filter((p) => p.status === 'published').length;
   let posts = allPosts;
   if (q) {
     const needle = searchNormalize(q);
     posts = posts.filter((p) => [p.title, p.slug].some((v) => v && searchNormalize(v).includes(needle)));
   }
+  // Counts both sides of the "από" against the same set the user is looking at:
+  // the filtered list. With no query, posts === allPosts, so this reads exactly
+  // as it did before search existed.
+  const published = posts.filter((p) => p.status === 'published').length;
 
   return (
     <div>
