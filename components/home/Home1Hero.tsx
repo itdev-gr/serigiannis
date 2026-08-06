@@ -53,7 +53,13 @@ export function Home1Hero({
             src={img.src}
             alt=""
             fill
+            // Το πρώτο slide είναι το LCP της αρχικής, οπότε παίρνει priority
+            // (preload + υψηλή προτεραιότητα). Τα άλλα δύο ΔΕΝ επιτρέπεται να
+            // μείνουν lazy: το slideshow γυρίζει σε 5 δευτερόλεπτα και έβρισκε
+            // εικόνα που δεν είχε καν ζητηθεί, αφήνοντας το hero επίπεδο χρώμα.
+            // Με `eager` κατεβαίνουν αμέσως χωρίς να ανταγωνίζονται το πρώτο.
             priority={i === 0}
+            loading={i === 0 ? undefined : 'eager'}
             sizes="100vw"
             className="object-cover object-center"
           />

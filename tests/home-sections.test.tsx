@@ -38,6 +38,18 @@ describe('Home1Hero', () => {
     expect(screen.getByRole('option', { name: 'Κρουαζιέρες' })).toBeInTheDocument();
     expect(screen.getByRole('option', { name: 'Όλες οι εκδρομές' })).toBeInTheDocument();
   });
+
+  // Βρέθηκε στο ζωντανό site: το slideshow γύριζε σε slide που δεν είχε καν
+  // ξεκινήσει να φορτώνει, και το hero έμενε επίπεδο χρώμα. Ένα slideshow δεν
+  // κάνει ποτέ lazy τις εικόνες του — θα φανούν σε δευτερόλεπτα, όχι σε scroll.
+  it('δεν αφήνει κανένα slide του hero σε lazy φόρτωση', () => {
+    const { container } = render(<Home1Hero categories={cats} />);
+    const imgs = [...container.querySelectorAll('img')];
+    expect(imgs).toHaveLength(3);
+    for (const img of imgs) {
+      expect(img.getAttribute('loading')).not.toBe('lazy');
+    }
+  });
 });
 
 describe('Home1Destinations', () => {
