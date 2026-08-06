@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { PageHero } from '@/components/shared/PageHero';
+import { PageHeading } from '@/components/shared/PageHeading';
 import { PostCard } from '@/components/blog/PostCard';
 import { getPosts } from '@/lib/queries/posts';
 import { sortPostsForListing } from '@/lib/posts-sort';
@@ -13,12 +13,11 @@ export default async function NeaPage() {
   const posts = sortPostsForListing(await getPosts(), new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Athens' }));
   return (
     <>
-      <PageHero
+      <PageHeading
         eyebrow="Blog"
         title="Νέα & Άρθρα"
         subtitle="Ταξιδιωτικοί οδηγοί, νέα και προτάσεις από τη Sergiani Travel."
         breadcrumbs={[{ label: 'Αρχική', href: '/' }, { label: 'Νέα' }]}
-        heightClass="h-[44vh] min-h-[340px]"
       />
       <section className="py-16 md:py-24">
         <div className="container">

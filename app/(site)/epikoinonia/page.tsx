@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import type { SVGProps } from 'react';
 import { MapPin, Phone, Mail, Clock } from 'lucide-react';
-import { PageHero } from '@/components/shared/PageHero';
+import { PageHeading } from '@/components/shared/PageHeading';
 import { ContactForm } from '@/components/contact/ContactForm';
 import { PaymentMethods } from '@/components/shared/PaymentMethods';
 import { getSettings } from '@/lib/queries/settings';
@@ -31,12 +31,11 @@ export default async function ContactPage() {
   });
   return (
     <>
-      <PageHero
+      <PageHeading
         eyebrow={hero.eyebrow}
         title={hero.title}
         subtitle={hero.subtitle}
         breadcrumbs={[{ label: 'Αρχική', href: '/' }, { label: 'Επικοινωνία' }]}
-        heightClass="h-[48vh] min-h-[360px]"
       />
 
       <section className="py-20 md:py-28">

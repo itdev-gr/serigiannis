@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { PageHero } from '@/components/shared/PageHero';
+import { PageHeading } from '@/components/shared/PageHeading';
 import { LegalBody } from '@/components/shared/LegalBody';
 import { LegalPageLayout } from '@/components/shared/LegalPageLayout';
 import { LegalSimpleSections } from '@/components/shared/LegalSections';
@@ -25,10 +25,9 @@ export default async function TermsPage() {
 
   return (
     <>
-      <PageHero
+      <PageHeading
         title="Όροι Συμμετοχής"
         breadcrumbs={[{ label: 'Αρχική', href: '/' }, { label: 'Όροι Συμμετοχής' }]}
-        heightClass="h-[40vh] min-h-[300px]"
       />
       <LegalPageLayout
         intro={

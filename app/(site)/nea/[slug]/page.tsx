@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Calendar } from 'lucide-react';
-import { PageHero } from '@/components/shared/PageHero';
+import { PageHeading } from '@/components/shared/PageHeading';
 import { PostBody } from '@/components/blog/PostBody';
 import { Button } from '@/components/ui/Button';
 import { getPostBySlug, getPublishedPostSlugs } from '@/lib/queries/posts';
@@ -54,9 +54,7 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <PageHero
-        photo={coverUrl ?? undefined}
-        photoAlt={post.title}
+      <PageHeading
         eyebrow="Νέα"
         title={post.title}
         breadcrumbs={[
@@ -64,7 +62,6 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
           { label: 'Νέα', href: '/nea' },
           { label: post.title },
         ]}
-        heightClass="h-[52vh] min-h-[400px]"
       />
       <section className="py-16 md:py-24">
         <div className="container max-w-prose">

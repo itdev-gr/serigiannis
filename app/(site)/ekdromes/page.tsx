@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { PageHero } from '@/components/shared/PageHero';
+import { PageHeading } from '@/components/shared/PageHeading';
 import { ToursExplorer } from '@/components/trips/ToursExplorer';
 import { getTours } from '@/lib/queries/tours';
 import { getCategories } from '@/lib/queries/categories';
@@ -19,12 +19,11 @@ export default async function EkdromesPage() {
   });
   return (
     <>
-      <PageHero
+      <PageHeading
         eyebrow={hero.eyebrow}
         title={hero.title}
         subtitle={hero.subtitle}
         breadcrumbs={[{ label: 'Αρχική', href: '/' }, { label: 'Εκδρομές' }]}
-        heightClass="h-[48vh] min-h-[360px]"
       />
       <section className="py-16 md:py-24">
         <div className="container">

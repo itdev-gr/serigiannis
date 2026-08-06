@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Clock, Calendar, MapPin, Phone, Check } from 'lucide-react';
-import { PageHero } from '@/components/shared/PageHero';
+import { PageHeading } from '@/components/shared/PageHeading';
 import { TourCard } from '@/components/trips/TourCard';
 import { TourGallery } from '@/components/trips/TourGallery';
 import { OnlineBookingForm } from '@/components/booking/OnlineBookingForm';
@@ -126,7 +126,7 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
-      <PageHero
+      <PageHeading
         eyebrow={primaryCat?.name_el}
         title={tour.title}
         breadcrumbs={[
@@ -134,8 +134,6 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
           { label: 'Εκδρομές', href: '/ekdromes' },
           { label: tour.title },
         ]}
-        heightClass="h-[46vh] min-h-[440px]"
-        breadcrumbsPosition="bottom"
       />
 
       {photos.length > 0 && (
