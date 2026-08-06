@@ -87,11 +87,11 @@ export async function getPublishedSlugs(): Promise<string[]> {
   return (await getTours()).map((t) => t.slug);
 }
 
-export type AdminTourRow = Pick<Tour, 'id' | 'slug' | 'title' | 'status' | 'is_featured' | 'price_from'> & {
+export type AdminTourRow = Pick<Tour, 'id' | 'slug' | 'title' | 'status' | 'is_featured' | 'price_from' | 'bookings_open'> & {
   categories: { slug: string; name_el: string }[];
 };
 
-type RawAdminTour = Pick<Tour, 'id' | 'slug' | 'title' | 'status' | 'is_featured' | 'price_from'> & {
+type RawAdminTour = Pick<Tour, 'id' | 'slug' | 'title' | 'status' | 'is_featured' | 'price_from' | 'bookings_open'> & {
   tour_categories?: { category: { slug: string; name_el: string } | null }[] | null;
 };
 
@@ -101,7 +101,7 @@ export async function getAdminTours(): Promise<AdminTourRow[]> {
   const sb = await createServerClient();
   const { data, error } = await sb
     .from('tours')
-    .select('id, slug, title, status, is_featured, price_from, tour_categories(category:categories(slug, name_el))')
+    .select('id, slug, title, status, is_featured, price_from, bookings_open, tour_categories(category:categories(slug, name_el))')
     .order('sort_order');
   if (error) {
     console.error('getAdminTours:', error.message);

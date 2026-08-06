@@ -71,6 +71,10 @@ export default async function TripDashboardPage({
         <form action={updateTrip} className="grid gap-3 rounded-lg border border-border bg-surface p-5">
           <h2 className="font-display text-xl font-semibold text-primary">Ρυθμίσεις δρομολογίου</h2>
           <input type="hidden" name="id" value={trip.id} />
+          {/* Carries the in-progress seat suggestion back through the redirect,
+              so TripSeatPanel's key (sp.after) survives saving these settings
+              and the clerk's half-typed seat isn't lost. */}
+          {sp.after && <input type="hidden" name="after" value={sp.after} />}
           <label className="block text-[13px] text-muted">Κατάσταση
             <select name="status" defaultValue={trip.status} className={adminInput}>
               <option value="scheduled">Ενεργό</option>

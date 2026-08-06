@@ -4,9 +4,15 @@ import { TourGallery } from '@/components/trips/TourGallery';
 import type { GalleryImage } from '@/lib/gallery';
 
 // jsdom implements <dialog> without showModal/close, and has no scrollIntoView at all.
+// showModal/close also flip the `open` attribute, matching real <dialog> behaviour,
+// so the component's own `dlg.open` checks (and tests asserting close() fired) work.
 beforeAll(() => {
-  HTMLDialogElement.prototype.showModal = vi.fn();
-  HTMLDialogElement.prototype.close = vi.fn();
+  HTMLDialogElement.prototype.showModal = vi.fn(function (this: HTMLDialogElement) {
+    this.setAttribute('open', '');
+  });
+  HTMLDialogElement.prototype.close = vi.fn(function (this: HTMLDialogElement) {
+    this.removeAttribute('open');
+  });
   Element.prototype.scrollIntoView = vi.fn();
 });
 
@@ -112,5 +118,20 @@ describe('TourGallery', () => {
     expect(HTMLDialogElement.prototype.showModal).not.toHaveBeenCalled();
     fireEvent.click(screen.getAllByTestId('carousel-slide')[3]);
     expect(HTMLDialogElement.prototype.showModal).toHaveBeenCalledTimes(1);
+  });
+
+  it('closes the lightbox when the empty area around the photos is clicked', () => {
+    render(<TourGallery images={photos(3)} />);
+    fireEvent.click(screen.getAllByTestId('gallery-cell')[0]);
+    expect(HTMLDialogElement.prototype.close).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId('lightbox-scroll'));
+    expect(HTMLDialogElement.prototype.close).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not close the lightbox when a photo inside it is clicked', () => {
+    render(<TourGallery images={photos(3)} />);
+    fireEvent.click(screen.getAllByTestId('gallery-cell')[0]);
+    fireEvent.click(screen.getAllByTestId('lightbox-photo')[0]);
+    expect(HTMLDialogElement.prototype.close).not.toHaveBeenCalled();
   });
 });

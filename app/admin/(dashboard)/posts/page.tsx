@@ -23,19 +23,22 @@ export default async function AdminPostsPage({
 }) {
   const { q } = await searchParams;
   const allPosts = await getAdminPosts();
-  const published = allPosts.filter((p) => p.status === 'published').length;
   let posts = allPosts;
   if (q) {
     const needle = searchNormalize(q);
     posts = posts.filter((p) => [p.title, p.slug].some((v) => v && searchNormalize(v).includes(needle)));
   }
+  // Counts both sides of the "από" against the same set the user is looking at:
+  // the filtered list. With no query, posts === allPosts, so this reads exactly
+  // as it did before search existed.
+  const published = posts.filter((p) => p.status === 'published').length;
 
   return (
     <div>
       <div className="mb-8 flex items-end justify-between">
         <div>
           <h1 className="font-display text-4xl font-semibold text-primary">Νέα</h1>
-          <p className="mt-1 text-muted">{allPosts.length} συνολικά · {published} δημοσιευμένα</p>
+          <p className="mt-1 text-muted">{posts.length} από {allPosts.length} · {published} δημοσιευμένα</p>
         </div>
         <Link href="/admin/posts/new" className="inline-flex items-center gap-1.5 rounded-full bg-cta px-4 py-2 font-sans text-[13px] font-semibold text-surface hover:bg-cta-hover">
           <Plus className="h-4 w-4" strokeWidth={2} /> Νέο Άρθρο
@@ -59,7 +62,11 @@ export default async function AdminPostsPage({
           </thead>
           <tbody>
             {posts.length === 0 && (
-              <tr><td colSpan={5} className="px-5 py-10 text-center text-muted">Δεν βρέθηκαν άρθρα.</td></tr>
+              <tr>
+                <td colSpan={5} className="px-5 py-10 text-center text-muted">
+                  {q ? `Δεν βρέθηκαν αποτελέσματα για «${q}».` : 'Δεν βρέθηκαν άρθρα.'}
+                </td>
+              </tr>
             )}
             {posts.map((p) => (
               <tr key={p.id} className="border-b border-border/60 last:border-0">

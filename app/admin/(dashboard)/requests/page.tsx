@@ -85,7 +85,13 @@ export default async function RequestsPage({
                 <tr><th className={TH}>Όνομα</th><th className={TH}>Τύπος</th><th className={TH}>Θέμα / Εκδρομή</th><th className={TH}>Επικοινωνία</th><th className={TH}>Κατάσταση</th></tr>
               </thead>
               <tbody>
-                {leads.length === 0 && <tr><td colSpan={5} className="px-5 py-8 text-center text-muted">Δεν υπάρχουν αιτήματα ακόμη.</td></tr>}
+                {leads.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="px-5 py-8 text-center text-muted">
+                      {q ? `Δεν βρέθηκαν αποτελέσματα για «${q}».` : 'Δεν υπάρχουν αιτήματα ακόμη.'}
+                    </td>
+                  </tr>
+                )}
                 {leads.map((l) => (
                   <tr key={l.id} className="border-b border-border/60 last:border-0 hover:bg-background/40">
                     <td className={TH}><Link href={`/admin/requests/${l.id}`} className="font-medium text-primary hover:text-cta">{l.name}</Link></td>
@@ -109,7 +115,13 @@ export default async function RequestsPage({
                 <tr><th className={TH}>Πελάτης</th><th className={TH}>Εκδρομή</th><th className={TH}>Ημερομηνία</th><th className={TH}>Θέσεις</th><th className={TH}>Επικοινωνία</th></tr>
               </thead>
               <tbody>
-                {bookings.length === 0 && <tr><td colSpan={5} className="px-5 py-8 text-center text-muted">Δεν υπάρχουν κρατήσεις ακόμη.</td></tr>}
+                {bookings.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="px-5 py-8 text-center text-muted">
+                      {q ? `Δεν βρέθηκαν αποτελέσματα για «${q}».` : 'Δεν υπάρχουν κρατήσεις ακόμη.'}
+                    </td>
+                  </tr>
+                )}
                 {bookings.map((b) => (
                   <tr key={b.id} className="border-b border-border/60 last:border-0">
                     <td className={TH}><Link href={`/admin/requests/${b.id}`} className="font-medium text-primary hover:text-cta">{b.name}</Link></td>
@@ -133,7 +145,13 @@ export default async function RequestsPage({
                 <tr><th className={TH}>Όνομα</th><th className={TH}>Επικοινωνία</th><th className={TH}>Αιτήματα</th><th className={TH}>Τελευταία δραστηριότητα</th></tr>
               </thead>
               <tbody>
-                {clients.length === 0 && <tr><td colSpan={4} className="px-5 py-8 text-center text-muted">Δεν υπάρχουν πελάτες ακόμη.</td></tr>}
+                {clients.length === 0 && (
+                  <tr>
+                    <td colSpan={4} className="px-5 py-8 text-center text-muted">
+                      {q ? `Δεν βρέθηκαν αποτελέσματα για «${q}».` : 'Δεν υπάρχουν πελάτες ακόμη.'}
+                    </td>
+                  </tr>
+                )}
                 {clients.map((c) => (
                   <tr key={c.key} className="border-b border-border/60 last:border-0">
                     <td className={`${TH} font-medium text-primary`}>{c.name}</td>

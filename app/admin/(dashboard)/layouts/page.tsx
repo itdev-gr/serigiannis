@@ -47,7 +47,11 @@ export default async function LayoutsPage({
             </div>
           </div>
         ))}
-        {layouts.length === 0 && <p className="px-4 py-6 text-[14px] text-muted">Δεν υπάρχουν διατάξεις.</p>}
+        {layouts.length === 0 && (
+          <p className="px-4 py-6 text-[14px] text-muted">
+            {q ? `Δεν βρέθηκαν αποτελέσματα για «${q}».` : 'Δεν υπάρχουν διατάξεις.'}
+          </p>
+        )}
       </div>
     </div>
   );

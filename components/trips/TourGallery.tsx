@@ -168,7 +168,6 @@ export function TourGallery({ images }: { images: GalleryImage[] }) {
       <dialog
         ref={dialogRef}
         onClose={() => setOpen(false)}
-        onClick={(e) => { if (e.target === dialogRef.current) setOpen(false); }}
         aria-label="Φωτογραφίες εκδρομής"
         className="m-0 h-full max-h-[100dvh] w-full max-w-[100vw] bg-deep-ink/95 p-0 backdrop:bg-deep-ink/95"
       >
@@ -186,7 +185,12 @@ export function TourGallery({ images }: { images: GalleryImage[] }) {
               <X className="h-6 w-6" strokeWidth={2} />
             </button>
           </header>
-          <div ref={scrollRef} className="flex-1 overflow-y-auto">
+          <div
+            ref={scrollRef}
+            data-testid="lightbox-scroll"
+            className="flex-1 overflow-y-auto"
+            onClick={(e) => { if (e.target === e.currentTarget) setOpen(false); }}
+          >
             <div className="mx-auto flex max-w-5xl flex-col gap-4 px-4 py-6">
               {images.map((image, i) => (
                 <figure
