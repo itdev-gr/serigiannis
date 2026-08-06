@@ -280,6 +280,7 @@ export async function upsertTour(formData: FormData) {
     departure_note: (String(formData.get('departure_note') || '').trim() || null) as string | null,
     meeting_point: (String(formData.get('meeting_point') || '').trim() || null) as string | null,
     meeting_points: parseBoardingPoints(String(formData.get('meeting_points') || '')),
+    route_id: (String(formData.get('route_id') || '').trim() || null) as string | null,
     seo_title: (String(formData.get('seo_title') || '').trim() || null) as string | null,
     seo_description: (String(formData.get('seo_description') || '').trim() || null) as string | null,
     sort_order: formData.get('sort_order') ? Number(formData.get('sort_order')) : 0,
