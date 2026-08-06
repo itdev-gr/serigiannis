@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { PageHero } from '@/components/shared/PageHero';
+import { PageHeading } from '@/components/shared/PageHeading';
 import { LegalPageLayout } from '@/components/shared/LegalPageLayout';
 import { LegalSections } from '@/components/shared/LegalSections';
 import { getSettings } from '@/lib/queries/settings';
@@ -19,13 +19,12 @@ export default async function TermsOfUsePage() {
 
   return (
     <>
-      <PageHero
+      <PageHeading
         title="Όροι & Προϋποθέσεις"
         breadcrumbs={[
           { label: 'Αρχική', href: '/' },
           { label: 'Όροι & Προϋποθέσεις' },
         ]}
-        heightClass="h-[40vh] min-h-[300px]"
       />
       <LegalPageLayout
         intro={

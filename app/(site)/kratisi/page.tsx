@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { PageHero } from '@/components/shared/PageHero';
+import { PageHeading } from '@/components/shared/PageHeading';
 import { PaymentMethods } from '@/components/shared/PaymentMethods';
 import { OnlineBookingForm } from '@/components/booking/OnlineBookingForm';
 import { getTourBySlug } from '@/lib/queries/tours';
@@ -23,12 +23,10 @@ export default async function KratisiPage({ searchParams }: { searchParams: Prom
 
   return (
     <>
-      <PageHero
+      <PageHeading
         eyebrow="Κράτηση / Προσφορά"
         title="Ζητήστε Κράτηση / Προσφορά"
         subtitle="Συμπληρώστε τη φόρμα και θα επικοινωνήσουμε μαζί σας για την επιβεβαίωση της κράτησης."
-        heightClass="h-[44vh] min-h-[340px]"
-        align="center"
       />
       <section className="py-16 md:py-24">
         <div className="container max-w-2xl">

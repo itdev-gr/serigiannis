@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { PageHero } from '@/components/shared/PageHero';
+import { PageHeading } from '@/components/shared/PageHeading';
 import { TourCard } from '@/components/trips/TourCard';
 import { RevealOnScroll } from '@/components/shared/RevealOnScroll';
 import { getTours } from '@/lib/queries/tours';
@@ -20,12 +20,11 @@ export default async function IstorikoPage() {
   });
   return (
     <>
-      <PageHero
+      <PageHeading
         eyebrow={hero.eyebrow}
         title={hero.title}
         subtitle={hero.subtitle}
         breadcrumbs={[{ label: 'Αρχική', href: '/' }, { label: 'Ιστορικό Εκδρομών' }]}
-        heightClass="h-[44vh] min-h-[340px]"
       />
       <section className="py-16 md:py-24">
         <div className="container">

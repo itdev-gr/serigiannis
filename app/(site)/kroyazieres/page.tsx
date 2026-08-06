@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Phone } from 'lucide-react';
-import { PageHero } from '@/components/shared/PageHero';
+import { PageHeading } from '@/components/shared/PageHeading';
 import { TourCard } from '@/components/trips/TourCard';
 import { RevealOnScroll } from '@/components/shared/RevealOnScroll';
 import { Button } from '@/components/ui/Button';
@@ -26,12 +26,11 @@ export default async function KroyazieresPage() {
 
   return (
     <>
-      <PageHero
+      <PageHeading
         eyebrow={hero.eyebrow}
         title={hero.title}
         subtitle={hero.subtitle}
         breadcrumbs={[{ label: 'Αρχική', href: '/' }, { label: 'Κρουαζιέρες' }]}
-        heightClass="h-[58vh] min-h-[460px]"
       />
       <section className="py-16 md:py-24">
         <div className="container">

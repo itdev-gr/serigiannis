@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { PageHero } from '@/components/shared/PageHero';
+import { PageHeading } from '@/components/shared/PageHeading';
 import { ToursExplorer } from '@/components/trips/ToursExplorer';
 import { getTours } from '@/lib/queries/tours';
 import { getCategories } from '@/lib/queries/categories';
@@ -30,12 +30,11 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
 
   return (
     <>
-      <PageHero
+      <PageHeading
         eyebrow="Εκδρομές"
         title={`${cat.name_el} Εκδρομές`}
         subtitle={cat.description_el ?? `Οργανωμένες ${cat.name_el.toLowerCase()} εκδρομές από την Αθήνα.`}
         breadcrumbs={[{ label: 'Αρχική', href: '/' }, { label: 'Εκδρομές', href: '/ekdromes' }, { label: cat.name_el }]}
-        heightClass="h-[48vh] min-h-[360px]"
       />
       <section className="py-16 md:py-24">
         <div className="container">

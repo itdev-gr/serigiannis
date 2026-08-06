@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { PageHero } from '@/components/shared/PageHero';
+import { PageHeading } from '@/components/shared/PageHeading';
 import { PoylmanPageBody } from '@/components/rentals/PoylmanPageBody';
 import { getSettings } from '@/lib/queries/settings';
 import { resolvePageHero } from '@/components/home/resolve-content';
@@ -20,12 +20,10 @@ export default async function RentalsPage() {
   });
   return (
     <>
-      <PageHero
+      <PageHeading
         title={hero.title}
         subtitle={hero.subtitle}
         breadcrumbs={[{ label: 'Αρχική', href: '/' }, { label: 'Ενοικιάσεις Πούλμαν' }]}
-        heightClass="h-[52vh] min-h-[420px]"
-        textScale="lg"
       />
 
       <PoylmanPageBody />
