@@ -323,7 +323,11 @@ export async function updateTrip(formData: FormData) {
   revalidatePath(`/admin/trips/${id}`);
   revalidatePath('/admin/excursions');
   revalidatePath('/eisitiria');
-  redirect(`/admin/trips/${id}${flashQuery(!error)}`);
+  // Carries the seat-suggestion `after` param (if the form had one) back onto
+  // the redirect, so TripSeatPanel's key stays put and a half-typed seat isn't lost.
+  const after = g(formData, 'after');
+  const afterQuery = after ? `&after=${encodeURIComponent(after)}` : '';
+  redirect(`/admin/trips/${id}${flashQuery(!error)}${afterQuery}`);
 }
 
 // ---------------------------------------------------------- seat state
