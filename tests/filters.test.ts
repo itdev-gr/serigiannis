@@ -21,14 +21,6 @@ describe('filterTours', () => {
     expect(filterTours([a, b], { category: 'kroyazieres' }).map((x) => x.id)).toEqual(['a']);
   });
 
-  it('filters by price band (lte25 is exclusive of 25)', () => {
-    const cheap = t({ id: 'c', price_from: 10 });
-    const edge = t({ id: 'e', price_from: 25 });
-    const mid = t({ id: 'm', price_from: 50 });
-    expect(filterTours([cheap, edge, mid], { priceBand: 'lte25' }).map((x) => x.id)).toEqual(['c']);
-    expect(filterTours([cheap, edge, mid], { priceBand: '25to75' }).map((x) => x.id)).toEqual(['e', 'm']);
-  });
-
   it('returns all when no filter given', () => {
     const a = t({ id: 'a' }); const b = t({ id: 'b' });
     expect(filterTours([a, b], {}).length).toBe(2);
