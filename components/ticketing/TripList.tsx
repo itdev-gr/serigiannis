@@ -69,50 +69,52 @@ function TripsTable({
             )}
           </span>
         </div>
-        <table className="w-full text-center">
-          <thead>
-            <tr className="bg-amber/80 text-[13px] font-semibold uppercase tracking-[0.08em] text-deep-ink">
-              <th className="px-4 py-2.5">Ώρα</th>
-              <th className="px-4 py-2.5">Διαθέσιμες θέσεις</th>
-              <th className="px-4 py-2.5">Όχημα</th>
-            </tr>
-          </thead>
-          <tbody>
-            {trips.length === 0 && (
-              <tr><td colSpan={3} className="px-4 py-8 text-muted">Δεν υπάρχουν δρομολόγια για την επιλεγμένη ημέρα.</td></tr>
-            )}
-            {trips.map((t) => {
-              const disabled = !t.bookable;
-              const isSelected = selected === t.id;
-              return (
-                <tr
-                  key={t.id}
-                  aria-disabled={disabled}
-                  onClick={() => { if (!disabled) onSelect(t.id); }}
-                  className={`border-t border-border transition ${
-                    disabled
-                      ? 'cursor-not-allowed bg-background text-muted/60'
-                      : isSelected
-                        ? 'cursor-pointer bg-gold/50 font-semibold text-deep-ink'
-                        : 'cursor-pointer hover:bg-gold/15'
-                  }`}
-                >
-                  <td className="px-4 py-3.5">
-                    <span className="inline-flex items-center gap-1.5"><Clock className="h-4 w-4 opacity-60" />{t.time}</span>
-                  </td>
-                  <td className="px-4 py-3.5">{t.seats_available}</td>
-                  <td className="px-4 py-3.5">
-                    {t.double_decker && (
-                      <span className="inline-flex items-center gap-1 text-[13px]"><Bus className="h-4 w-4" />Διώροφο</span>
-                    )}
-                    {t.departed && <span className="text-[12px] uppercase">Αναχώρησε</span>}
-                    {!t.departed && t.seats_available === 0 && <span className="text-[12px] uppercase">Πλήρες</span>}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-max text-center">
+            <thead>
+              <tr className="bg-amber/80 text-[13px] font-semibold uppercase tracking-[0.08em] text-deep-ink">
+                <th className="px-4 py-2.5">Ώρα</th>
+                <th className="px-4 py-2.5">Διαθέσιμες θέσεις</th>
+                <th className="px-4 py-2.5">Όχημα</th>
+              </tr>
+            </thead>
+            <tbody>
+              {trips.length === 0 && (
+                <tr><td colSpan={3} className="px-4 py-8 text-muted">Δεν υπάρχουν δρομολόγια για την επιλεγμένη ημέρα.</td></tr>
+              )}
+              {trips.map((t) => {
+                const disabled = !t.bookable;
+                const isSelected = selected === t.id;
+                return (
+                  <tr
+                    key={t.id}
+                    aria-disabled={disabled}
+                    onClick={() => { if (!disabled) onSelect(t.id); }}
+                    className={`border-t border-border transition ${
+                      disabled
+                        ? 'cursor-not-allowed bg-background text-muted/60'
+                        : isSelected
+                          ? 'cursor-pointer bg-gold/50 font-semibold text-deep-ink'
+                          : 'cursor-pointer hover:bg-gold/15'
+                    }`}
+                  >
+                    <td className="px-4 py-3.5">
+                      <span className="inline-flex items-center gap-1.5"><Clock className="h-4 w-4 opacity-60" />{t.time}</span>
+                    </td>
+                    <td className="px-4 py-3.5">{t.seats_available}</td>
+                    <td className="px-4 py-3.5">
+                      {t.double_decker && (
+                        <span className="inline-flex items-center gap-1 text-[13px]"><Bus className="h-4 w-4" />Διώροφο</span>
+                      )}
+                      {t.departed && <span className="text-[12px] uppercase">Αναχώρησε</span>}
+                      {!t.departed && t.seats_available === 0 && <span className="text-[12px] uppercase">Πλήρες</span>}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
