@@ -20,6 +20,13 @@ export function resolveInitialRoute(excursions: { id: string }[], param: string 
   return excursions.some((x) => x.id === param) ? param : '';
 }
 
+/** Σύνδεσμος προς τον οδηγό κρατήσεων με την εκδρομή ήδη επιλεγμένη. Null
+ *  όταν δεν υπάρχει σύνδεση — ο καλών αποφασίζει το fallback. Ένα σημείο για
+ *  όλο το site, ώστε το `?ekdromi=` να μη γράφεται με το χέρι σε κάθε σελίδα. */
+export function excursionDeepLink(routeId: string | null | undefined): string | null {
+  return routeId ? `/eisitiria?ekdromi=${encodeURIComponent(routeId)}` : null;
+}
+
 /** Admin textarea (one boarding point per line) -> clean array. */
 export function parseBoardingPoints(text: string): string[] {
   return text

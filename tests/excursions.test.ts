@@ -6,6 +6,7 @@ import {
   slugify,
   slugifyWithFallback,
   slugNeedsCleanup,
+  excursionDeepLink,
 } from '@/lib/excursions';
 
 describe('groupRouteDates', () => {
@@ -102,5 +103,21 @@ describe('slugNeedsCleanup', () => {
 
   it('treats an empty slug as nothing to flag', () => {
     expect(slugNeedsCleanup('')).toBe(false);
+  });
+});
+
+describe('excursionDeepLink', () => {
+  it('χτίζει σύνδεσμο προς τον οδηγό κρατήσεων με προεπιλεγμένη εκδρομή', () => {
+    expect(excursionDeepLink('abc-123')).toBe('/eisitiria?ekdromi=abc-123');
+  });
+
+  it('null όταν δεν υπάρχει σύνδεση', () => {
+    expect(excursionDeepLink(null)).toBeNull();
+    expect(excursionDeepLink(undefined)).toBeNull();
+    expect(excursionDeepLink('')).toBeNull();
+  });
+
+  it('κωδικοποιεί το id ώστε να μη σπάει το URL', () => {
+    expect(excursionDeepLink('a b&c')).toBe('/eisitiria?ekdromi=a%20b%26c');
   });
 });

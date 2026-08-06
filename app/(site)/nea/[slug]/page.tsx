@@ -9,6 +9,7 @@ import { getPostBySlug, getPublishedPostSlugs } from '@/lib/queries/posts';
 import { coverPathUrl } from '@/lib/images';
 import { SITE_URL } from '@/lib/seo';
 import { decodeSlugParam } from '@/lib/slug';
+import { excursionDeepLink } from '@/lib/excursions';
 
 export const revalidate = 3600;
 
@@ -78,7 +79,7 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
               </div>
             )}
             <Button asChild variant="accent" className="ml-auto">
-              <Link href={post.route_id ? `/eisitiria?ekdromi=${post.route_id}` : '/eisitiria'}>Κλείστε Online Θέση</Link>
+              <Link href={excursionDeepLink(post.route_id) ?? '/eisitiria'}>Κλείστε Online Θέση</Link>
             </Button>
           </div>
           <PostBody body={post.body} />
