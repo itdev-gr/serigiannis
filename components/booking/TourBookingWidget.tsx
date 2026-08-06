@@ -17,6 +17,7 @@ import type { TourDeparture, TourPriceTier } from '@/types/db';
 
 const ERROR_TEXT: Record<string, string> = {
   tour_not_found: 'Η εκδρομή δεν είναι διαθέσιμη για κράτηση.',
+  bookings_closed: 'Οι κρατήσεις για αυτή την εκδρομή έχουν κλείσει. Καλέστε μας για διαθεσιμότητα.',
   departure_required: 'Επιλέξτε ημερομηνία αναχώρησης.',
   departure_not_found: 'Η ημερομηνία δεν είναι πλέον διαθέσιμη. Επιλέξτε άλλη.',
   invalid_tier: 'Οι τιμές άλλαξαν. Ανανεώστε τη σελίδα και δοκιμάστε ξανά.',
