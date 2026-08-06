@@ -1,8 +1,12 @@
+import { sanitizeArticleHtml } from '@/lib/sanitize-html';
+
 export function PostBody({ body }: { body: string }) {
   const looksHtml = /<[a-z][\s\S]*>/i.test(body);
 
   if (looksHtml) {
-    return <div className="post-body" dangerouslySetInnerHTML={{ __html: body }} />;
+    // Το σώμα του άρθρου είναι HTML γραμμένο από το γραφείο ή εισαγμένο από το
+    // παλιό site — καθαρίζεται πριν φτάσει στον browser του επισκέπτη.
+    return <div className="post-body" dangerouslySetInnerHTML={{ __html: sanitizeArticleHtml(body) }} />;
   }
 
   const blocks = body

@@ -4,7 +4,7 @@ import { getCategories } from '@/lib/queries/categories';
 import { getSettings } from '@/lib/queries/settings';
 import { pickNewsTours } from '@/components/home/home-tours';
 import { resolveHomeContent, resolveStats, resolveTestimonials } from '@/components/home/resolve-content';
-import { websiteJsonLd, tourItemListJsonLd } from '@/lib/seo';
+import { websiteJsonLd, tourItemListJsonLd, jsonLdHtml } from '@/lib/seo';
 import { Home1Hero } from '@/components/home/Home1Hero';
 import { Home1Destinations } from '@/components/home/Home1Destinations';
 import { Home1About } from '@/components/home/Home1About';
@@ -42,8 +42,8 @@ export default async function HomePage() {
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd()) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(tourItemListJsonLd(featured)) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdHtml(websiteJsonLd()) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdHtml(tourItemListJsonLd(featured)) }} />
       <Home1Hero categories={categories} content={copy.hero} />
       <Home1Destinations categories={categories} tours={allTours} content={copy.destinations} />
       <Home1About content={copy.about} stats={homeStats} />

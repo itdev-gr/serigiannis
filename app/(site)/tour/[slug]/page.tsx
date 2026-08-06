@@ -17,7 +17,7 @@ import { bookableDepartures, headlinePrice, isBookable, tourRouteCta } from '@/l
 import { galleryImages } from '@/lib/gallery';
 import { coverImage, imageUrl } from '@/lib/images';
 import { telHref } from '@/lib/phone';
-import { SITE_URL } from '@/lib/seo';
+import { SITE_URL, jsonLdHtml } from '@/lib/seo';
 import { decodeSlugParam } from '@/lib/slug';
 
 export const revalidate = 3600;
@@ -138,8 +138,8 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdHtml(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdHtml(breadcrumbLd) }} />
       <PageHeading
         eyebrow={primaryCat?.name_el}
         title={tour.title}

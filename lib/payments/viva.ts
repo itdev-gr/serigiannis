@@ -1,4 +1,5 @@
 import type { PaymentProvider } from './types';
+import { centsFromMajorUnits } from './amount';
 
 const API = process.env.VIVA_DEMO === '1' ? 'https://demo-api.vivapayments.com' : 'https://api.vivapayments.com';
 const ACCOUNTS = process.env.VIVA_DEMO === '1' ? 'https://demo-accounts.vivapayments.com' : 'https://accounts.vivapayments.com';
@@ -21,7 +22,9 @@ async function accessToken(): Promise<string> {
   return data.access_token;
 }
 
-type VivaTransaction = { statusId: string; orderCode: number; merchantTrns?: string };
+/** `amount` comes back in euros (30.5 = 30,50 €), unlike the orders endpoint
+ *  which takes cents — converted once, in centsFromMajorUnits. */
+type VivaTransaction = { statusId: string; orderCode: number; merchantTrns?: string; amount?: number };
 
 async function getTransaction(transactionId: string): Promise<VivaTransaction | null> {
   const token = await accessToken();
@@ -64,7 +67,12 @@ export const vivaProvider: PaymentProvider = {
     if (!t) return { ok: false };
     const trn = await getTransaction(t);
     if (!trn || trn.statusId !== 'F') return { ok: false };
-    return { ok: true, orderId: trn.merchantTrns, ref: String(trn.orderCode) };
+    return {
+      ok: true,
+      orderId: trn.merchantTrns,
+      ref: String(trn.orderCode),
+      amountCents: centsFromMajorUnits(trn.amount),
+    };
   },
 
   async verifyWebhook(req) {
@@ -84,6 +92,7 @@ export const vivaProvider: PaymentProvider = {
       orderId: trn.merchantTrns,
       ref: String(trn.orderCode),
       kind: trn.statusId === 'F' ? 'paid' : 'failed',
+      amountCents: centsFromMajorUnits(trn.amount),
     };
   },
 
