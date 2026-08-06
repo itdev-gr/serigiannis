@@ -78,7 +78,11 @@ function TripsTable({
                 <th className="px-4 py-2.5">Όχημα</th>
               </tr>
             </thead>
-            <tbody>
+            {/* Η επιλογή δρομολογίου είναι ομάδα radio, όχι απλή γραμμή με
+                onClick: χωρίς role/tabIndex/πληκτρολόγιο, όποιος πλοηγείται με
+                Tab ή με screen reader δεν μπορούσε να επιλέξει δρομολόγιο —
+                δηλαδή δεν μπορούσε καθόλου να αγοράσει εισιτήριο. */}
+            <tbody role="radiogroup" aria-label={`Δρομολόγια, ${fmtDate(date)}`}>
               {trips.length === 0 && (
                 <tr><td colSpan={3} className="px-4 py-8 text-muted">Δεν υπάρχουν δρομολόγια για την επιλεγμένη ημέρα.</td></tr>
               )}
@@ -88,9 +92,19 @@ function TripsTable({
                 return (
                   <tr
                     key={t.id}
+                    role="radio"
+                    aria-checked={isSelected}
                     aria-disabled={disabled}
+                    tabIndex={disabled ? -1 : 0}
                     onClick={() => { if (!disabled) onSelect(t.id); }}
-                    className={`border-t border-border transition ${
+                    onKeyDown={(e) => {
+                      if (disabled) return;
+                      if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+                        e.preventDefault();
+                        onSelect(t.id);
+                      }
+                    }}
+                    className={`border-t border-border transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary ${
                       disabled
                         ? 'cursor-not-allowed bg-background text-muted/60'
                         : isSelected
