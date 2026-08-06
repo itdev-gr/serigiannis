@@ -7,7 +7,7 @@ import { PostBody } from '@/components/blog/PostBody';
 import { Button } from '@/components/ui/Button';
 import { getPostBySlug, getPublishedPostSlugs } from '@/lib/queries/posts';
 import { coverPathUrl } from '@/lib/images';
-import { SITE_URL } from '@/lib/seo';
+import { SITE_URL, jsonLdHtml } from '@/lib/seo';
 import { decodeSlugParam } from '@/lib/slug';
 import { excursionDeepLink } from '@/lib/excursions';
 
@@ -54,7 +54,7 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdHtml(jsonLd) }} />
       <PageHeading
         eyebrow="Νέα"
         title={post.title}
