@@ -187,7 +187,7 @@ export function CookieConsent() {
           <button
             type="button"
             onClick={() => closeWith(categories, 'custom')}
-            className="mt-2 w-full rounded-lg border border-white/20 py-2 font-sans text-[11px] font-semibold text-white transition hover:bg-white/5"
+            className="mt-2 w-full rounded-lg border border-white/20 px-4 py-3 font-sans text-[13px] font-bold uppercase tracking-[0.06em] text-white transition hover:bg-white/5"
           >
             Αποθήκευση επιλογών
           </button>

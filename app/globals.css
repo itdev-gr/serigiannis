@@ -156,7 +156,9 @@
     overscroll-behavior-x: contain;
   }
   .post-body iframe {
+    width: 100%;
     max-width: 100%;
+    aspect-ratio: 16 / 9;
   }
   .post-body pre {
     max-width: 100%;
