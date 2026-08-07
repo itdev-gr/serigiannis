@@ -17,8 +17,13 @@ function revalidateTicketing() {
 }
 
 const g = (fd: FormData, k: string) => String(fd.get(k) ?? '').trim();
+/** Κενό πεδίο → null («χρησιμοποίησε την προεπιλογή»), ΟΧΙ 0. Το Number('')
+ *  είναι 0, οπότε χωρίς τον έλεγχο κενού ένα άδειο «Cutoff» αποθηκευόταν ως
+ *  0 και σήμαινε «πούλα μέχρι το λεπτό της αναχώρησης». */
 const num = (fd: FormData, k: string) => {
-  const v = Number(g(fd, k));
+  const raw = g(fd, k);
+  if (raw === '') return null;
+  const v = Number(raw);
   return Number.isFinite(v) ? v : null;
 };
 
@@ -292,18 +297,27 @@ export async function createTrip(formData: FormData) {
   const redirectTo = g(formData, 'redirect_to');
   const date = g(formData, 'service_date');
   const time = g(formData, 'departure_time');
+  const routeId = g(formData, 'route_id');
+  const layoutId = g(formData, 'layout_id');
+  // Ο έλεγχος ΠΡΙΝ το athensDepartureAt: με κενή ημερομηνία το Intl πετάει
+  // RangeError και η σελίδα έσκαγε με 500 αντί να μη γίνει τίποτα.
+  if (!routeId || !layoutId || !date || !time) {
+    if (redirectTo.startsWith('/admin/')) redirect(withFlash(redirectTo, false, 'invalid_input'));
+    redirect(`/admin/excursions${flashQuery(false, 'invalid_input')}`);
+  }
   const row = {
-    route_id: g(formData, 'route_id'),
-    layout_id: g(formData, 'layout_id'),
+    route_id: routeId,
+    layout_id: layoutId,
     service_date: date,
     // Athens wall-clock with the correct EET/EEST offset for that date
     departure_at: athensDepartureAt(date, time),
     notes: g(formData, 'notes') || null,
   };
-  if (!row.route_id || !row.layout_id || !date || !time) return;
   const { error } = await sb.from('trips').insert(row);
   if (error) console.error('createTrip:', error.message);
-  revalidatePath('/admin/excursions');
+  // Το /eisitiria αντλεί τις ημερομηνίες από τα trips — χωρίς αυτό μια
+  // χειροκίνητη ημερομηνία έμενε αόρατη στους πελάτες.
+  revalidateTicketing();
   if (redirectTo.startsWith('/admin/')) redirect(withFlash(redirectTo, !error));
   redirect(`/admin/excursions${flashQuery(!error)}`);
 }
@@ -332,21 +346,58 @@ export async function updateTrip(formData: FormData) {
 
 // ---------------------------------------------------------- seat state
 
-/** Called from AdminSeatMap via useTransition — returns status instead of redirecting. */
+/** Called from AdminSeatMap via useTransition — returns status instead of redirecting.
+ *  Τα admin_block_seat/admin_unblock_seat δηλώνουν άρνηση μέσα στο data
+ *  ({ok:false,error:'seat_taken'|'not_blocked'}) χωρίς σφάλμα PostgREST — χωρίς
+ *  τον έλεγχο του .ok η ενέργεια «πετύχαινε» σιωπηλά χωρίς να κάνει τίποτα. */
 export async function blockSeat(tripId: string, seat: string): Promise<{ ok: boolean; error?: string }> {
   const sb = await createServerClient();
-  const { error } = await sb.rpc('admin_block_seat', { p_trip_id: tripId, p_seat: seat });
-  if (error) console.error('blockSeat:', error.message);
+  const { data, error } = await sb.rpc('admin_block_seat', { p_trip_id: tripId, p_seat: seat });
+  const ok = !error && coalesceOk(data);
+  if (!ok) console.error('blockSeat:', error?.message ?? data);
   revalidatePath(`/admin/trips/${tripId}`);
-  return { ok: !error, error: error ? 'db' : undefined };
+  return { ok, error: ok ? undefined : rpcErrorCode(error, data, 'seat_taken') };
 }
 
 export async function unblockSeat(tripId: string, seat: string): Promise<{ ok: boolean; error?: string }> {
   const sb = await createServerClient();
-  const { error } = await sb.rpc('admin_unblock_seat', { p_trip_id: tripId, p_seat: seat });
-  if (error) console.error('unblockSeat:', error.message);
+  const { data, error } = await sb.rpc('admin_unblock_seat', { p_trip_id: tripId, p_seat: seat });
+  const ok = !error && coalesceOk(data);
+  if (!ok) console.error('unblockSeat:', error?.message ?? data);
   revalidatePath(`/admin/trips/${tripId}`);
-  return { ok: !error, error: error ? 'db' : undefined };
+  return { ok, error: ok ? undefined : rpcErrorCode(error, data, 'seat_not_blocked') };
+}
+
+/** Κωδικός flash: σφάλμα σύνδεσης → 'db', αλλιώς ο κωδικός του RPC (ή fallback). */
+function rpcErrorCode(error: unknown, data: unknown, fallback: string): string {
+  if (error) return 'db';
+  const code = (data as { error?: string } | null)?.error;
+  return code === 'seat_taken' ? 'seat_taken' : code === 'not_blocked' ? 'seat_not_blocked' : fallback;
+}
+
+/** True όταν ένα RPC που επιστρέφει jsonb δηλώνει επιτυχία. */
+function coalesceOk(data: unknown): boolean {
+  return Boolean((data as { ok?: boolean } | null)?.ok);
+}
+
+/** Ο κωδικός σφάλματος του finalize_checkout σε κωδικό flash του admin. */
+function manualBookingErrorCode(data: unknown): string {
+  const err = (data as { error?: string } | null)?.error;
+  switch (err) {
+    case 'invalid_billing':
+    case 'invalid_passenger_phone':
+      return 'invalid_phone';
+    case 'invalid_fare':
+      return 'invalid_fare';
+    case 'missing_boarding_point':
+    case 'invalid_boarding_point':
+      return 'invalid_boarding_point';
+    case 'seat_assignment_mismatch':
+    case 'order_expired':
+      return 'seat_taken';
+    default:
+      return 'db';
+  }
 }
 
 /** Phone booking: one passenger per call — hold + finalize offline in one go. */
@@ -375,7 +426,7 @@ export async function manualBooking(formData: FormData) {
     redirect(`/admin/trips/${tripId}${flashQuery(false, code)}${after}`);
   }
   const b = began as { order_id: string; access_token: string };
-  const { error: e2 } = await sb.rpc('finalize_checkout', {
+  const { data: fin, error: e2 } = await sb.rpc('finalize_checkout', {
     p_order_id: b.order_id,
     p_token: b.access_token,
     p_billing: {
@@ -395,13 +446,25 @@ export async function manualBooking(formData: FormData) {
     }],
     p_provider: 'offline',
   });
-  if (e2) console.error('manualBooking finalize:', e2.message);
+  // Το finalize_checkout δηλώνει τις αποτυχίες ελέγχου μέσα στο data
+  // ({ok:false,error:…}) ΧΩΡΙΣ σφάλμα PostgREST — χωρίς αυτόν τον έλεγχο η
+  // φόρμα έδειχνε «Αποθηκεύτηκε» ενώ δεν είχε εκδοθεί κανένα εισιτήριο και η
+  // θέση έμενε δεσμευμένη μέχρι να λήξει το hold.
+  const finOk = !e2 && coalesceOk(fin);
+  if (!finOk) {
+    console.error('manualBooking finalize:', e2?.message ?? fin);
+    // Ελευθερώνουμε αμέσως τη δέσμευση, αλλιώς η θέση δείχνει «δεσμευμένη»
+    // στον υπάλληλο που μόλις απέτυχε να την κρατήσει.
+    const { error: relErr } = await sb.rpc('release_order', { p_order_id: b.order_id, p_token: b.access_token });
+    if (relErr) console.error('manualBooking release:', relErr.message);
+    revalidatePath(`/admin/trips/${tripId}`);
+    redirect(`/admin/trips/${tripId}${flashQuery(false, manualBookingErrorCode(fin))}`);
+  }
   revalidatePath(`/admin/trips/${tripId}`);
   revalidatePath('/admin/orders');
   // On success, tell the page which seat was just booked so it can suggest
   // the next free one after it (11 → 12) instead of starting over.
-  const after = !e2 ? `&after=${encodeURIComponent(seat)}` : '';
-  redirect(`/admin/trips/${tripId}${flashQuery(!e2)}${after}`);
+  redirect(`/admin/trips/${tripId}${flashQuery(true)}&after=${encodeURIComponent(seat)}`);
 }
 
 // --------------------------------------------------------------- orders

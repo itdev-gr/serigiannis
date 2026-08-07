@@ -37,13 +37,13 @@ export function GalleryManager({
                 <div className="flex flex-col gap-1.5 p-2">
                   {!isCover && (
                     <form action={setCoverImage.bind(null, tourId, img.id)}>
-                      <button type="submit" className="w-full rounded-md border border-border px-2 py-1.5 font-sans text-[12px] font-medium text-body transition hover:border-primary hover:text-primary">
+                      <button type="button" className="w-full rounded-md border border-border px-2 py-1.5 font-sans text-[12px] font-medium text-body transition hover:border-primary hover:text-primary">
                         Ορισμός εξωφύλλου
                       </button>
                     </form>
                   )}
                   <ConfirmForm action={deleteTourImage.bind(null, img.id, tourId)} message="Διαγραφή εικόνας;">
-                    <button type="submit" className="w-full rounded-md border border-border px-2 py-1.5 font-sans text-[12px] font-medium text-cta transition hover:border-cta">
+                    <button type="button" className="w-full rounded-md border border-border px-2 py-1.5 font-sans text-[12px] font-medium text-cta transition hover:border-cta">
                       Διαγραφή
                     </button>
                   </ConfirmForm>

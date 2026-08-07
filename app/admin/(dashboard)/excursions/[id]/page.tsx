@@ -186,7 +186,7 @@ export default async function ExcursionDetailPage({
                   confirmLabel="Απόσυρση"
                   variant="default"
                 >
-                  <button type="submit" className="rounded-md border border-border px-4 py-2 text-[14px] font-medium text-body hover:bg-background">
+                  <button type="button" className="rounded-md border border-border px-4 py-2 text-[14px] font-medium text-body hover:bg-background">
                     Απόσυρση (→ Πρόχειρη)
                   </button>
                 </ConfirmForm>
@@ -195,7 +195,7 @@ export default async function ExcursionDetailPage({
                 action={deleteRoute.bind(null, route.id)}
                 message="Οριστική διαγραφή εκδρομής; Θα διαγραφούν τιμές και προγράμματα."
               >
-                <button type="submit" className="text-[14px] font-medium text-cta hover:underline">Διαγραφή εκδρομής</button>
+                <button type="button" className="text-[14px] font-medium text-cta hover:underline">Διαγραφή εκδρομής</button>
               </ConfirmForm>
             </div>
             <p className="mt-3 text-[13px] text-muted">Εκδρομές με δρομολόγια δεν διαγράφονται — κάντε τις Πρόχειρες.</p>
@@ -303,7 +303,7 @@ export default async function ExcursionDetailPage({
                     action={deletePattern.bind(null, p.id, `${base}?tab=programma`)}
                     message="Διαγραφή προγράμματος; Τα ήδη δημιουργημένα δρομολόγια παραμένουν."
                   >
-                    <button type="submit" className="text-[13px] text-cta hover:underline">Διαγραφή προγράμματος</button>
+                    <button type="button" className="text-[13px] text-cta hover:underline">Διαγραφή προγράμματος</button>
                   </ConfirmForm>
                 </div>
               </div>

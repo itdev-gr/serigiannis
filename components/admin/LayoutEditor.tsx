@@ -41,8 +41,18 @@ export function LayoutEditor({ initial }: { initial: LayoutJson | null }) {
   const seatCount = decks.flatMap((d) => d.cells).filter((c) => c.type === 'seat').length;
   const onlineCount = decks.flatMap((d) => d.cells).filter((c) => c.type === 'seat' && c.online !== false).length;
 
+  /** Αλλαγή ορόφου. Όταν μικραίνουν σειρές/στήλες, τα κελιά που βγαίνουν εκτός
+   *  πλέγματος ΠΡΕΠΕΙ να φύγουν: αλλιώς έμεναν στο layout_json αόρατα για τον
+   *  υπάλληλο (η κάτοψη ζωγραφίζει μόνο rows × cols) αλλά μετρούσαν κανονικά
+   *  στις θέσεις και πωλούνταν online. */
   const setDeck = (i: number, patch: Partial<LayoutDeck>) =>
-    setDecks((prev) => prev.map((d, j) => (j === i ? { ...d, ...patch } : d)));
+    setDecks((prev) =>
+      prev.map((d, j) => {
+        if (j !== i) return d;
+        const merged = { ...d, ...patch };
+        return { ...merged, cells: merged.cells.filter((c) => c.r < merged.rows && c.c < merged.cols) };
+      })
+    );
 
   const applyTool = (deckIdx: number, r: number, c: number) => {
     setDecks((prev) => {
@@ -162,7 +172,7 @@ export function LayoutEditor({ initial }: { initial: LayoutJson | null }) {
               Array.from({ length: deck.cols }).map((_, c) => {
                 const cell = deck.cells.find((x) => x.r === r && x.c === c);
                 return (
-                  <div key={`${r}-${c}`} className="relative">
+                  <div key={`${r}-${c}`} className="group relative">
                     <button
                       type="button"
                       onClick={() => applyTool(di, r, c)}
@@ -187,9 +197,8 @@ export function LayoutEditor({ initial }: { initial: LayoutJson | null }) {
                       <input
                         value={cell.seat ?? ''}
                         onChange={(e) => setSeatNumber(di, r, c, e.target.value)}
-                        className="absolute -bottom-1 left-1/2 hidden w-10 -translate-x-1/2 rounded border border-border bg-surface px-1 text-center text-[10px] group-hover:block"
-                        aria-hidden
-                        tabIndex={-1}
+                        aria-label={`Αριθμός θέσης ${r + 1},${c + 1}`}
+                        className="absolute -bottom-1 left-1/2 z-10 hidden w-10 -translate-x-1/2 rounded border border-border bg-surface px-1 text-center text-[10px] group-focus-within:block group-hover:block"
                       />
                     )}
                   </div>

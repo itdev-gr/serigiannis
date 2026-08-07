@@ -152,14 +152,33 @@ export default async function RequestsPage({
                     </td>
                   </tr>
                 )}
-                {clients.map((c) => (
-                  <tr key={c.key} className="border-b border-border/60 last:border-0">
-                    <td className={`${TH} font-medium text-primary`}>{c.name}</td>
-                    <td className={`${TH} text-muted`}>{c.phone ?? c.email ?? '—'}</td>
-                    <td className={`${TH} text-muted`}>{c.count}</td>
-                    <td className={`${TH} text-muted`}>{new Date(c.lastActivity).toLocaleDateString('el-GR')}</td>
-                  </tr>
-                ))}
+                {clients.map((c) => {
+                  // Το πιο πρόσφατο αίτημα του πελάτη: χωρίς σύνδεσμο η καρτέλα
+                  // ήταν αδιέξοδο — έβλεπες το όνομα και δεν πήγαινες πουθενά.
+                  const latest = c.leads[0];
+                  return (
+                    <tr key={c.key} className="border-b border-border/60 last:border-0">
+                      <td className={`${TH} font-medium text-primary`}>
+                        {latest ? (
+                          <Link href={`/admin/requests/${latest.id}`} className="hover:text-cta">{c.name}</Link>
+                        ) : (
+                          c.name
+                        )}
+                      </td>
+                      <td className={`${TH} text-muted`}>
+                        {c.phone ? (
+                          <a href={`tel:${c.phone.replace(/\s+/g, '')}`} className="text-primary hover:text-cta">{c.phone}</a>
+                        ) : c.email ? (
+                          <a href={`mailto:${c.email}`} className="text-primary hover:text-cta">{c.email}</a>
+                        ) : (
+                          '—'
+                        )}
+                      </td>
+                      <td className={`${TH} text-muted`}>{c.count}</td>
+                      <td className={`${TH} text-muted`}>{new Date(c.lastActivity).toLocaleDateString('el-GR')}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

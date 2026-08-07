@@ -128,17 +128,25 @@ export function OdigosGuide({ sections }: { sections: OdigosSection[] }) {
               <p className="mb-1 px-1 font-sans text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">{group}</p>
               <div className="flex flex-col">
                 {items.map((s) => {
+                  // Κατά την αναζήτηση η ενότητα δεν υπάρχει στο DOM, οπότε ένα
+                  // <a href="#id"> δεν θα πήγαινε πουθενά — το δείχνουμε ως
+                  // απενεργοποιημένο κείμενο αντί για ψεύτικο σύνδεσμο.
                   const dimmed = q !== '' && !visible.includes(s);
+                  const label = s.title.split(' — ')[0];
+                  if (dimmed) {
+                    return (
+                      <span key={s.id} className="rounded-md px-2 py-1.5 text-[13px] leading-snug text-muted/50">
+                        {label}
+                      </span>
+                    );
+                  }
                   return (
                     <a
                       key={s.id}
                       href={`#${s.id}`}
-                      className={cn(
-                        'rounded-md px-2 py-1.5 text-[13px] leading-snug transition-colors hover:bg-primary/5 hover:text-primary',
-                        dimmed ? 'text-muted/50' : 'text-body'
-                      )}
+                      className="rounded-md px-2 py-1.5 text-[13px] leading-snug text-body transition-colors hover:bg-primary/5 hover:text-primary"
                     >
-                      {s.title.split(' — ')[0]}
+                      {label}
                     </a>
                   );
                 })}

@@ -49,8 +49,8 @@ export default async function AdminPostsPage({
         <AdminSearch action="/admin/posts" placeholder="Αναζήτηση τίτλου / slug…" defaultValue={q} />
       </div>
 
-      <div className="overflow-hidden rounded-lg border border-border bg-surface">
-        <table className="w-full text-left text-[14px]">
+      <div className="overflow-x-auto rounded-lg border border-border bg-surface">
+        <table className="w-full min-w-[640px] text-left text-[14px]">
           <thead className="border-b border-border bg-background/50 font-sans text-[12px] uppercase tracking-[0.1em] text-muted">
             <tr>
               <th className="px-5 py-3">Τίτλος</th>
@@ -96,7 +96,7 @@ export default async function AdminPostsPage({
                       <Pencil className="h-4 w-4" strokeWidth={1.75} />
                     </Link>
                     <ConfirmForm action={deletePost.bind(null, p.id)} message={`Διαγραφή «${p.title}»;`}>
-                      <button type="submit" title="Διαγραφή" className="grid h-8 w-8 place-items-center rounded-md text-muted hover:bg-cta/10 hover:text-cta">
+                      <button type="button" title="Διαγραφή" className="grid h-8 w-8 place-items-center rounded-md text-muted hover:bg-cta/10 hover:text-cta">
                         <Trash2 className="h-4 w-4" strokeWidth={1.75} />
                       </button>
                     </ConfirmForm>

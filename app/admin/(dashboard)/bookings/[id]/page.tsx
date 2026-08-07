@@ -3,6 +3,8 @@ import { notFound } from 'next/navigation';
 import { getAdminTourOrder } from '@/lib/queries/tour-orders';
 import { formatCents } from '@/lib/booking';
 import { OrderStatusBadge } from '@/components/admin/StatusBadge';
+import { ConfirmForm } from '@/components/admin/ConfirmForm';
+import { FlashBanner } from '@/components/admin/FlashBanner';
 import { Button } from '@/components/ui/Button';
 import { saveTourOrderNotes, setTourOrderStatus } from '../../actions';
 
@@ -12,9 +14,15 @@ const STATUSES = [
   { v: 'cancelled', l: 'Ακυρωμένη' },
 ];
 
-export default async function TourBookingDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function TourBookingDetailPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ saved?: string; error?: string }>;
+}) {
   const { id } = await params;
-  const order = await getAdminTourOrder(id);
+  const [order, sp] = await Promise.all([getAdminTourOrder(id), searchParams]);
   if (!order) notFound();
 
   return (
@@ -25,6 +33,8 @@ export default async function TourBookingDetailPage({ params }: { params: Promis
         <span className="font-mono text-[14px] font-semibold tracking-[0.15em] text-primary">{order.public_code}</span>
         <OrderStatusBadge status={order.status} />
       </div>
+
+      <div className="mt-4 empty:hidden"><FlashBanner saved={sp.saved} error={sp.error} /></div>
 
       <dl className="mt-6 grid grid-cols-3 gap-y-3 rounded-lg border border-border bg-surface p-6 text-[15px]">
         <dt className="text-muted">Πελάτης</dt><dd className="col-span-2">{order.customer_name ?? '—'}</dd>
@@ -83,16 +93,29 @@ export default async function TourBookingDetailPage({ params }: { params: Promis
       <div className="mt-6 rounded-lg border border-border bg-surface p-6">
         <h2 className="font-sans text-[13px] font-semibold uppercase tracking-[0.1em] text-primary">Κατάσταση</h2>
         <div className="mt-3 flex flex-wrap gap-2">
-          {STATUSES.map((s) => (
-            <form key={s.v} action={setTourOrderStatus.bind(null, order.id, s.v)}>
-              <button
-                type="submit"
-                className={`rounded-full border px-3 py-1.5 text-[13px] ${order.status === s.v ? 'border-primary bg-primary text-surface' : 'border-border text-body hover:border-primary'}`}
-              >
-                {s.l}
-              </button>
-            </form>
-          ))}
+          {STATUSES.map((s) => {
+            const cls = `rounded-full border px-3 py-1.5 text-[13px] ${order.status === s.v ? 'border-primary bg-primary text-surface' : 'border-border text-body hover:border-primary'}`;
+            // Η ακύρωση είναι μη αναστρέψιμη για τον πελάτη — δεν πρέπει να
+            // γίνεται με ένα άστοχο κλικ, όπως παντού αλλού στον πίνακα.
+            if (s.v === 'cancelled') {
+              return (
+                <ConfirmForm
+                  key={s.v}
+                  action={setTourOrderStatus.bind(null, order.id, s.v)}
+                  title="Ακύρωση κράτησης"
+                  message={`Ακύρωση της κράτησης ${order.public_code}; Ο πελάτης δεν ειδοποιείται αυτόματα — επικοινωνήστε μαζί του.`}
+                  confirmLabel="Ναι, ακύρωση"
+                >
+                  <button type="button" className={cls}>{s.l}</button>
+                </ConfirmForm>
+              );
+            }
+            return (
+              <form key={s.v} action={setTourOrderStatus.bind(null, order.id, s.v)}>
+                <button type="submit" className={cls}>{s.l}</button>
+              </form>
+            );
+          })}
         </div>
       </div>
 

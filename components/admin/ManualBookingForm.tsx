@@ -59,7 +59,9 @@ export function ManualBookingForm({
       </label>
       <div className="grid grid-cols-2 gap-3">
         <label className="block text-[13px] text-muted">Τηλέφωνο
-          <input name="phone" className={adminInput} />
+          {/* minLength 8: κάτω από αυτό το finalize_checkout απορρίπτει την
+              κράτηση — καλύτερα να το πει ο browser παρά να αποτύχει στον server. */}
+          <input name="phone" inputMode="tel" minLength={8} className={adminInput} />
         </label>
         <label className="block text-[13px] text-muted">Email (προαιρετικό)
           <input name="email" type="email" className={adminInput} />

@@ -6,6 +6,8 @@ import type { AdminRoute } from '@/lib/queries/ticketing';
 
 const categories: Category[] = [
   { id: 'c1', slug: 'monoimeres', name_el: 'Μονοήμερες', description_el: null, sort_order: 0 },
+  { id: 'c2', slug: 'kroyazieres', name_el: 'Κρουαζιέρες', description_el: null, sort_order: 1 },
+  { id: 'c3', slug: 'polyimeres', name_el: 'Πολυήμερες', description_el: null, sort_order: 2 },
 ];
 
 const routes: AdminRoute[] = [
@@ -69,5 +71,40 @@ describe('TourForm — σύνδεση με εκδρομή πούλμαν', () =>
     render(<TourForm categories={categories} routes={routes} action={() => {}} />);
     const select = screen.getByLabelText(/Σύνδεση με εκδρομή πούλμαν/) as HTMLSelectElement;
     expect(select.value).toBe('');
+  });
+});
+
+
+// Η φόρμα είχε ένα μονό <select> κατηγορίας ενώ το upsertTour έσβηνε όλες τις
+// υπάρχουσες και ξανάγραφε μία — κάθε αποθήκευση εκδρομής με δύο κατηγορίες
+// έχανε σιωπηλά τη δεύτερη.
+describe('TourForm — κατηγορίες', () => {
+  const checkbox = (label: string) => screen.getByRole('checkbox', { name: label }) as HTMLInputElement;
+
+  it('προεπιλέγει ΟΛΕΣ τις κατηγορίες της εκδρομής, όχι μόνο την πρώτη', () => {
+    render(
+      <TourForm
+        tour={{ ...tour, categories: [categories[0], categories[1]] } as Tour}
+        categories={categories}
+        routes={routes}
+        action={() => {}}
+      />
+    );
+    expect(checkbox('Μονοήμερες').checked).toBe(true);
+    expect(checkbox('Κρουαζιέρες').checked).toBe(true);
+    expect(checkbox('Πολυήμερες').checked).toBe(false);
+  });
+
+  it('όλα τα checkbox στέλνονται με το ίδιο όνομα ώστε να φτάσουν ως λίστα', () => {
+    render(<TourForm tour={tour} categories={categories} routes={routes} action={() => {}} />);
+    for (const name of ['Μονοήμερες', 'Κρουαζιέρες', 'Πολυήμερες']) {
+      expect(checkbox(name).name).toBe('category');
+    }
+  });
+
+  it('νέα εκδρομή: προεπιλέγεται μόνο η πρώτη κατηγορία', () => {
+    render(<TourForm categories={categories} routes={routes} action={() => {}} />);
+    expect(checkbox('Μονοήμερες').checked).toBe(true);
+    expect(checkbox('Κρουαζιέρες').checked).toBe(false);
   });
 });

@@ -1,18 +1,8 @@
 'use client';
-import type { ReactNode } from 'react';
-import { useFormStatus } from 'react-dom';
+import { useState, useTransition, type ReactNode } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { TriangleAlert } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-
-function ConfirmButton({ label, variant }: { label: string; variant: 'danger' | 'default' }) {
-  const { pending } = useFormStatus();
-  return (
-    <Button type="submit" size="sm" variant={variant === 'danger' ? 'primary' : 'dark'} disabled={pending}>
-      {pending ? `${label}…` : label}
-    </Button>
-  );
-}
 
 /** Wraps a server-action trigger with a confirmation modal. */
 export function ConfirmForm({
@@ -30,8 +20,25 @@ export function ConfirmForm({
   confirmLabel?: string;
   variant?: 'danger' | 'default';
 }) {
+  const [open, setOpen] = useState(false);
+  const [pending, startTransition] = useTransition();
+
+  // Ελεγχόμενο dialog: όταν η ενέργεια αποτύχει (π.χ. λεωφορείο σε χρήση,
+  // εκδρομή με δρομολόγια) ο server κάνει redirect με ?error= αντί να
+  // αφαιρέσει τη γραμμή, οπότε ένα uncontrolled modal έμενε ανοιχτό και το
+  // overlay του έκρυβε το μήνυμα λάθους. Κλείνουμε μόλις τελειώσει η ενέργεια.
+  const run = () => {
+    startTransition(async () => {
+      try {
+        await action();
+      } finally {
+        setOpen(false);
+      }
+    });
+  };
+
   return (
-    <Dialog.Root>
+    <Dialog.Root open={open} onOpenChange={(v) => { if (!pending) setOpen(v); }}>
       <Dialog.Trigger asChild>{children}</Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-deep-ink/50" />
@@ -50,12 +57,20 @@ export function ConfirmForm({
               )}
             </div>
           </div>
-          <form action={action} className="mt-6 flex justify-end gap-3">
+          <div className="mt-6 flex justify-end gap-3">
             <Dialog.Close asChild>
-              <Button type="button" size="sm" variant="outline">Άκυρο</Button>
+              <Button type="button" size="sm" variant="outline" disabled={pending}>Άκυρο</Button>
             </Dialog.Close>
-            <ConfirmButton label={confirmLabel} variant={variant} />
-          </form>
+            <Button
+              type="button"
+              size="sm"
+              variant={variant === 'danger' ? 'primary' : 'dark'}
+              disabled={pending}
+              onClick={run}
+            >
+              {pending ? `${confirmLabel}…` : confirmLabel}
+            </Button>
+          </div>
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>

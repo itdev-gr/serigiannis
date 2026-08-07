@@ -52,7 +52,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
         </form>
         <div className="mt-3 flex justify-end border-t border-border pt-3">
           <ConfirmForm action={deleteLead.bind(null, lead.id)} message="Διαγραφή αιτήματος;">
-            <button type="submit" className="text-[13px] text-cta hover:underline">Διαγραφή</button>
+            <button type="button" className="text-[13px] text-cta hover:underline">Διαγραφή</button>
           </ConfirmForm>
         </div>
       </div>

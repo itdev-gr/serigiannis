@@ -26,6 +26,10 @@ export default async function TripDashboardPage({
   ]);
   if (!layout) notFound();
 
+  // Μόνο ενεργοί ναύλοι στην τηλεφωνική κράτηση: το finalize_checkout
+  // απορρίπτει τους ανενεργούς, οπότε η προσφορά τους οδηγούσε σε αποτυχία.
+  const bookableFares = fares.filter((f) => f.is_active);
+
   const booked = claims.filter((c) => c.claim_type === 'booked').length;
   const blocked = claims.filter((c) => c.claim_type === 'blocked').length;
 
@@ -64,7 +68,7 @@ export default async function TripDashboardPage({
         tripId={trip.id}
         layout={layout.layout}
         claims={claims}
-        fares={fares}
+        fares={bookableFares}
         initialSeat={suggested ?? ''}
         seatsLeft={seatsLeft}
         boardingPoints={trip.route?.boarding_points ?? []}

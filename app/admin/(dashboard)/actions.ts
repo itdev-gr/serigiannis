@@ -6,12 +6,18 @@ import type { SettingsData } from '@/types/db';
 import { resolvePublishedAt } from '@/lib/posts-publish';
 import { parseEuroToCents } from '@/lib/booking';
 import { parseBoardingPoints, slugifyWithFallback } from '@/lib/excursions';
-import { flashQuery } from '@/lib/admin-flash';
+import { flashQuery, withFlash } from '@/lib/admin-flash';
 
 function revalidatePublic() {
   revalidatePath('/admin');
   revalidatePath('/');
   revalidatePath('/ekdromes');
+  // Οι παρακάτω δείχνουν κι αυτές λίστες εκδρομών αλλά ΔΕΝ έχουν
+  // `revalidate`, οπότε χωρίς ρητή ακύρωση έμεναν παγωμένες από το build
+  // μέχρι το επόμενο deploy. Το 'page' καλύπτει όλες τις κατηγορίες μαζί.
+  revalidatePath('/ekdromes/[category]', 'page');
+  revalidatePath('/kroyazieres');
+  revalidatePath('/istoriko-ekdromon');
 }
 
 /** Admin input for a euro amount stored in a numeric(10,2) column (euros, not
@@ -210,11 +216,15 @@ export async function signOut() {
 
 export async function setStatus(id: string, status: string) {
   const sb = await createServerClient();
+  const { data: tour } = await sb.from('tours').select('slug').eq('id', id).maybeSingle();
   await sb.from('tours').update({
     status,
     published_at: status === 'published' ? new Date().toISOString() : null,
   }).eq('id', id);
   revalidatePublic();
+  // Χωρίς αυτό, το «Απόκρυψη» άφηνε τη σελίδα της εκδρομής ζωντανή στο κοινό
+  // ως και μία ώρα (revalidate = 3600 στο app/(site)/tour/[slug]/page.tsx).
+  if (tour?.slug) revalidatePath(`/tour/${tour.slug}`);
 }
 
 export async function setFeatured(id: string, is_featured: boolean) {
@@ -308,13 +318,19 @@ export async function upsertTour(formData: FormData) {
   }
   if (!tourId) return;
 
-  // primary category
-  const category = String(formData.get('category') || '');
-  if (category) {
-    const { data: cat } = await sb.from('categories').select('id').eq('slug', category).maybeSingle();
-    if (cat) {
+  // Κατηγορίες: η φόρμα στέλνει ένα `category` ανά επιλεγμένο checkbox. Ο
+  // συγχρονισμός γίνεται μόνο όταν έχει σταλεί έστω μία — έτσι μια φόρμα που
+  // δεν περιέχει καθόλου το πεδίο δεν ξεκρεμάει την εκδρομή από τον κατάλογο.
+  const slugs = formData.getAll('category').map(String).filter(Boolean);
+  if (slugs.length > 0) {
+    const { data: cats } = await sb.from('categories').select('id, slug').in('slug', slugs);
+    if (cats && cats.length > 0) {
+      // Κύρια = η πρώτη με τη σειρά που την έστειλε η φόρμα (σειρά καταλόγου).
+      const primarySlug = slugs.find((s) => cats.some((c) => c.slug === s));
       await sb.from('tour_categories').delete().eq('tour_id', tourId);
-      await sb.from('tour_categories').insert({ tour_id: tourId, category_id: cat.id, is_primary: true });
+      await sb.from('tour_categories').insert(
+        cats.map((c) => ({ tour_id: tourId, category_id: c.id, is_primary: c.slug === primarySlug }))
+      );
     }
   }
 
@@ -324,7 +340,9 @@ export async function upsertTour(formData: FormData) {
   // tour (or a slug change) keeps serving the stale page/URL.
   if (slug) revalidatePath(`/tour/${slug}`);
   if (previousSlug && previousSlug !== slug) revalidatePath(`/tour/${previousSlug}`);
-  redirect('/admin/tours');
+  // Με σκέτο redirect ο υπάλληλος προσγειωνόταν στη λίστα χωρίς καμία
+  // ένδειξη ότι η αποθήκευση πέτυχε — δυσδιάκριτο από απλή πλοήγηση.
+  redirect(`/admin/tours${flashQuery(true)}`);
 }
 
 export type UploadResult = { uploaded: number; failed: { name: string; message: string }[] };
@@ -365,28 +383,44 @@ export async function addTourImages(tourId: string, formData: FormData): Promise
   if (!tour.cover_image_id && firstNewId) await sb.from('tours').update({ cover_image_id: firstNewId }).eq('id', tourId);
   revalidatePath(`/admin/tours/${tourId}/edit`);
   revalidatePublic();
+  if (tour.slug) revalidatePath(`/tour/${tour.slug}`);
   return { uploaded, failed };
 }
 
 export async function deleteTourImage(imageId: string, tourId: string) {
   const sb = await createServerClient();
   const { data: img } = await sb.from('tour_images').select('storage_path').eq('id', imageId).maybeSingle();
-  const { data: tour } = await sb.from('tours').select('cover_image_id').eq('id', tourId).maybeSingle();
-  await sb.from('tour_images').delete().eq('id', imageId);
-  if (img?.storage_path) await sb.storage.from('tour-images').remove([img.storage_path]);
+  const { data: tour } = await sb.from('tours').select('cover_image_id, slug').eq('id', tourId).maybeSingle();
+
+  // Ίδιος κανόνας με το deleteTour: υπό RLS μια απορριμμένη DELETE γυρίζει
+  // επιτυχία με μηδέν γραμμές, οπότε επιβεβαιώνουμε ότι όντως έφυγε η εγγραφή
+  // ΠΡΙΝ σβήσουμε το αρχείο — αλλιώς μένει εικόνα που δείχνει στο πουθενά.
+  const { data: deleted, error } = await sb.from('tour_images').delete().eq('id', imageId).select('id');
+  if (error || !deleted || deleted.length === 0) {
+    console.error('deleteTourImage:', error?.message ?? 'delete returned no rows (RLS denied?)');
+    redirect(`/admin/tours/${tourId}/edit${flashQuery(false, 'delete_image')}`);
+  }
+
+  if (img?.storage_path) {
+    const { error: storageError } = await sb.storage.from('tour-images').remove([img.storage_path]);
+    if (storageError) console.error('deleteTourImage storage:', storageError.message);
+  }
   if (tour?.cover_image_id === imageId) {
     const { data: next } = await sb.from('tour_images').select('id').eq('tour_id', tourId).order('position').limit(1);
     await sb.from('tours').update({ cover_image_id: next?.[0]?.id ?? null }).eq('id', tourId);
   }
   revalidatePath(`/admin/tours/${tourId}/edit`);
   revalidatePublic();
+  if (tour?.slug) revalidatePath(`/tour/${tour.slug}`);
 }
 
 export async function setCoverImage(tourId: string, imageId: string) {
   const sb = await createServerClient();
+  const { data: tour } = await sb.from('tours').select('slug').eq('id', tourId).maybeSingle();
   await sb.from('tours').update({ cover_image_id: imageId }).eq('id', tourId);
   revalidatePath(`/admin/tours/${tourId}/edit`);
   revalidatePublic();
+  if (tour?.slug) revalidatePath(`/tour/${tour.slug}`);
 }
 
 export async function setLeadStatus(id: string, status: string) {
@@ -421,13 +455,19 @@ export async function upsertCategory(formData: FormData) {
     slug: String(formData.get('slug') || '').trim(),
     sort_order: Number(formData.get('sort_order') || 0),
   };
-  if (!payload.name_el || !payload.slug) return;
+  if (!payload.name_el || !payload.slug) {
+    redirect(withFlash('/admin/tours?tab=katigories', false, 'invalid_input'));
+  }
   const { error } = id
     ? await sb.from('categories').update(payload).eq('id', id)
     : await sb.from('categories').insert(payload);
   if (error) console.error('upsertCategory:', error.message);
   revalidatePublic();
   revalidatePath('/admin/tours');
+  // Χωρίς redirect+flash, ένα διπλό slug (unique) απλώς ξαναφόρτωνε τη σελίδα
+  // με την παλιά τιμή και ο υπάλληλος νόμιζε ότι αποθηκεύτηκε.
+  const code = error?.code === '23505' ? 'duplicate_category' : 'db';
+  redirect(withFlash('/admin/tours?tab=katigories', !error, code));
 }
 
 export async function deleteCategory(id: string) {
@@ -436,6 +476,7 @@ export async function deleteCategory(id: string) {
   if (error) console.error('deleteCategory:', error.message);
   revalidatePublic();
   revalidatePath('/admin/tours');
+  redirect(withFlash('/admin/tours?tab=katigories', !error));
 }
 
 function revalidatePosts(slug?: string) {
@@ -452,13 +493,17 @@ export async function upsertPost(formData: FormData) {
 
   let existingPublishedAt: string | null = null;
   let existingLookupFailed = false;
+  // Χρειάζεται μετά την εγγραφή για να ανανεωθεί και το ΠΑΛΙΟ /nea/<slug>,
+  // αλλιώς το άρθρο μένει ζωντανό και στην παλιά του διεύθυνση.
+  let previousPostSlug: string | null = null;
   if (id) {
-    const { data: existing, error } = await sb.from('posts').select('published_at').eq('id', id).maybeSingle();
+    const { data: existing, error } = await sb.from('posts').select('published_at, slug').eq('id', id).maybeSingle();
     if (error) {
       console.error('upsertPost select:', error.message);
       existingLookupFailed = true;
     }
     existingPublishedAt = existing?.published_at ?? null;
+    previousPostSlug = existing?.slug ?? null;
   }
   const priceRaw = String(formData.get('price') || '').trim();
   const submittedPublishedOn = String(formData.get('published_on') || '').trim();
@@ -487,14 +532,24 @@ export async function upsertPost(formData: FormData) {
         }),
   };
 
+  // Το posts.slug είναι unique: χωρίς redirect+flash ένα διπλό slug έστελνε
+  // τον υπάλληλο πίσω στη λίστα σαν να είχε αποθηκευτεί το άρθρο.
+  const postErrorCode = (e: { code?: string } | null) =>
+    e?.code === '23505' ? 'duplicate_post_slug' : 'db';
   let postId = id;
   if (id) {
     const { error } = await sb.from('posts').update(payload).eq('id', id);
-    if (error) console.error('upsertPost update:', error.message);
+    if (error) {
+      console.error('upsertPost update:', error.message);
+      redirect(`/admin/posts/${id}/edit${flashQuery(false, postErrorCode(error))}`);
+    }
   } else {
     const { data, error } = await sb.from('posts').insert(payload).select('id').single();
-    if (error) console.error('upsertPost insert:', error.message);
-    postId = data?.id ?? null;
+    if (error || !data) {
+      console.error('upsertPost insert:', error?.message);
+      redirect(`/admin/posts/new${flashQuery(false, postErrorCode(error))}`);
+    }
+    postId = data.id;
   }
   if (!postId) return;
 
@@ -512,27 +567,35 @@ export async function upsertPost(formData: FormData) {
   }
 
   revalidatePosts(slug);
+  // Μετονομασία slug: χωρίς αυτό το άρθρο έμενε ζωντανό και στην παλιά
+  // του διεύθυνση για όσο κρατά το cache της /nea/<slug>.
+  if (previousPostSlug && previousPostSlug !== slug) revalidatePath(`/nea/${previousPostSlug}`);
   redirect('/admin/posts');
 }
 
 export async function setPostStatus(id: string, status: string) {
   const sb = await createServerClient();
+  // Το slug χρειάζεται για να ακυρωθεί και η δημόσια σελίδα του άρθρου —
+  // αλλιώς ένα κρυμμένο άρθρο έμενε ορατό ως και μία ώρα.
+  const { data: existing, error: selError } = await sb.from('posts').select('published_at, slug').eq('id', id).maybeSingle();
+  if (selError) console.error('setPostStatus select:', selError.message);
   const patch: { status: string; published_at?: string } = { status };
-  if (status === 'published') {
-    const { data, error } = await sb.from('posts').select('published_at').eq('id', id).maybeSingle();
-    if (error) console.error('setPostStatus select:', error.message);
-    else if (!data?.published_at) patch.published_at = new Date().toISOString();
+  if (status === 'published' && !existing?.published_at) {
+    patch.published_at = new Date().toISOString();
   }
   const { error } = await sb.from('posts').update(patch).eq('id', id);
   if (error) console.error('setPostStatus:', error.message);
-  revalidatePosts();
+  revalidatePosts(existing?.slug ?? undefined);
 }
 
 export async function deletePost(id: string) {
   const sb = await createServerClient();
+  // Το slug πρώτα: μετά τη διαγραφή δεν υπάρχει τρόπος να ακυρωθεί η δημόσια
+  // σελίδα του άρθρου, που θα συνέχιζε να σερβίρεται ως και μία ώρα.
+  const { data: post } = await sb.from('posts').select('slug').eq('id', id).maybeSingle();
   const { error } = await sb.from('posts').delete().eq('id', id);
   if (error) console.error('deletePost:', error.message);
-  revalidatePosts();
+  revalidatePosts(post?.slug ?? undefined);
 }
 
 // ── Tour booking setup (price categories + departure dates) ────────────────
@@ -632,10 +695,12 @@ export async function saveTourBooking(formData: FormData) {
 export async function setTourOrderStatus(id: string, status: string) {
   const sb = await createServerClient();
   const { data, error } = await sb.rpc('admin_set_tour_order_status', { p_order_id: id, p_status: status });
-  if (error) console.error('setTourOrderStatus:', error.message);
-  else if (!(data as { ok: boolean })?.ok) console.error('setTourOrderStatus:', data);
+  const ok = !error && Boolean((data as { ok?: boolean } | null)?.ok);
+  if (!ok) console.error('setTourOrderStatus:', error?.message ?? data);
   revalidatePath('/admin/bookings');
   revalidatePath(`/admin/bookings/${id}`);
+  // Χωρίς flash, μια απορριμμένη αλλαγή κατάστασης έμοιαζε ακριβώς με επιτυχία.
+  redirect(`/admin/bookings/${id}${flashQuery(ok)}`);
 }
 
 export async function saveTourOrderNotes(id: string, notes: string) {

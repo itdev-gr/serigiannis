@@ -42,7 +42,7 @@ export default async function LayoutsPage({
                 {!l.is_active && ' · Ανενεργή'}
               </span>
               <ConfirmForm action={deleteLayout.bind(null, l.id)} message={`Διαγραφή διάταξης «${l.name}»; Θα αποτύχει αν χρησιμοποιείται σε δρομολόγια.`}>
-                <button type="submit" className="text-[13px] text-cta hover:underline">Διαγραφή</button>
+                <button type="button" className="text-[13px] text-cta hover:underline">Διαγραφή</button>
               </ConfirmForm>
             </div>
           </div>

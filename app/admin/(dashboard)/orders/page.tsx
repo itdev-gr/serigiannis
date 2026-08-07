@@ -10,6 +10,10 @@ const FILTERS: { key: string; label: string }[] = [
   { key: '', label: 'Όλες' },
   { key: 'offline', label: 'Πληρωμή στο γραφείο' },
   { key: 'paid', label: 'Πληρωμένες' },
+  // Χωρίς αυτά τα δύο, μια κράτηση κολλημένη σε πληρωμή δεν φιλτραριζόταν
+  // πουθενά — έπρεπε να τη βρεις με το μάτι μέσα στις «Όλες».
+  { key: 'awaiting_payment', label: 'Σε πληρωμή' },
+  { key: 'pending', label: 'Σε εξέλιξη' },
   { key: 'cancelled', label: 'Ακυρωμένες' },
   { key: 'expired', label: 'Ληγμένες' },
 ];

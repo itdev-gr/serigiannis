@@ -156,8 +156,8 @@ export default async function DashboardPage() {
         {latestLeads.length === 0 ? (
           <p className="text-muted">Δεν υπάρχουν αιτήματα ακόμη.</p>
         ) : (
-          <div className="overflow-hidden rounded-lg border border-border bg-surface">
-            <table className="w-full text-left text-[14px]">
+          <div className="overflow-x-auto rounded-lg border border-border bg-surface">
+            <table className="w-full min-w-[560px] text-left text-[14px]">
               <tbody>
                 {latestLeads.map((l) => (
                   <tr key={l.id} className="border-b border-border/60 last:border-0">

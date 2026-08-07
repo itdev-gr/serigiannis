@@ -4,6 +4,7 @@ import { DoorOpen, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { blockSeat, unblockSeat } from '@/app/admin/(dashboard)/ticketing-actions';
 import { takenSeatNumbers } from '@/lib/ticketing';
+import { ADMIN_ERROR_TEXT } from '@/lib/admin-flash';
 import type { AdminSeatClaim } from '@/lib/queries/ticketing';
 import type { LayoutJson } from '@/types/ticketing';
 
@@ -122,7 +123,7 @@ export function AdminSeatMap({
                 disabled={pending}
                 onClick={() => startTransition(async () => {
                   const res = await unblockSeat(tripId, selected);
-                  setError(res.ok ? null : 'Η ενέργεια απέτυχε. Δοκιμάστε ξανά.');
+                  setError(res.ok ? null : (res.error ? ADMIN_ERROR_TEXT[res.error] ?? ADMIN_ERROR_TEXT.db : ADMIN_ERROR_TEXT.db));
                 })}
                 className="mt-3 w-full rounded-md border border-primary/40 px-3 py-2 text-[14px] font-medium text-primary hover:bg-primary/5"
               >
@@ -135,7 +136,7 @@ export function AdminSeatMap({
                 disabled={pending}
                 onClick={() => startTransition(async () => {
                   const res = await blockSeat(tripId, selected);
-                  setError(res.ok ? null : 'Η ενέργεια απέτυχε. Δοκιμάστε ξανά.');
+                  setError(res.ok ? null : (res.error ? ADMIN_ERROR_TEXT[res.error] ?? ADMIN_ERROR_TEXT.db : ADMIN_ERROR_TEXT.db));
                 })}
                 className="mt-3 w-full rounded-md border border-deep-ink px-3 py-2 text-[14px] font-medium text-deep-ink hover:bg-deep-ink/5"
               >

@@ -66,7 +66,7 @@ export default async function OrderDetailPage({
                 confirmLabel="Επιβεβαίωση"
                 variant="default"
               >
-                <Button type="submit" size="sm" className="mt-2">Πληρώθηκε στο γραφείο</Button>
+                <Button type="button" size="sm" className="mt-2">Πληρώθηκε στο γραφείο</Button>
               </ConfirmForm>
             )}
         </div>
@@ -80,6 +80,9 @@ export default async function OrderDetailPage({
           const moveTargets = upcomingTrips.filter(
             (tr) => tr.status === 'scheduled' && tr.route_id === t.trip?.route_id
           );
+          // Ανοιχτή επιστροφή: δεν υπάρχει τρέχον δρομολόγιο για να δώσει τη
+          // διαδρομή, οπότε προσφέρουμε κάθε προγραμματισμένο δρομολόγιο.
+          const openReturnTargets = upcomingTrips.filter((tr) => tr.status === 'scheduled');
           const currentInTargets = moveTargets.some((tr) => tr.id === t.trip_id);
           const showCurrentOption = !currentInTargets && t.trip != null;
           const hasDefault = currentInTargets || showCurrentOption;
@@ -122,8 +125,17 @@ export default async function OrderDetailPage({
                   {t.trip_id == null ? (
                     <>
                       <input type="hidden" name="open_return" value="1" />
-                      <label className="grow text-[12px] text-muted">Εξαργύρωση σε δρομολόγιο (ID)
-                        <input name="trip_id" defaultValue="" placeholder="Trip ID" className={adminInput} />
+                      {/* Λίστα δρομολογίων αντί για χειρόγραφο UUID: ο υπάλληλος
+                          στο τηλέφωνο δεν έχει τρόπο να ξέρει το database id. */}
+                      <label className="grow text-[12px] text-muted">Εξαργύρωση σε δρομολόγιο
+                        <select name="trip_id" defaultValue="" className={adminInput}>
+                          <option value="" disabled>— Επιλέξτε δρομολόγιο —</option>
+                          {openReturnTargets.map((tr) => (
+                            <option key={tr.id} value={tr.id}>
+                              {`${new Date(`${tr.service_date}T12:00:00`).toLocaleDateString('el-GR')} ${new Date(tr.departure_at).toLocaleTimeString('el-GR', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Athens' })} — ${routeLabel(tr.route ?? {})}`}
+                            </option>
+                          ))}
+                        </select>
                       </label>
                     </>
                   ) : (
@@ -154,7 +166,7 @@ export default async function OrderDetailPage({
                   title="Ακύρωση εισιτηρίου"
                   confirmLabel="Ναι, ακύρωση"
                 >
-                  <button type="submit" className="mt-5 w-full rounded-md border border-cta/40 px-3 py-2 text-[14px] font-medium text-cta hover:bg-cta/5">
+                  <button type="button" className="mt-5 w-full rounded-md border border-cta/40 px-3 py-2 text-[14px] font-medium text-cta hover:bg-cta/5">
                     Ακύρωση εισιτηρίου
                   </button>
                 </ConfirmForm>

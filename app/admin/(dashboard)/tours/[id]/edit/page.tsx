@@ -88,7 +88,7 @@ export default async function EditTourPage({
         </p>
         <div className="flex flex-wrap items-center gap-3">
           <ConfirmForm action={deleteTour.bind(null, id)} message={deleteMessage} title="Οριστική διαγραφή εκδρομής">
-            <Button type="submit" variant="outline" className="border-cta text-cta hover:bg-cta hover:text-surface">Διαγραφή εκδρομής</Button>
+            <Button type="button" variant="outline" className="border-cta text-cta hover:bg-cta hover:text-surface">Διαγραφή εκδρομής</Button>
           </ConfirmForm>
           <form action={setStatus.bind(null, id, 'draft')}>
             <Button type="submit" variant="outline">Απόσυρση από το site</Button>

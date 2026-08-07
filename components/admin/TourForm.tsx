@@ -27,7 +27,10 @@ export function TourForm({
   action: (formData: FormData) => void | Promise<void>;
 }) {
   const isNew = !tour?.id;
-  const primaryCat = tour?.categories?.[0]?.slug ?? categories[0]?.slug;
+  // Οι κατηγορίες είναι πολλαπλές: 20 εκδρομές έχουν ήδη πάνω από μία. Ένα
+  // μονό select έσβηνε σιωπηλά τις υπόλοιπες σε κάθε αποθήκευση.
+  const currentCats = new Set((tour?.categories ?? []).map((c) => c.slug));
+  const defaultCats = currentCats.size > 0 ? currentCats : new Set([categories[0]?.slug].filter(Boolean));
 
   // New tours: the slug tracks the title live until the clerk edits it
   // themselves — then their choice wins. Existing tours: the slug is never
@@ -121,13 +124,28 @@ export function TourForm({
           />
           <span className="mt-1 block text-[12px] text-muted">Εμφανίζεται διαγραμμένη δίπλα στην τιμή.</span>
         </label>
-        <label className="block">
-          <span className={adminLabel}>Κατηγορία</span>
-          <select name="category" defaultValue={primaryCat} className={adminInput}>
-            {categories.map((c) => <option key={c.slug} value={c.slug}>{c.name_el}</option>)}
-          </select>
-        </label>
       </div>
+
+      <fieldset className="block">
+        <legend className={adminLabel}>Κατηγορίες</legend>
+        <div className="mt-1 flex flex-wrap gap-x-5 gap-y-2 rounded-md border border-border bg-surface px-4 py-3">
+          {categories.map((c) => (
+            <label key={c.slug} className="flex items-center gap-2 text-[14px] text-body">
+              <input
+                type="checkbox"
+                name="category"
+                value={c.slug}
+                defaultChecked={defaultCats.has(c.slug)}
+                className="h-4 w-4 accent-primary"
+              />
+              {c.name_el}
+            </label>
+          ))}
+        </div>
+        <span className="mt-1 block text-[12px] text-muted">
+          Η εκδρομή εμφανίζεται σε όλες τις επιλεγμένες κατηγορίες του καταλόγου. Η πρώτη επιλεγμένη είναι η κύρια.
+        </span>
+      </fieldset>
 
       <div className="grid gap-5 sm:grid-cols-2">
         <label className="block">
@@ -216,7 +234,7 @@ export function TourForm({
 
       <div className="mt-2 flex items-center gap-4">
         <Button type="submit" size="lg">Αποθήκευση</Button>
-        <Link href="/admin" className="font-sans text-[14px] font-semibold text-muted hover:text-primary">Άκυρο</Link>
+        <Link href="/admin/tours" className="font-sans text-[14px] font-semibold text-muted hover:text-primary">Άκυρο</Link>
       </div>
     </form>
   );

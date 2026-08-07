@@ -9,6 +9,14 @@ export const ADMIN_ERROR_TEXT: Record<string, string> = {
   duplicate_slug: 'Αυτό το slug χρησιμοποιείται ήδη από άλλη εκδρομή. Επιλέξτε διαφορετικό.',
   invalid_price: 'Μη έγκυρη τιμή — ελέγξτε τα ποσά και δοκιμάστε ξανά.',
   delete: 'Η διαγραφή απέτυχε. Η εκδρομή παραμένει στο site.',
+  invalid_phone: 'Χρειάζεται τηλέφωνο με τουλάχιστον 8 ψηφία. Η κράτηση ΔΕΝ έγινε.',
+  invalid_fare: 'Ο ναύλος δεν είναι διαθέσιμος. Επιλέξτε άλλον — η κράτηση ΔΕΝ έγινε.',
+  invalid_boarding_point: 'Το σημείο επιβίβασης δεν είναι έγκυρο. Ανανεώστε τη σελίδα και δοκιμάστε ξανά.',
+  duplicate_post_slug: 'Αυτό το slug χρησιμοποιείται ήδη από άλλο άρθρο. Επιλέξτε διαφορετικό.',
+  duplicate_category: 'Υπάρχει ήδη κατηγορία με αυτό το slug.',
+  category_in_use: 'Η κατηγορία αφαιρέθηκε και από τις εκδρομές που τη χρησιμοποιούσαν.',
+  seat_not_blocked: 'Η θέση δεν ήταν κλειδωμένη.',
+  delete_image: 'Η διαγραφή της φωτογραφίας απέτυχε. Η φωτογραφία παραμένει.',
 };
 
 /** The query suffix a server action redirects with so the target page flashes a banner. */

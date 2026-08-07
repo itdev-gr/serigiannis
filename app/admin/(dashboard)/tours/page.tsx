@@ -86,8 +86,12 @@ export default async function AdminToursPage({
                     <input form={formId} name="sort_order" type="number" defaultValue={c.sort_order} className={adminInput} />
                     <div className="flex items-center justify-end gap-3">
                       <Button type="submit" form={formId} size="sm" variant="outline">Αποθήκευση</Button>
-                      <ConfirmForm action={deleteCategory.bind(null, c.id)} message={`Διαγραφή κατηγορίας «${c.name_el}»;`}>
-                        <button type="submit" className="text-[13px] text-cta hover:underline">Διαγραφή</button>
+                      <ConfirmForm
+                        action={deleteCategory.bind(null, c.id)}
+                        message={`Διαγραφή κατηγορίας «${c.name_el}»; Θα αφαιρεθεί και από κάθε εκδρομή που την είχε — οι εκδρομές παραμένουν, αλλά φεύγουν από αυτή τη σελίδα του καταλόγου.`}
+                        title="Διαγραφή κατηγορίας"
+                      >
+                        <button type="button" className="text-[13px] text-cta hover:underline">Διαγραφή</button>
                       </ConfirmForm>
                     </div>
                   </div>
