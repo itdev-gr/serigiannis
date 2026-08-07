@@ -6,10 +6,11 @@ import { z } from 'zod';
 import { createServerClient } from '@/lib/supabase/server';
 import { parseBoardingPoints, slugify } from '@/lib/excursions';
 import { flashQuery, withFlash } from '@/lib/admin-flash';
+import { POYLMAN_LIST, poylmanHref, poylmanTabHref } from '@/lib/admin-routes';
 import { athensDepartureAt } from '@/lib/athens-time';
 
 function revalidateTicketing() {
-  revalidatePath('/admin/excursions');
+  revalidatePath('/admin/tours');
   revalidatePath('/admin/layouts');
   revalidatePath('/admin/orders');
   revalidatePath('/admin/trips');
@@ -58,7 +59,7 @@ export async function upsertRoute(formData: FormData) {
     if (error) console.error('upsertRoute:', error.message);
     revalidateTicketing();
     if (redirectTo.startsWith('/admin/')) redirect(withFlash(redirectTo, !error));
-    redirect(`/admin/excursions/${id}${flashQuery(!error)}`);
+    redirect(withFlash(poylmanHref(id), !error));
   }
 
   const { data: created, error } = await sb.from('bus_routes').insert(row).select('id').single();
@@ -68,7 +69,7 @@ export async function upsertRoute(formData: FormData) {
     if (e2) console.error('upsertRoute fares:', e2.message);
   }
   revalidateTicketing();
-  redirect('/admin/excursions');
+  redirect(POYLMAN_LIST);
 }
 
 /** New excursion from the hub: one title. Reuses a shared origin station,
@@ -76,7 +77,7 @@ export async function upsertRoute(formData: FormData) {
 export async function createExcursion(formData: FormData) {
   const sb = await createServerClient();
   const title = g(formData, 'title');
-  if (!title) redirect('/admin/excursions?error=invalid_input');
+  if (!title) redirect(withFlash(POYLMAN_LIST, false, 'invalid_input'));
 
   // find-or-create the shared origin station
   let originId: string;
@@ -91,7 +92,7 @@ export async function createExcursion(formData: FormData) {
       .single();
     if (eOrigin || !newOrigin) {
       console.error('createExcursion origin:', eOrigin?.message);
-      redirect('/admin/excursions?error=db');
+      redirect(withFlash(POYLMAN_LIST, false, 'db'));
     }
     originId = newOrigin!.id;
   }
@@ -105,7 +106,7 @@ export async function createExcursion(formData: FormData) {
     .single();
   if (eDest || !dest) {
     console.error('createExcursion destination:', eDest?.message);
-    redirect('/admin/excursions?error=db');
+    redirect(withFlash(POYLMAN_LIST, false, 'db'));
   }
 
   const { data: route, error: eRoute } = await sb
@@ -122,14 +123,14 @@ export async function createExcursion(formData: FormData) {
     .single();
   if (eRoute || !route) {
     console.error('createExcursion route:', eRoute?.message);
-    redirect('/admin/excursions?error=db');
+    redirect(withFlash(POYLMAN_LIST, false, 'db'));
   }
 
   const { error: eFares } = await sb.from('fare_types').insert(defaultFares(route!.id));
   if (eFares) console.error('createExcursion fares:', eFares.message);
 
   revalidateTicketing();
-  redirect(`/admin/excursions/${route!.id}?created=1`);
+  redirect(`${poylmanHref(route!.id)}?created=1`);
 }
 
 /** Unpublish (draft) an excursion — reversible, unlike deletion. */
@@ -138,7 +139,7 @@ export async function retireExcursion(id: string) {
   const { error } = await sb.from('bus_routes').update({ status: 'draft' }).eq('id', id);
   if (error) console.error('retireExcursion:', error.message);
   revalidateTicketing();
-  redirect(withFlash(`/admin/excursions/${id}?tab=stoixeia`, !error));
+  redirect(withFlash(poylmanTabHref(id, 'stoixeia'), !error));
 }
 
 export async function deleteRoute(id: string) {
@@ -147,12 +148,12 @@ export async function deleteRoute(id: string) {
   // deleted; guide the admin to retire it instead of a silent FK failure.
   const { count } = await sb.from('trips').select('id', { count: 'exact', head: true }).eq('route_id', id);
   if ((count ?? 0) > 0) {
-    redirect(withFlash(`/admin/excursions/${id}?tab=stoixeia`, false, 'route_has_trips'));
+    redirect(withFlash(poylmanTabHref(id, 'stoixeia'), false, 'route_has_trips'));
   }
   const { error } = await sb.from('bus_routes').delete().eq('id', id);
   if (error) console.error('deleteRoute:', error.message);
   revalidateTicketing();
-  redirect(`/admin/excursions${flashQuery(!error)}`);
+  redirect(withFlash(POYLMAN_LIST, !error));
 }
 
 // ---------------------------------------------------------------- fares
@@ -176,16 +177,16 @@ export async function upsertFareType(formData: FormData) {
   if (!routeId) return;
   if (!row.name) {
     if (redirectTo.startsWith('/admin/')) redirect(withFlash(redirectTo, false, 'invalid_input'));
-    redirect(`/admin/excursions/${routeId}${flashQuery(false, 'invalid_input')}`);
+    redirect(withFlash(poylmanHref(routeId), false, 'invalid_input'));
   }
   const { error } = id
     ? await sb.from('fare_types').update(row).eq('id', id)
     : await sb.from('fare_types').insert(row);
   if (error) console.error('upsertFareType:', error.message);
-  revalidatePath(`/admin/excursions/${routeId}`);
+  revalidatePath(poylmanHref(routeId));
   revalidateTicketing();
   if (redirectTo.startsWith('/admin/')) redirect(withFlash(redirectTo, !error));
-  redirect(`/admin/excursions/${routeId}${flashQuery(!error)}`);
+  redirect(withFlash(poylmanHref(routeId), !error));
 }
 
 // -------------------------------------------------------------- layouts
@@ -271,7 +272,7 @@ export async function upsertPattern(formData: FormData) {
   // so saving from the hub doesn't null out legacy notes.
   if (formData.has('notes')) row.notes = g(formData, 'notes') || null;
   if (!row.route_id || !row.layout_id || !row.departure_time || !row.valid_from || weekdays.length === 0) {
-    redirect(withFlash(redirectTo.startsWith('/admin/') ? redirectTo : '/admin/excursions', false, 'invalid_input'));
+    redirect(withFlash(redirectTo.startsWith('/admin/') ? redirectTo : POYLMAN_LIST, false, 'invalid_input'));
   }
   const { error } = id
     ? await sb.from('schedule_patterns').update(row).eq('id', id)
@@ -279,7 +280,7 @@ export async function upsertPattern(formData: FormData) {
   if (error) console.error('upsertPattern:', error.message);
   revalidateTicketing();
   if (redirectTo.startsWith('/admin/')) redirect(withFlash(redirectTo, !error));
-  redirect(`/admin/excursions${flashQuery(!error)}`);
+  redirect(withFlash(POYLMAN_LIST, !error));
 }
 
 export async function deletePattern(id: string, redirectTo?: string) {
@@ -289,7 +290,7 @@ export async function deletePattern(id: string, redirectTo?: string) {
   revalidateTicketing();
   // when bound with only `id`, React passes FormData here — guard on string
   if (typeof redirectTo === 'string' && redirectTo.startsWith('/admin/')) redirect(withFlash(redirectTo, !error));
-  redirect(`/admin/excursions${flashQuery(!error)}`);
+  redirect(withFlash(POYLMAN_LIST, !error));
 }
 
 export async function createTrip(formData: FormData) {
@@ -303,7 +304,7 @@ export async function createTrip(formData: FormData) {
   // RangeError και η σελίδα έσκαγε με 500 αντί να μη γίνει τίποτα.
   if (!routeId || !layoutId || !date || !time) {
     if (redirectTo.startsWith('/admin/')) redirect(withFlash(redirectTo, false, 'invalid_input'));
-    redirect(`/admin/excursions${flashQuery(false, 'invalid_input')}`);
+    redirect(withFlash(POYLMAN_LIST, false, 'invalid_input'));
   }
   const row = {
     route_id: routeId,
@@ -319,7 +320,7 @@ export async function createTrip(formData: FormData) {
   // χειροκίνητη ημερομηνία έμενε αόρατη στους πελάτες.
   revalidateTicketing();
   if (redirectTo.startsWith('/admin/')) redirect(withFlash(redirectTo, !error));
-  redirect(`/admin/excursions${flashQuery(!error)}`);
+  redirect(withFlash(POYLMAN_LIST, !error));
 }
 
 export async function updateTrip(formData: FormData) {
@@ -335,7 +336,7 @@ export async function updateTrip(formData: FormData) {
   const { error } = await sb.from('trips').update(row).eq('id', id);
   if (error) console.error('updateTrip:', error.message);
   revalidatePath(`/admin/trips/${id}`);
-  revalidatePath('/admin/excursions');
+  revalidatePath('/admin/tours');
   revalidatePath('/eisitiria');
   // Carries the seat-suggestion `after` param (if the form had one) back onto
   // the redirect, so TripSeatPanel's key stays put and a half-typed seat isn't lost.

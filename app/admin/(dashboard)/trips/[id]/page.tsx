@@ -1,3 +1,4 @@
+import { poylmanTabHref } from '@/lib/admin-routes';
 import { notFound } from 'next/navigation';
 import { getAdminLayouts, getAdminRouteFares, getAdminTrip, getTripClaims } from '@/lib/queries/ticketing';
 import { updateTrip } from '../../ticketing-actions';
@@ -48,7 +49,7 @@ export default async function TripDashboardPage({
       <AdminPageHeader
         title={routeLabel(trip.route ?? {})}
         subtitle={subtitle}
-        backHref={`/admin/excursions/${trip.route_id}?tab=dromologia`}
+        backHref={poylmanTabHref(trip.route_id, 'dromologia')}
         backLabel="Δρομολόγια"
         actions={trip.status === 'cancelled' ? <Pill tone="danger">ΑΚΥΡΩΜΕΝΟ</Pill> : undefined}
       />

@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, MapPin, Newspaper, Inbox, Settings, LogOut, ExternalLink, Menu, X, Route, Bus, Ticket, CalendarCheck, BookOpen, type LucideIcon } from 'lucide-react';
+import { LayoutDashboard, MapPin, Newspaper, Inbox, Settings, LogOut, ExternalLink, Menu, X, Bus, Ticket, CalendarCheck, BookOpen, type LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { signOut } from '@/app/admin/(dashboard)/actions';
 
@@ -14,7 +14,7 @@ const GROUPS: NavGroup[] = [
   {
     heading: 'Πωλήσεις',
     items: [
-      { to: '/admin/excursions', label: 'Εκδρομές & Πρόγραμμα', icon: Route },
+      { to: '/admin/tours', label: 'Εκδρομές', icon: MapPin },
       { to: '/admin/orders', label: 'Κρατήσεις Εισιτηρίων', icon: Ticket },
       { to: '/admin/bookings', label: 'Κρατήσεις Εκδρομών', icon: CalendarCheck },
       { to: '/admin/layouts', label: 'Λεωφορεία', icon: Bus },
@@ -27,7 +27,6 @@ const GROUPS: NavGroup[] = [
   {
     heading: 'Περιεχόμενο Site',
     items: [
-      { to: '/admin/tours', label: 'Σελίδες Εκδρομών', icon: MapPin },
       { to: '/admin/posts', label: 'Νέα & Ανακοινώσεις', icon: Newspaper },
     ],
   },

@@ -3,6 +3,8 @@ import { Plus } from 'lucide-react';
 import { getAdminTours } from '@/lib/queries/tours';
 import { getCategories } from '@/lib/queries/categories';
 import { AdminToursTable } from '@/components/admin/AdminToursTable';
+import { PoylmanRoutesList } from '@/components/admin/PoylmanRoutesList';
+import { getAdminAllFares, getAdminPatterns, getAdminRoutes, getAdminTrips } from '@/lib/queries/ticketing';
 import { upsertCategory, deleteCategory } from '../actions';
 import { Button } from '@/components/ui/Button';
 import { ConfirmForm } from '@/components/admin/ConfirmForm';
@@ -11,17 +13,25 @@ import { adminInput } from '@/components/admin/ui';
 import { cn } from '@/lib/utils';
 
 const TABS = [
-  { key: 'ekdromes', label: 'Εκδρομές' },
+  { key: 'ekdromes', label: 'Σελίδες εκδρομών' },
+  { key: 'poylman', label: 'Πούλμαν & θέσεις' },
   { key: 'katigories', label: 'Κατηγορίες' },
 ] as const;
 type TabKey = (typeof TABS)[number]['key'];
 
 const CAT_ROW = 'grid grid-cols-[1fr_1fr_6rem_auto] items-center gap-3';
 
+/** Calendar date `days` after the given `YYYY-MM-DD`, anchored at noon UTC so DST never shifts the day. */
+function addDays(ymd: string, days: number): string {
+  const d = new Date(`${ymd}T12:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + days);
+  return d.toISOString().slice(0, 10);
+}
+
 export default async function AdminToursPage({
   searchParams,
 }: {
-  searchParams: Promise<{ tab?: string; saved?: string; error?: string }>;
+  searchParams: Promise<{ tab?: string; saved?: string; error?: string; q?: string }>;
 }) {
   const sp = await searchParams;
   const tab: TabKey = TABS.find((t) => t.key === sp.tab)?.key ?? 'ekdromes';
@@ -29,16 +39,36 @@ export default async function AdminToursPage({
   const [rows, categories] = await Promise.all([getAdminTours(), getCategories()]);
   const published = rows.filter((t) => t.status === 'published').length;
 
+  // Τα δεδομένα του πούλμαν φορτώνονται ΜΟΝΟ στην καρτέλα τους — αλλιώς 240
+  // σελίδες καταλόγου θα πλήρωναν τέσσερα περιττά queries σε κάθε επίσκεψη.
+  let poylman = null as null | {
+    routes: Awaited<ReturnType<typeof getAdminRoutes>>;
+    patterns: Awaited<ReturnType<typeof getAdminPatterns>>;
+    trips: Awaited<ReturnType<typeof getAdminTrips>>;
+    fares: Awaited<ReturnType<typeof getAdminAllFares>>;
+  };
+  if (tab === 'poylman') {
+    const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Athens' });
+    const in30 = addDays(today, 30);
+    const [routes, patterns, trips, fares] = await Promise.all([
+      getAdminRoutes(),
+      getAdminPatterns(),
+      getAdminTrips(today, in30),
+      getAdminAllFares(),
+    ]);
+    poylman = { routes, patterns, trips, fares };
+  }
+
   return (
     <div>
       <FlashBanner saved={sp.saved} error={sp.error} />
       <div className="mb-8 flex items-end justify-between">
         <div>
-          <h1 className="font-display text-4xl font-semibold text-primary">Σελίδες Εκδρομών</h1>
+          <h1 className="font-display text-4xl font-semibold text-primary">Εκδρομές</h1>
           <p className="mt-2 text-[14px] text-muted">
-            Το περιεχόμενο του ιστότοπου (κατάλογος). Για τις εκδρομές με online εισιτήρια: Εκδρομές &amp; Πρόγραμμα.
+            Οι σελίδες του καταλόγου και οι εκδρομές πούλμαν με αριθμημένες θέσεις, σε ένα σημείο.
           </p>
-          <p className="mt-1 text-muted">{rows.length} συνολικά · {published} δημοσιευμένες</p>
+          <p className="mt-1 text-muted">{rows.length} σελίδες · {published} δημοσιευμένες</p>
         </div>
         {tab === 'ekdromes' && (
           <Link href="/admin/tours/new" className="inline-flex items-center gap-1.5 rounded-full bg-cta px-4 py-2 font-sans text-[13px] font-semibold text-surface hover:bg-cta-hover">
@@ -63,6 +93,16 @@ export default async function AdminToursPage({
       </div>
 
       {tab === 'ekdromes' && <AdminToursTable tours={rows} categories={categories} />}
+
+      {tab === 'poylman' && poylman && (
+        <PoylmanRoutesList
+          routes={poylman.routes}
+          patterns={poylman.patterns}
+          trips={poylman.trips}
+          fares={poylman.fares}
+          q={sp.q}
+        />
+      )}
 
       {tab === 'katigories' && (
         <div className="max-w-3xl">

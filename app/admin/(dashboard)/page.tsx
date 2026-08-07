@@ -1,3 +1,4 @@
+import { POYLMAN_LIST } from '@/lib/admin-routes';
 import Link from 'next/link';
 import { getAdminOrders, getAdminTrips, getTripsOccupancy } from '@/lib/queries/ticketing';
 import { getLeads } from '@/lib/queries/leads';
@@ -39,7 +40,7 @@ export default async function DashboardPage() {
   };
 
   const TILES = [
-    { key: 'todaysDepartures', label: 'Σημερινές αναχωρήσεις', href: '/admin/excursions' },
+    { key: 'todaysDepartures', label: 'Σημερινές αναχωρήσεις', href: POYLMAN_LIST },
     { key: 'pendingOffice', label: 'Εκκρεμείς πληρωμές γραφείου', href: '/admin/orders?status=offline' },
     { key: 'weekBookings', label: 'Κρατήσεις 7 ημερών', href: '/admin/orders' },
     { key: 'newRequests', label: 'Νέα αιτήματα', href: '/admin/requests' },
@@ -54,7 +55,7 @@ export default async function DashboardPage() {
         title="Πίνακας"
         actions={
           <div className="flex flex-wrap gap-2">
-            <Button asChild variant="outline"><Link href="/admin/excursions">+ Νέα εκδρομή</Link></Button>
+            <Button asChild variant="outline"><Link href={POYLMAN_LIST}>+ Νέα εκδρομή</Link></Button>
             <Button asChild variant="accent"><Link href="/admin/orders/validate">Επικύρωση εισιτηρίου</Link></Button>
           </div>
         }
@@ -78,7 +79,7 @@ export default async function DashboardPage() {
       <section className="mt-10">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="font-display text-2xl font-semibold text-primary">Επόμενες αναχωρήσεις (7 ημέρες)</h2>
-          <Link href="/admin/excursions" className="font-sans text-[13px] font-semibold uppercase tracking-[0.1em] text-cta hover:underline">Εκδρομές</Link>
+          <Link href={POYLMAN_LIST} className="font-sans text-[13px] font-semibold uppercase tracking-[0.1em] text-cta hover:underline">Εκδρομές</Link>
         </div>
         <div className="overflow-x-auto rounded-lg border border-border bg-surface">
           <div className="min-w-[640px]">
