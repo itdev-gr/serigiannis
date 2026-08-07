@@ -93,8 +93,8 @@ describe('nextFreeSeat — φυσική σειρά', () => {
 describe('takenSeatNumbers — παραλλαγές δεσμεύσεων', () => {
   const now = 1_700_000_000_000;
 
-  it('δέσμευση χωρίς πεδίο expires_at μετράει ως πιασμένη', () => {
-    expect(takenSeatNumbers([{ seat_no: '7', claim_type: 'hold' }], now)).toEqual(['7']);
+  it('δέσμευση χωρίς expires_at θεωρείται ληγμένη, όπως και στο SQL', () => {
+    expect(takenSeatNumbers([{ seat_no: '7', claim_type: 'hold' }], now)).toEqual([]);
   });
 
   it('δέσμευση που λήγει ακριβώς τώρα θεωρείται ληγμένη', () => {
@@ -196,8 +196,8 @@ describe('parseBoardingPoints — όρια και καθάρισμα', () => {
     expect(parseBoardingPoints(line)).toEqual(['Α'.repeat(118)]);
   });
 
-  it('η αποδιπλοποίηση είναι ευαίσθητη σε πεζά/κεφαλαία', () => {
-    expect(parseBoardingPoints('Αθήνα\nαθήνα')).toEqual(['Αθήνα', 'αθήνα']);
+  it('η αποδιπλοποίηση αγνοεί πεζά/κεφαλαία και τόνους', () => {
+    expect(parseBoardingPoints('Αθήνα\nαθήνα')).toEqual(['Αθήνα']);
   });
 
   it('το όριο των 20 μετράει μοναδικά σημεία, όχι γραμμές', () => {

@@ -23,12 +23,22 @@ const ERROR_TEXT: Record<string, string> = {
 
 /** Το σημείο επιβίβασης απαιτείται ΑΝΑ ταξιδιώτη, και μόνο όταν η εκδρομή
  *  έχει ορισμένα σημεία — εκδρομή χωρίς κανένα δεν επιβάλλει επιλογή. */
-export function buildTourCheckoutSchema(requireMeetingPoint: boolean) {
+export function buildTourCheckoutSchema(
+  requireMeetingPoint: boolean,
+  meetingPoints: string[] = [],
+  passengerCount?: number
+) {
   const passenger = z.object({
     name: z.string().min(2, 'Συμπληρώστε ονοματεπώνυμο.'),
     phone: z.string().optional(),
     meeting_point: requireMeetingPoint
-      ? z.string().min(1, 'Επιλέξτε σημείο επιβίβασης.')
+      ? z
+          .string()
+          .min(1, 'Επιλέξτε σημείο επιβίβασης.')
+          // Ίδιος έλεγχος με τη φόρμα εισιτηρίων: το σημείο πρέπει να ανήκει
+          // στη λίστα της εκδρομής, αλλιώς το RPC το απορρίπτει και ο πελάτης
+          // μαθαίνει το λάθος μόνο μετά από ταξίδι στον server.
+          .refine((v) => meetingPoints.length === 0 || meetingPoints.includes(v), 'Μη έγκυρο σημείο επιβίβασης.')
       : z.string().optional(),
   });
   return z.object({
@@ -38,7 +48,10 @@ export function buildTourCheckoutSchema(requireMeetingPoint: boolean) {
     notes: z.string().optional(),
     marketing_opt_in: z.boolean().optional(),
     accept_terms: z.literal(true, { errorMap: () => ({ message: 'Απαιτείται αποδοχή των όρων.' }) }),
-    passengers: z.array(passenger),
+    // Ένας ταξιδιώτης ανά θέση, όπως ακριβώς και στη φόρμα εισιτηρίων: χωρίς
+    // αυτό μια ελλιπής λίστα περνούσε τον browser και έσκαγε στον server με
+    // passenger_count_mismatch.
+    passengers: passengerCount == null ? z.array(passenger) : z.array(passenger).length(passengerCount),
   });
 }
 type Fields = z.infer<ReturnType<typeof buildTourCheckoutSchema>>;
@@ -72,7 +85,10 @@ export function TourCheckoutForm({
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const labels = useMemo(() => passengerLabels(order), [order]);
-  const schema = useMemo(() => buildTourCheckoutSchema(meetingPoints.length > 0), [meetingPoints.length]);
+  const schema = useMemo(
+    () => buildTourCheckoutSchema(meetingPoints.length > 0, meetingPoints, labels.length),
+    [meetingPoints, labels.length]
+  );
   const {
     register,
     handleSubmit,

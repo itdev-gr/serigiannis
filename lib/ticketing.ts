@@ -108,7 +108,10 @@ export function takenSeatNumbers(
   now: number
 ): string[] {
   return claims
-    .filter((c) => c.claim_type !== 'hold' || !c.expires_at || new Date(c.expires_at).getTime() > now)
+    // Ίδιος κανόνας με το SQL (`claim_type <> 'hold' or expires_at > now()`):
+    // μια δέσμευση ΧΩΡΙΣ ημερομηνία λήξης θεωρείται ληγμένη και από τη βάση,
+    // οπότε η θέση πωλείται — η οθόνη δεν πρέπει να τη δείχνει πιασμένη.
+    .filter((c) => c.claim_type !== 'hold' || (!!c.expires_at && new Date(c.expires_at).getTime() > now))
     .map((c) => c.seat_no);
 }
 

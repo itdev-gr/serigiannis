@@ -35,9 +35,16 @@ export function excursionDeepLink(routeId: string | null | undefined): string | 
  *  είναι το ζητούμενο καθάρισμα, όχι bug. */
 export function parseBoardingPoints(text: string): string[] {
   const out: string[] = [];
+  // Το κλειδί σύγκρισης αγνοεί κεφαλαία και τόνους ώστε «Αθήνα» και «ΑΘΗΝΑ»
+  // να μη γεμίζουν δύο από τις 20 θέσεις. Αποθηκεύεται πάντα η πρώτη γραφή.
+  const seen = new Set<string>();
   for (const raw of text.split('\n')) {
     const line = raw.trim().slice(0, 120).trim();
-    if (line && !out.includes(line)) out.push(line);
+    if (!line) continue;
+    const key = line.toLocaleLowerCase('el-GR').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(line);
     if (out.length >= 20) break;
   }
   return out;
