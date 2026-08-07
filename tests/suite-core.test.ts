@@ -106,9 +106,11 @@ describe('sanitizeArticleHtml — φωλιασμένα και επικίνδυν
     expect(sanitizeArticleHtml(html)).toBe(html);
   });
 
-  it('επιτρέπει data:image/svg+xml όπως κάθε data:image', () => {
-    const html = '<img src="data:image/svg+xml;base64,PHN2Zz48L3N2Zz4=">';
-    expect(sanitizeArticleHtml(html)).toBe(html);
+  it('κόβει το data:image/svg+xml, δέχεται τα raster data:image', () => {
+    // Το svg+xml μπορεί να περιέχει script αν φορτωθεί εκτός <img>.
+    expect(sanitizeArticleHtml('<img src="data:image/svg+xml;base64,PHN2Zz48L3N2Zz4=">')).toBe('<img>');
+    const png = '<img src="data:image/png;base64,iVBORw0KGgo=">';
+    expect(sanitizeArticleHtml(png)).toBe(png);
   });
 
   it('αντέχει πολύ μεγάλο άρθρο', () => {
@@ -426,8 +428,8 @@ describe('findMatches / sectionMatches — τόνοι και πολλές λέξ
     ]);
   });
 
-  it('το τελικό «ς» ΔΕΝ ενοποιείται με το «σ» (σε αντίθεση με το searchNormalize)', () => {
-    expect(findMatches('θέσεις', 'θεσεισ')).toEqual([]);
+  it('το τελικό «ς» ενοποιείται με το «σ», όπως και στο searchNormalize', () => {
+    expect(findMatches('θέσεις', 'θεσεισ')).toHaveLength(1);
     expect(findMatches('θέσεις', 'θεσεις')).toHaveLength(1);
   });
 
@@ -448,7 +450,7 @@ describe('findMatches / sectionMatches — τόνοι και πολλές λέξ
 
   it('αναζήτηση «ακύρωση» στον πραγματικό οδηγό βρίσκει ενότητες', () => {
     expect(ODIGOS_SECTIONS.filter((s) => sectionMatches(s, 'ακύρωση')).length).toBeGreaterThan(0);
-    expect(normalizeGreek('Ακύρωσης')).toBe('ακυρωσης');
+    expect(normalizeGreek('Ακύρωσης')).toBe('ακυρωσησ');
   });
 });
 

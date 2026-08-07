@@ -14,7 +14,10 @@ function normalize(row: RawLead): Lead {
 export function groupClients(leads: Lead[]): Client[] {
   const map = new Map<string, Client>();
   for (const l of leads) {
-    const key = (l.email && l.email.trim().toLowerCase()) || (l.phone && l.phone.replace(/\s+/g, '')) || '';
+    // Το τηλέφωνο συγκρίνεται μόνο στα ψηφία του, χωρίς κωδικό χώρας:
+    // «+30 2623012345» και «2623012345» είναι ο ίδιος πελάτης.
+    const digits = (l.phone ?? '').replace(/\D/g, '').replace(/^0030|^30(?=\d{10})/, '');
+    const key = (l.email && l.email.trim().toLowerCase()) || digits || '';
     if (!key) continue;
     const existing = map.get(key);
     if (existing) {

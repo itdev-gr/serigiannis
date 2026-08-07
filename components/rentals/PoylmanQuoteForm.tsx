@@ -9,7 +9,10 @@ import { createLead } from '@/app/(site)/actions';
 const Schema = z.object({
   name: z.string().min(2, 'Συμπληρώστε το όνομά σας.'),
   phone: z.string().min(8, 'Συμπληρώστε ένα έγκυρο τηλέφωνο.'),
-  email: z.string().email('Μη έγκυρο email.').optional().or(z.literal('')),
+  // union με σειρά «κενό ή έγκυρο»: το .email().optional().or(literal(''))
+  // απέρριπτε το άκυρο email αλλά το μήνυμα δεν έφτανε ποτέ στο πεδίο,
+  // οπότε ο επισκέπτης πατούσε «Αποστολή» και δεν έβλεπε τίποτα.
+  email: z.union([z.literal(''), z.string().email('Μη έγκυρο email.')]).optional(),
   route: z.string().min(2, 'Πείτε μας πού θέλετε να πάτε.'),
   date: z.string().optional(),
   people: z.string().optional(),

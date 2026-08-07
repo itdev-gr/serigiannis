@@ -51,7 +51,9 @@ export function sanitizeArticleHtml(html: string): string {
       const bad =
         v.startsWith('javascript:') ||
         v.startsWith('vbscript:') ||
-        (v.startsWith('data:') && !v.startsWith('data:image/')) ||
+        // data: επιτρέπεται μόνο για raster εικόνες· το svg+xml μπορεί να
+        // περιέχει script αν το ίδιο HTML φορτωθεί εκτός <img>.
+        (v.startsWith('data:') && (!v.startsWith('data:image/') || v.startsWith('data:image/svg'))) ||
         attr.toLowerCase() === 'srcdoc';
       return bad ? '' : match;
     }

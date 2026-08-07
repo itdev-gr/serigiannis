@@ -2,7 +2,9 @@ import type { OdigosBlock, OdigosSection } from '@/data/odigos-content';
 
 /** Πεζά + αφαίρεση τόνων/διαλυτικών ώστε «ΑΚΥΡΩΣΗ» να ταιριάζει με «ακύρωση». */
 export function normalizeGreek(s: string): string {
-  return s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  // Το τελικό σίγμα διπλώνει σε «σ», όπως στην αναζήτηση εκδρομών
+  // (lib/filters.ts): χωρίς αυτό, «θεσεισ» δεν έβρισκε «θέσεις».
+  return s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/ς/g, 'σ');
 }
 
 /**
@@ -17,7 +19,9 @@ export function findMatches(text: string, query: string): Array<[number, number]
   const normChars: string[] = [];
   const origIndex: number[] = [];
   for (let i = 0; i < text.length; i++) {
-    const base = text[i].normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    // Ίδια κανονικοποίηση με το normalizeGreek, συμπεριλαμβανομένου του
+    // τελικού σίγμα — αλλιώς το query «θεσεισ» δεν βρίσκει το «θέσεις».
+    const base = text[i].normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/ς/g, 'σ');
     for (const c of base) {
       normChars.push(c);
       origIndex.push(i);
