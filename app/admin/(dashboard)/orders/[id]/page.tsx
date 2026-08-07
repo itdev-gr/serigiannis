@@ -59,7 +59,13 @@ export default async function OrderDetailPage({
           {order.paid_at
             ? <p className="text-[13px] text-olive">Εξοφλήθηκε {new Date(order.paid_at).toLocaleString('el-GR')}</p>
             : order.status === 'offline' && (
-              <ConfirmForm action={markOrderPaid.bind(null, order.id)} message="Σήμανση ως εξοφλημένη;">
+              <ConfirmForm
+                action={markOrderPaid.bind(null, order.id)}
+                message="Σήμανση ως εξοφλημένη;"
+                title="Επιβεβαίωση πληρωμής"
+                confirmLabel="Επιβεβαίωση"
+                variant="default"
+              >
                 <Button type="submit" size="sm" className="mt-2">Πληρώθηκε στο γραφείο</Button>
               </ConfirmForm>
             )}
@@ -144,6 +150,8 @@ export default async function OrderDetailPage({
                 <ConfirmForm
                   action={cancelTicket.bind(null, t.id, order.id)}
                   message={`Ακύρωση εισιτηρίου; Η επιστροφή υπολογίζεται αυτόματα — ${refundPolicyText(bookingSettings)}`}
+                  title="Ακύρωση εισιτηρίου"
+                  confirmLabel="Ναι, ακύρωση"
                 >
                   <button type="submit" className="mt-5 w-full rounded-md border border-cta/40 px-3 py-2 text-[14px] font-medium text-cta hover:bg-cta/5">
                     Ακύρωση εισιτηρίου

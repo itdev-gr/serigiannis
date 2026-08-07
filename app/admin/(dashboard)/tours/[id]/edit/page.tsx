@@ -86,7 +86,7 @@ export default async function EditTourPage({
           Η διαγραφή αφαιρεί την εκδρομή και τις φωτογραφίες της από το site· οι κρατήσεις παραμένουν στο αρχείο.
         </p>
         <div className="flex flex-wrap items-center gap-3">
-          <ConfirmForm action={deleteTour.bind(null, id)} message={deleteMessage}>
+          <ConfirmForm action={deleteTour.bind(null, id)} message={deleteMessage} title="Οριστική διαγραφή εκδρομής">
             <Button type="submit" variant="outline" className="border-cta text-cta hover:bg-cta hover:text-surface">Διαγραφή εκδρομής</Button>
           </ConfirmForm>
           <form action={setStatus.bind(null, id, 'draft')}>
