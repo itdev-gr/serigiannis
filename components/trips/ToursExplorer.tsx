@@ -73,6 +73,13 @@ export function ToursExplorer({
     ? categories.find((c) => c.slug === activeCategory)?.name_el ?? activeCategory
     : null;
 
+  // The pagination isn't a navigation (plain state update), so the browser keeps
+  // the scroll offset; jump back to the top instantly — html has scroll-behavior:smooth.
+  const goToPage = (p: number) => {
+    setPage(p);
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  };
+
   const reset = () => {
     setCategory(lockedCategory);
     setSort('date');
@@ -192,7 +199,7 @@ export function ToursExplorer({
         </div>
       )}
 
-      <Pagination current={current} total={totalPages} onChange={setPage} />
+      <Pagination current={current} total={totalPages} onChange={goToPage} />
     </div>
   );
 }
