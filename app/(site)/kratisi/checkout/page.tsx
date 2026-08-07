@@ -42,7 +42,7 @@ export default async function TourCheckoutPage({
           />
         </div>
         <aside className="order-first lg:order-none lg:col-span-5">
-          <div className="sticky top-28 space-y-6">
+          <div className="sticky top-28 sm:top-40 space-y-6">
             <TourOrderSummary order={order} />
             <PaymentMethods />
           </div>

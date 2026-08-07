@@ -36,8 +36,8 @@ export default async function RentalsPage() {
           <div className="lg:col-span-7">
             <PoylmanPageBody />
           </div>
-          <aside id="prosfora" className="scroll-mt-28 lg:col-span-5">
-            <div className="lg:sticky lg:top-28">
+          <aside id="prosfora" className="scroll-mt-28 sm:scroll-mt-40 lg:col-span-5">
+            <div className="lg:sticky lg:top-40">
               <PoylmanQuoteForm />
             </div>
           </aside>

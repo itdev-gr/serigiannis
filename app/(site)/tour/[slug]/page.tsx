@@ -187,7 +187,7 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
           {/* Booking box (tours with price categories) / info card + enquiry form */}
           <aside className="lg:col-span-5">
             {bookable ? (
-              <div className="sticky top-28 space-y-5">
+              <div className="sticky top-28 sm:top-40 space-y-5">
                 <TourBookingWidget
                   tourId={tour.id}
                   tourSlug={tour.slug}
@@ -206,7 +206,7 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
                 {detailsCard}
               </div>
             ) : hasPricing ? (
-              <div className="sticky top-28 space-y-5">
+              <div className="sticky top-28 sm:top-40 space-y-5">
                 <div className="rounded-lg border border-border bg-surface p-6 shadow-card">
                   <h3 className="font-display text-xl font-bold text-primary">Οι κρατήσεις έχουν κλείσει</h3>
                   <p className="mt-3 text-[15px] text-muted">
@@ -222,7 +222,7 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
               </div>
             ) : (
             <>
-            <div className="sticky top-28 rounded-lg border border-border bg-surface p-8 shadow-card">
+            <div className="sticky top-28 sm:top-40 rounded-lg border border-border bg-surface p-8 shadow-card">
               {tour.price_from != null && (
                 <div className="flex items-baseline gap-2">
                   {tour.price_original != null && tour.price_original > tour.price_from && (
@@ -262,7 +262,7 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
                 </a>
               )}
             </div>
-            <div className="mt-6 scroll-mt-28" id="kratisi">
+            <div className="mt-6 scroll-mt-28 sm:scroll-mt-40" id="kratisi">
               <OnlineBookingForm
                 tourId={tour.id}
                 subject={tour.title}

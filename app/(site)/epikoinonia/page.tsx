@@ -48,7 +48,7 @@ export default async function ContactPage() {
           </div>
 
           <aside className="lg:col-span-5">
-            <div className="sticky top-28 rounded-lg bg-deep-ink p-8 text-surface md:p-10">
+            <div className="sticky top-28 sm:top-40 rounded-lg bg-deep-ink p-8 text-surface md:p-10">
               <h2 className="font-display text-2xl font-semibold">Στοιχεία Επικοινωνίας</h2>
               <ul className="mt-6 space-y-5 text-[15px]">
                 <li className="flex items-start gap-4">
