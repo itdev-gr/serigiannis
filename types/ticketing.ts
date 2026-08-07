@@ -144,6 +144,9 @@ export type OrderTicket = {
   /** Σημείο επιβίβασης του επιβάτη (0027) — μόνο στο outbound σκέλος·
    *  λείπει/null σε return, open-return και εισιτήρια προ-0027. */
   boarding_point?: string | null;
+  /** Προαιρετικό email του ίδιου του επιβάτη (0029) — όταν υπάρχει, του
+   *  στέλνεται ξεχωριστά το δικό του εισιτήριο. Γράφεται σε όλα τα σκέλη. */
+  passenger_email?: string | null;
 };
 
 export type OrderFare = {

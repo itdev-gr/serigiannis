@@ -11,12 +11,6 @@ import { cancelCheckout, submitCheckout } from '@/app/(site)/eisitiria/actions';
 import { farePriceForKind, formatCents } from '@/lib/ticketing';
 import type { OrderBundle, OrderFare, TripKind } from '@/types/ticketing';
 
-const REGIONS = [
-  'Αττική', 'Κεντρική Μακεδονία', 'Δυτική Μακεδονία', 'Ανατολική Μακεδονία και Θράκη', 'Ήπειρος',
-  'Θεσσαλία', 'Ιόνια Νησιά', 'Δυτική Ελλάδα', 'Στερεά Ελλάδα', 'Πελοπόννησος',
-  'Βόρειο Αιγαίο', 'Νότιο Αιγαίο', 'Κρήτη', 'Εξωτερικό',
-];
-
 const ERROR_TEXT: Record<string, string> = {
   order_expired: 'Η δέσμευση των θέσεων έληξε. Ξεκινήστε νέα κράτηση.',
   invalid_billing: 'Ελέγξτε τα στοιχεία χρέωσης.',
@@ -24,6 +18,7 @@ const ERROR_TEXT: Record<string, string> = {
   invalid_fare: 'Μη έγκυρος τύπος εισιτηρίου.',
   invalid_passenger_name: 'Συμπληρώστε ονοματεπώνυμο για κάθε επιβάτη.',
   invalid_passenger_phone: 'Συμπληρώστε τηλέφωνο για κάθε επιβάτη.',
+  invalid_passenger_email: 'Ελέγξτε το email κάποιου επιβάτη.',
   hold_lost: 'Η δέσμευση των θέσεων χάθηκε. Ξεκινήστε νέα κράτηση.',
   invalid_boarding_point: 'Μη έγκυρο σημείο επιβίβασης. Ελέγξτε τις επιλογές σας.',
   missing_boarding_point: 'Επιλέξτε σημείο επιβίβασης για κάθε επιβάτη.',
@@ -52,10 +47,6 @@ export function buildSchema(passengerCount: number, boardingPoints: string[] = [
     customer_name: z.string().min(2, 'Συμπληρώστε ονοματεπώνυμο.'),
     email: z.string().email('Μη έγκυρο email.'),
     phone: z.string().min(8, 'Συμπληρώστε ένα έγκυρο τηλέφωνο.'),
-    address: z.string().min(2, 'Συμπληρώστε διεύθυνση.'),
-    city: z.string().min(2, 'Συμπληρώστε πόλη.'),
-    postal_code: z.string().min(4, 'Συμπληρώστε Τ.Κ.'),
-    region: z.string().min(2, 'Επιλέξτε περιφέρεια.'),
     marketing_opt_in: z.boolean().optional(),
     accept_terms: z.literal(true, { errorMap: () => ({ message: 'Απαιτείται αποδοχή των όρων.' }) }),
     passengers: z
@@ -63,6 +54,9 @@ export function buildSchema(passengerCount: number, boardingPoints: string[] = [
         z.object({
           passenger_name: z.string().min(2, 'Συμπληρώστε ονοματεπώνυμο επιβάτη.'),
           passenger_phone: z.string().min(8, 'Συμπληρώστε ένα έγκυρο τηλέφωνο.'),
+          // Προαιρετικό. Το .or(z.literal('')) χρειάζεται γιατί τα text inputs
+          // του RHF δίνουν '' και όχι undefined όταν μένουν κενά.
+          passenger_email: z.string().email('Μη έγκυρο email.').or(z.literal('')).optional(),
           fare_type_id: z.string().min(1, 'Επιλέξτε τύπο εισιτηρίου.'),
           boarding_point: bpRequired
             ? z
@@ -105,6 +99,7 @@ export function CheckoutForm({ bundle, token, offline, boardingPoint }: { bundle
       passengers: outSeats.map(() => ({
         passenger_name: '',
         passenger_phone: '',
+        passenger_email: '',
         fare_type_id: defaultFare?.id ?? '',
         boarding_point: bpDefault,
       })),
@@ -131,10 +126,6 @@ export function CheckoutForm({ bundle, token, offline, boardingPoint }: { bundle
               customer_name: d.customer_name,
               email: d.email,
               phone: d.phone,
-              address: d.address,
-              city: d.city,
-              postal_code: d.postal_code,
-              region: d.region,
               boarding_point: boardingPoint,
               marketing_opt_in: !!d.marketing_opt_in,
               accept_terms: true,
@@ -142,6 +133,7 @@ export function CheckoutForm({ bundle, token, offline, boardingPoint }: { bundle
             passengers: d.passengers.map((p, i) => ({
               passenger_name: p.passenger_name,
               passenger_phone: p.passenger_phone,
+              passenger_email: p.passenger_email?.trim() || undefined,
               fare_type_id: p.fare_type_id,
               outbound_seat: outSeats[i],
               return_seat: kind === 'round' ? retSeats[i] : undefined,
@@ -155,24 +147,15 @@ export function CheckoutForm({ bundle, token, offline, boardingPoint }: { bundle
       {order.expires_at && <HoldCountdown expiresAt={order.expires_at} />}
 
       <section className="rounded-lg border border-border bg-surface p-6 shadow-card">
-        <h2 className="mb-5 border-b border-border pb-3 font-display text-2xl font-semibold text-body">Στοιχεία Χρέωσης</h2>
+        <h2 className="mb-5 border-b border-border pb-3 font-display text-2xl font-semibold text-body">Στοιχεία Επικοινωνίας</h2>
         <div className="grid gap-4 sm:grid-cols-3">
           <Field label="Ονοματεπώνυμο *" error={errors.customer_name?.message}><input {...register('customer_name')} className={inputCls} /></Field>
           <Field label="Email *" error={errors.email?.message}><input {...register('email')} type="email" className={inputCls} /></Field>
           <Field label="Τηλέφωνο *" error={errors.phone?.message}><input {...register('phone')} type="tel" className={inputCls} /></Field>
-          <Field label="Διεύθυνση *" error={errors.address?.message}><input {...register('address')} className={inputCls} /></Field>
-          <Field label="Πόλη *" error={errors.city?.message}><input {...register('city')} className={inputCls} /></Field>
-          <Field label="Ταχυδρομικός Κώδικας *" error={errors.postal_code?.message}><input {...register('postal_code')} inputMode="numeric" className={inputCls} /></Field>
-          <Field label="Περιφέρεια *" error={errors.region?.message}>
-            <select {...register('region')} className={inputCls}>
-              <option value="">Επιλέξτε</option>
-              {REGIONS.map((r) => <option key={r} value={r}>{r}</option>)}
-            </select>
-          </Field>
         </div>
         <label className="mt-5 flex items-center gap-2 text-[14px] text-muted">
           <input type="checkbox" {...register('marketing_opt_in')} className="h-4 w-4 rounded border-border" />
-          Να ενημερώνομαι για προσφορές εισιτηρίων
+          Να ενημερώνομαι για προσφορές εκδρομών
         </label>
       </section>
 
@@ -209,7 +192,7 @@ export function CheckoutForm({ bundle, token, offline, boardingPoint }: { bundle
                 </select>
               </Field>
               {stops.length > 0 && (
-                <div className="sm:col-start-2 sm:col-span-3">
+                <div className="sm:col-start-2 sm:col-span-2">
                   <Field label="Σημείο επιβίβασης *" error={errors.passengers?.[i]?.boarding_point?.message}>
                     <select {...register(`passengers.${i}.boarding_point`)} className={inputCls}>
                       <option value="">— Επιλέξτε σημείο —</option>
@@ -222,9 +205,20 @@ export function CheckoutForm({ bundle, token, offline, boardingPoint }: { bundle
                   </Field>
                 </div>
               )}
+              {/* Προαιρετικό: με email, ο επιβάτης λαμβάνει ξεχωριστά το δικό
+                  του εισιτήριο. Χωρίς στάσεις πιάνει μόνο του τη 2η γραμμή. */}
+              <div className={stops.length > 0 ? undefined : 'sm:col-start-2 sm:col-span-3'}>
+                <Field label="Email επιβάτη" error={errors.passengers?.[i]?.passenger_email?.message}>
+                  <input {...register(`passengers.${i}.passenger_email`)} type="email" autoComplete="off" className={inputCls} />
+                </Field>
+              </div>
             </div>
           ))}
         </div>
+        <p className="mt-5 rounded-md bg-primary/5 px-4 py-3 text-[13px] leading-relaxed text-muted">
+          Το email του επιβάτη είναι προαιρετικό: αν το συμπληρώσετε, στέλνουμε σε εκείνον ξεχωριστά το δικό του
+          εισιτήριο. Όλα τα εισιτήρια στέλνονται ούτως ή άλλως στο δικό σας email.
+        </p>
       </section>
 
       <section className="rounded-lg border border-border bg-surface p-6 shadow-card">

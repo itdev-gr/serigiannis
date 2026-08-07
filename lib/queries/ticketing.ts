@@ -287,6 +287,8 @@ export type AdminTicket = {
   /** Σημείο επιβίβασης του επιβάτη (0027) — μόνο outbound· null σε
    *  return/open-return και εισιτήρια προ-0027. */
   boarding_point: string | null;
+  /** Προαιρετικό email του επιβάτη (0029) — πού στάλθηκε το εισιτήριό του. */
+  passenger_email: string | null;
   trip?: {
     route_id: string;
     service_date: string;

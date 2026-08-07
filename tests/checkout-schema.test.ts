@@ -28,6 +28,27 @@ const passenger = (over: Record<string, string> = {}) => ({
 
 const STOPS = ['Πλατεία Γαστούνης', 'ΚΤΕΛ Αμαλιάδας'];
 
+describe('CheckoutForm buildSchema — προαιρετικό email επιβάτη', () => {
+  const schema = buildSchema(1, STOPS);
+  const withStop = (over: Record<string, string> = {}) =>
+    passenger({ boarding_point: 'Πλατεία Γαστούνης', ...over });
+
+  it('κενό email περνάει — το πεδίο είναι προαιρετικό', () => {
+    expect(schema.safeParse({ ...billing, passengers: [withStop({ passenger_email: '' })] }).success).toBe(true);
+    expect(schema.safeParse({ ...billing, passengers: [withStop()] }).success).toBe(true);
+  });
+
+  it('έγκυρο email περνάει', () => {
+    expect(
+      schema.safeParse({ ...billing, passengers: [withStop({ passenger_email: 'a@example.com' })] }).success
+    ).toBe(true);
+  });
+
+  it('άκυρο email απορρίπτεται', () => {
+    expect(schema.safeParse({ ...billing, passengers: [withStop({ passenger_email: 'abc' })] }).success).toBe(false);
+  });
+});
+
 describe('CheckoutForm buildSchema — σημείο επιβίβασης ανά επιβάτη', () => {
   it('με στάσεις: κενό ή μη-μέλος σημείο απορρίπτεται', () => {
     const schema = buildSchema(1, STOPS);

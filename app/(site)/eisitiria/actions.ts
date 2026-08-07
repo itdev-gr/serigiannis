@@ -49,10 +49,8 @@ export type CheckoutInput = {
     customer_name: string;
     email: string;
     phone: string;
-    address?: string;
-    city?: string;
-    postal_code?: string;
-    region?: string;
+    // Διεύθυνση/πόλη/ΤΚ/περιφέρεια δεν ζητούνται πλέον στο checkout — οι
+    // στήλες μένουν στη βάση για τις παλιές παραγγελίες.
     boarding_point?: string;
     marketing_opt_in?: boolean;
     accept_terms: boolean;
@@ -60,6 +58,8 @@ export type CheckoutInput = {
   passengers: {
     passenger_name: string;
     passenger_phone: string;
+    /** Προαιρετικό: αν δοθεί, ο επιβάτης λαμβάνει ξεχωριστά το εισιτήριό του. */
+    passenger_email?: string;
     fare_type_id: string;
     outbound_seat: string;
     return_seat?: string;

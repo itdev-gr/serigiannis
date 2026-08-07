@@ -101,6 +101,7 @@ export default async function OrderDetailPage({
             <p className="mt-2 text-[14px] text-body">
               <strong>{t.passenger_name}</strong>
               {t.passenger_phone && ` · ${t.passenger_phone}`}
+              {t.passenger_email && ` · ${t.passenger_email}`}
               {' · '}
               {t.trip
                 ? `${routeLabel(t.trip.route ?? {})} · ${new Date(`${t.trip.service_date}T12:00:00`).toLocaleDateString('el-GR')} · ${new Date(t.trip.departure_at).toLocaleTimeString('el-GR', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Athens' })} · Θέση ${t.seat_no}`
