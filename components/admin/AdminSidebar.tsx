@@ -79,7 +79,11 @@ export function AdminSidebar({ email }: { email?: string }) {
         <button type="button" onClick={() => setOpen(true)} aria-label="Μενού" className="grid h-10 w-10 place-items-center rounded-md text-primary hover:bg-primary/10"><Menu className="h-5 w-5" /></button>
       </div>
       {/* Desktop sidebar */}
-      <aside className="hidden w-64 shrink-0 flex-col border-r border-border bg-surface p-4 lg:flex">
+      {/* sticky + h-screen: σε μακριές σελίδες (π.χ. Οδηγός Χρήσης) το μενού
+          μένει ορατό όσο ο χρήστης κάνει scroll, και κυλάει μόνο του αν δεν
+          χωράει σε χαμηλές οθόνες. Το self-start χρειάζεται γιατί το stretch
+          του γονικού flex ακυρώνει το sticky. */}
+      <aside className="hidden w-64 shrink-0 flex-col self-start border-r border-border bg-surface p-4 lg:sticky lg:top-0 lg:flex lg:h-screen lg:overflow-y-auto">
         <Link href="/admin" className="mb-6 px-3 font-display text-xl font-semibold text-primary">Sergiani <span className="block text-[11px] uppercase tracking-[0.2em] text-muted">Διαχείριση</span></Link>
         {links}
         <div className="mt-auto border-t border-border pt-4">

@@ -70,6 +70,20 @@ describe('odigos content', () => {
     const leftover = texts.filter((t) => /\{\w+\}/.test(t));
     expect(leftover).toEqual([]);
   });
+  it('ο οδηγός εξηγεί τη στάση ανά επιβάτη', () => {
+    const texts: string[] = [];
+    for (const s of ODIGOS_SECTIONS) {
+      for (const b of s.blocks) {
+        if (b.kind === 'p' || b.kind === 'tip' || b.kind === 'warning') texts.push(b.text);
+        else if (b.kind === 'steps') texts.push(...b.items);
+        else if (b.kind === 'table') texts.push(...b.head, ...b.rows.flat());
+      }
+    }
+    const all = texts.join(' ');
+    expect(all).toMatch(/σημείο επιβίβασης/i);
+    expect(all).toMatch(/κάθε επιβάτη|ανά επιβάτη|κάθε ταξιδιώτη/i);
+  });
+
   it('has unique section ids', () => {
     const ids = ODIGOS_SECTIONS.map((s) => s.id);
     expect(new Set(ids).size).toBe(ids.length);
