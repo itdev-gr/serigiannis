@@ -29,7 +29,7 @@ export function TourOrderSummary({ order }: { order: TourOrder }) {
         {order.meeting_point && (
           <li className="flex items-center gap-3">
             <MapPin className="h-5 w-5 shrink-0 text-primary/60" strokeWidth={1.75} />
-            <span>Σημείο συνάντησης: <strong className="text-primary">{order.meeting_point}</strong></span>
+            <span>Σημείο επιβίβασης: <strong className="text-primary">{order.meeting_point}</strong></span>
           </li>
         )}
       </ul>
@@ -67,6 +67,7 @@ export function TourOrderSummary({ order }: { order: TourOrder }) {
                 <Users className="h-4 w-4 shrink-0 text-primary/60" strokeWidth={1.75} />
                 <span>{p.name}</span>
                 {p.phone && <span className="text-[13px] text-muted">· {p.phone}</span>}
+                {p.meeting_point && <span className="text-[13px] text-muted">· {p.meeting_point}</span>}
               </li>
             ))}
           </ul>

@@ -27,12 +27,20 @@ export function excursionDeepLink(routeId: string | null | undefined): string | 
   return routeId ? `/eisitiria?ekdromi=${encodeURIComponent(routeId)}` : null;
 }
 
-/** Admin textarea (one boarding point per line) -> clean array. */
+/** Admin textarea (one boarding point per line) -> clean array.
+ *  Όρια (εύρημα Ε-5, docs/elegxos/2026-08-06-evrimata.md): 120 χαρακτήρες ανά
+ *  γραμμή (τα παραπάνω κόβονται — ένα κολλημένο πρόγραμμα εκδρομής δεν είναι
+ *  στάση), χωρίς διπλότυπα, έως 20 σημεία. Τρέχει μόνο στο admin save·
+ *  αποθηκευμένη λίστα πάνω από τα όρια θα κλαδευτεί στο επόμενο save — αυτό
+ *  είναι το ζητούμενο καθάρισμα, όχι bug. */
 export function parseBoardingPoints(text: string): string[] {
-  return text
-    .split('\n')
-    .map((s) => s.trim())
-    .filter(Boolean);
+  const out: string[] = [];
+  for (const raw of text.split('\n')) {
+    const line = raw.trim().slice(0, 120).trim();
+    if (line && !out.includes(line)) out.push(line);
+    if (out.length >= 20) break;
+  }
+  return out;
 }
 
 const GREEK_TO_LATIN: Record<string, string> = {

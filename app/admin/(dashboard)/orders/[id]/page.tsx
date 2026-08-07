@@ -102,6 +102,7 @@ export default async function OrderDetailPage({
               {t.trip
                 ? `${routeLabel(t.trip.route ?? {})} · ${new Date(`${t.trip.service_date}T12:00:00`).toLocaleDateString('el-GR')} · ${new Date(t.trip.departure_at).toLocaleTimeString('el-GR', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Athens' })} · Θέση ${t.seat_no}`
                 : `Ανοιχτή επιστροφή${t.open_return_expires_on ? ` (έως ${new Date(`${t.open_return_expires_on}T12:00:00`).toLocaleDateString('el-GR')})` : ''}`}
+              {t.boarding_point && ` · Επιβίβαση: ${t.boarding_point}`}
               {t.validated_at && ` · Επικυρώθηκε ${new Date(t.validated_at).toLocaleString('el-GR')}`}
             </p>
 

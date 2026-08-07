@@ -67,6 +67,7 @@ export default async function TripDashboardPage({
         fares={fares}
         initialSeat={suggested ?? ''}
         seatsLeft={seatsLeft}
+        boardingPoints={trip.route?.boarding_points ?? []}
       >
         <form action={updateTrip} className="grid gap-3 rounded-lg border border-border bg-surface p-5">
           <h2 className="font-display text-xl font-semibold text-primary">Ρυθμίσεις δρομολογίου</h2>

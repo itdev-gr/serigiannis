@@ -14,12 +14,16 @@ export function ManualBookingForm({
   seat,
   onSeatChange,
   seatsLeft,
+  boardingPoints,
 }: {
   tripId: string;
   fares: FareType[];
   seat: string;
   onSeatChange: (seat: string) => void;
   seatsLeft: number;
+  /** Σημεία επιβίβασης της διαδρομής. Προαιρετικό στην τηλεφωνική κράτηση —
+   *  ο πελάτης μπορεί να μην το ξέρει ακόμη· ελέγχεται server-side όταν δοθεί. */
+  boardingPoints: string[];
 }) {
   // The value the system proposed on first render — frozen so an edit that
   // happens to match it later doesn't relabel itself as "the suggestion".
@@ -61,6 +65,14 @@ export function ManualBookingForm({
           <input name="email" type="email" className={adminInput} />
         </label>
       </div>
+      {boardingPoints.length > 0 && (
+        <label className="block text-[13px] text-muted">Σημείο επιβίβασης (προαιρετικό)
+          <select name="boarding_point" defaultValue="" className={adminInput}>
+            <option value="">— Χωρίς σημείο (άγνωστο) —</option>
+            {boardingPoints.map((point) => <option key={point} value={point}>{point}</option>)}
+          </select>
+        </label>
+      )}
       <div><Button type="submit" disabled={full}>Κράτηση θέσης</Button></div>
       <p className="text-[12px] text-muted">Δημιουργεί κράτηση με «Πληρωμή στο γραφείο». Για πολλές θέσεις επαναλάβετε ανά θέση.</p>
     </form>

@@ -37,7 +37,7 @@ export default async function TourBookingDetailPage({ params }: { params: Promis
             : '—'}
         </dd>
         <dt className="text-muted">Άτομα</dt><dd className="col-span-2">{order.party_size}</dd>
-        {order.meeting_point && (<><dt className="text-muted">Σημείο συνάντησης</dt><dd className="col-span-2">{order.meeting_point}</dd></>)}
+        {order.meeting_point && (<><dt className="text-muted">Σημείο επιβίβασης</dt><dd className="col-span-2">{order.meeting_point}</dd></>)}
         {order.notes && (<><dt className="text-muted">Σημειώσεις πελάτη</dt><dd className="col-span-2 whitespace-pre-wrap">{order.notes}</dd></>)}
         {order.payment_provider && (<><dt className="text-muted">Πληρωμή</dt><dd className="col-span-2">{order.payment_provider}{order.paid_at ? ` · ${new Date(order.paid_at).toLocaleString('el-GR')}` : ''}</dd></>)}
         <dt className="text-muted">Ημ/νία</dt><dd className="col-span-2">{new Date(order.created_at).toLocaleString('el-GR')}</dd>
@@ -67,7 +67,10 @@ export default async function TourBookingDetailPage({ params }: { params: Promis
           <ul className="mt-3 divide-y divide-border/60 text-[15px]">
             {order.passengers.map((p, i) => (
               <li key={i} className="flex items-center justify-between gap-3 py-2">
-                <span className="text-body">{p.name}</span>
+                <span className="text-body">
+                  {p.name}
+                  {p.meeting_point && <span className="block text-[13px] text-muted">{p.meeting_point}</span>}
+                </span>
                 {p.phone && (
                   <a href={`tel:${p.phone.replace(/\s+/g, '')}`} className="text-[13px] text-primary hover:text-cta">{p.phone}</a>
                 )}

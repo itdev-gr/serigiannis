@@ -141,6 +141,9 @@ export type OrderTicket = {
   open_return: boolean;
   open_return_expires_on: string | null;
   refunded_cents: number | null;
+  /** Σημείο επιβίβασης του επιβάτη (0027) — μόνο στο outbound σκέλος·
+   *  λείπει/null σε return, open-return και εισιτήρια προ-0027. */
+  boarding_point?: string | null;
 };
 
 export type OrderFare = {
@@ -173,6 +176,9 @@ export type OrderBundle =
       legs: OrderLeg[];
       tickets: OrderTicket[];
       fares: OrderFare[];
+      /** Η λίστα σημείων επιβίβασης της διαδρομής (0027) — για τον επιλογέα
+       *  ανά επιβάτη στο checkout. Optional: λείπει σε βάση προ-0027. */
+      boarding_points?: string[];
     }
   | { ok: false; error: string };
 

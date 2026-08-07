@@ -37,7 +37,6 @@ export function ExcursionSearchForm({ excursions }: { excursions: Excursion[] })
         setError(null);
         if (!routeId) { setError('Επιλέξτε εκδρομή.'); return; }
         if (!date) { setError('Επιλέξτε ημερομηνία εκδρομής.'); return; }
-        if ((chosen?.boarding_points.length ?? 0) > 0 && !bp) { setError('Επιλέξτε σημείο συνάντησης.'); return; }
         const params = new URLSearchParams({ route: routeId, date, pax: String(pax) });
         if (bp) params.set('bp', bp);
         router.push(`/eisitiria/dromologia?${params.toString()}`);
@@ -70,15 +69,20 @@ export function ExcursionSearchForm({ excursions }: { excursions: Excursion[] })
             ))}
           </select>
         </label>
+        {/* Προαιρετικό πλέον: η δεσμευτική επιλογή γίνεται ανά επιβάτη στην
+            ολοκλήρωση· εδώ λειτουργεί μόνο ως προεπιλογή για όλους. */}
         {(chosen?.boarding_points.length ?? 0) > 0 && (
           <label className="block sm:col-span-2">
-            <span className="mb-1.5 block font-sans text-[13px] font-medium uppercase tracking-[0.1em] text-primary">Σημείο συνάντησης *</span>
+            <span className="mb-1.5 block font-sans text-[13px] font-medium uppercase tracking-[0.1em] text-primary">Σημείο επιβίβασης (προαιρετικό)</span>
             <select className={inputCls} value={bp} onChange={(e) => setBp(e.target.value)}>
-              <option value="">— Επιλέξτε σημείο συνάντησης —</option>
+              <option value="">— Επιλογή στο τελευταίο βήμα —</option>
               {chosen!.boarding_points.map((point) => (
                 <option key={point} value={point}>{point}</option>
               ))}
             </select>
+            <span className="mt-1 block text-[12px] text-muted">
+              Προεπιλογή για όλους τους επιβάτες — αλλάζει ανά επιβάτη στην ολοκλήρωση της κράτησης.
+            </span>
           </label>
         )}
       </div>

@@ -1,6 +1,6 @@
 import type { TourStatus } from '@/types/db';
 
-export type TourSetupItemId = 'summary' | 'photos' | 'pricing' | 'departures' | 'published';
+export type TourSetupItemId = 'summary' | 'photos' | 'pricing' | 'departures' | 'meeting_points' | 'published';
 
 export type TourSetupItem = {
   id: TourSetupItemId;
@@ -17,9 +17,10 @@ export type TourSetupInput = {
   imageCount: number;
   tierCount: number;
   futureDepartureCount: number;
+  meetingPointCount: number;
 };
 
-/** The five things a tour needs before it sells online, in the order a clerk
+/** The six things a tour needs before it sells online, in the order a clerk
  *  should fix them. Pure — the admin page supplies plain counts and flags. */
 export function setupChecklist(input: TourSetupInput): TourSetupItem[] {
   const hasSummary = Boolean(input.summary && input.summary.trim().length > 0);
@@ -52,6 +53,19 @@ export function setupChecklist(input: TourSetupInput): TourSetupItem[] {
       label: 'Ημερομηνίες αναχώρησης',
       done: hasDepartures,
       hint: hasDepartures ? undefined : 'Ο πελάτης θα κάνει κράτηση χωρίς να διαλέξει ημερομηνία.',
+    },
+    {
+      id: 'meeting_points',
+      label: 'Σημεία επιβίβασης',
+      done: input.meetingPointCount >= 1,
+      // Δεν μπλοκάρει την κράτηση — αλλά σε ζωντανή, ανοιχτή εκδρομή χωρίς
+      // σημεία ο πελάτης δεν δηλώνει στάση και το γραφείο τη ζητά τηλεφωνικά.
+      warning:
+        input.meetingPointCount === 0 && input.status === 'published' && input.bookings_open !== false,
+      hint:
+        input.meetingPointCount >= 1
+          ? undefined
+          : 'Χωρίς σημεία, ο πελάτης κάνει κράτηση χωρίς να διαλέξει στάση επιβίβασης — το γραφείο θα τη ζητήσει τηλεφωνικά.',
     },
     {
       id: 'published',

@@ -39,6 +39,12 @@ function TicketCard({ ticket, legLabel }: { ticket: OrderTicket; legLabel: strin
           <dt className="text-[12px] uppercase tracking-[0.08em] text-muted">Τιμή</dt>
           <dd className="font-semibold text-body">{formatCents(ticket.price_cents)}</dd>
         </div>
+        {ticket.boarding_point && (
+          <div className="col-span-2 sm:col-span-4">
+            <dt className="text-[12px] uppercase tracking-[0.08em] text-muted">Επιβίβαση</dt>
+            <dd className="font-semibold text-body">{ticket.boarding_point}</dd>
+          </div>
+        )}
       </dl>
       {ticket.open_return && (
         <p className="mt-3 rounded bg-gold/15 px-3 py-2 text-[13px] text-deep-ink">
@@ -99,7 +105,7 @@ export default async function EpivevaiosiPage({
           )}
           {order.boarding_point && (
             <p className="mt-2 text-[14px] text-muted">
-              Σημείο συνάντησης: <span className="font-semibold text-body">{order.boarding_point}</span>
+              Σημείο επιβίβασης: <span className="font-semibold text-body">{order.boarding_point}</span>
             </p>
           )}
         </div>

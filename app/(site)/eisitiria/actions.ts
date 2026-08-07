@@ -57,7 +57,16 @@ export type CheckoutInput = {
     marketing_opt_in?: boolean;
     accept_terms: boolean;
   };
-  passengers: { passenger_name: string; passenger_phone: string; fare_type_id: string; outbound_seat: string; return_seat?: string }[];
+  passengers: {
+    passenger_name: string;
+    passenger_phone: string;
+    fare_type_id: string;
+    outbound_seat: string;
+    return_seat?: string;
+    /** Σημείο επιβίβασης του επιβάτη — υποχρεωτικό server-side όταν η
+     *  διαδρομή έχει boarding_points (εκτός admin κρατήσεων). */
+    boarding_point?: string;
+  }[];
 };
 
 /** Step 4: finalize. Offline → tickets issue now; gateway → redirect to the bank. */

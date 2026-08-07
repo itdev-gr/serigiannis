@@ -25,6 +25,7 @@ export function TripSeatPanel({
   fares,
   initialSeat,
   seatsLeft,
+  boardingPoints,
   children,
 }: {
   tripId: string;
@@ -33,6 +34,8 @@ export function TripSeatPanel({
   fares: FareType[];
   initialSeat: string;
   seatsLeft: number;
+  /** Σημεία επιβίβασης της διαδρομής — προαιρετικό πεδίο στην τηλεφωνική κράτηση. */
+  boardingPoints: string[];
   /** The "Ρυθμίσεις δρομολογίου" form — a server-rendered element passed through
    *  unchanged so it can keep sharing the two-column grid with the booking
    *  form without itself becoming a client component. */
@@ -71,6 +74,7 @@ export function TripSeatPanel({
           seat={seat}
           onSeatChange={handleSeatChange}
           seatsLeft={seatsLeft}
+          boardingPoints={boardingPoints}
         />
       </div>
     </>

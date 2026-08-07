@@ -93,8 +93,10 @@ export type TourOrderItem = {
 
 export type TourOrderStatus = 'pending' | 'awaiting_payment' | 'paid' | 'offline' | 'cancelled' | 'expired';
 
-/** One traveller captured on a tour order (sanitised server-side: only name + phone kept). */
-export type TourPassenger = { name: string; phone: string | null };
+/** One traveller captured on a tour order (sanitised server-side: name, phone
+ *  and — από το 0027, όταν η εκδρομή έχει meeting_points — το σημείο επιβίβασης.
+ *  Το κλειδί λείπει σε παραγγελίες προ-0027 και σε εκδρομές χωρίς σημεία). */
+export type TourPassenger = { name: string; phone: string | null; meeting_point?: string | null };
 
 export type TourOrder = {
   id: string;
@@ -113,8 +115,9 @@ export type TourOrder = {
   phone: string | null;
   notes: string | null;
   passengers: TourPassenger[];
-  /** The customer's chosen meeting point, once finalize_tour_order has stored
-   *  it — null before checkout and for tours without meeting_points. */
+  /** Παράγωγο (0027): το κοινό σημείο επιβίβασης όλων των ταξιδιωτών, null
+   *  όταν διαφέρουν, πριν το checkout, ή σε εκδρομές χωρίς meeting_points.
+   *  Η πηγή αλήθειας είναι το passengers[].meeting_point. */
   meeting_point: string | null;
   payment_provider: string | null;
   paid_at: string | null;

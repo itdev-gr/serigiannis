@@ -40,10 +40,12 @@ export type TourCheckoutInput = {
     notes?: string;
     marketing_opt_in?: boolean;
     accept_terms: boolean;
-    /** One entry per traveller; sanitised again server-side in finalize_tour_order. */
-    passengers?: { name: string; phone: string | null }[];
-    /** Required only when the tour has meeting_points configured — validated
-     *  server-side against that list in finalize_tour_order. */
+    /** One entry per traveller; sanitised again server-side in finalize_tour_order.
+     *  Το meeting_point απαιτείται ανά ταξιδιώτη όταν η εκδρομή έχει
+     *  meeting_points — ελέγχεται server-side κόντρα στη λίστα. */
+    passengers?: { name: string; phone: string | null; meeting_point?: string | null }[];
+    /** Προ-0027 order-level σημείο· τα νέα clients δεν το στέλνουν, το RPC το
+     *  δέχεται μόνο ως fallback για το παράθυρο του deploy. */
     meeting_point?: string;
   };
 };

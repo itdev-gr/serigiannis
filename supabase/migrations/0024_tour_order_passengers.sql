@@ -87,6 +87,9 @@ begin
   -- row is held `for update`. Deliberate: no check that count(passengers)
   -- equals party_size — the client form already requires one name per seat,
   -- and a missing name costs a phone call, not a lost sale; do not "fix" this.
+  -- (Ανατράπηκε εν μέρει στο 0027: όταν η εκδρομή έχει meeting_points, ο
+  -- έλεγχος count = party_size πλέον ΙΣΧΥΕΙ — το σημείο επιβίβασης είναι
+  -- υποχρεωτικό ανά ταξιδιώτη και μια ελλιπής λίστα δεν έχει πού να το γράψει.)
   v_raw := p_customer->'passengers';
   if jsonb_typeof(v_raw) = 'array' then
     for v_p in select value from jsonb_array_elements(v_raw) limit 200 loop

@@ -61,6 +61,43 @@ describe('TourOrderSummary — ταξιδιώτες', () => {
     expect(screen.getByText('EA1234')).toBeInTheDocument();
   });
 
+  it('δείχνει το σημείο επιβίβασης κάθε ταξιδιώτη όταν υπάρχει', () => {
+    render(
+      <TourOrderSummary
+        order={order({
+          meeting_point: null, // μικτές στάσεις → το order-level είναι null
+          passengers: [
+            { name: 'Μαρία Παπαδοπούλου', phone: null, meeting_point: 'Πλατεία Γαστούνης' },
+            { name: 'Γιώργος Παπαδόπουλος', phone: null, meeting_point: 'ΚΤΕΛ Αμαλιάδας' },
+          ],
+        })}
+      />
+    );
+    expect(screen.getByText(/Πλατεία Γαστούνης/)).toBeInTheDocument();
+    expect(screen.getByText(/ΚΤΕΛ Αμαλιάδας/)).toBeInTheDocument();
+    expect(screen.queryByText(/Σημείο επιβίβασης:/)).not.toBeInTheDocument();
+  });
+
+  it('κοινή στάση όλων: δείχνει και την order-level γραμμή', () => {
+    render(
+      <TourOrderSummary
+        order={order({
+          meeting_point: 'Πλατεία Γαστούνης',
+          passengers: [{ name: 'Μαρία Π.', phone: null, meeting_point: 'Πλατεία Γαστούνης' }],
+        })}
+      />
+    );
+    expect(screen.getByText(/Σημείο επιβίβασης:/)).toBeInTheDocument();
+  });
+
+  it('παλιοί ταξιδιώτες χωρίς σημείο εμφανίζονται όπως πριν', () => {
+    render(
+      <TourOrderSummary order={order({ passengers: [{ name: 'Μαρία Π.', phone: '6941234567' }] })} />
+    );
+    expect(screen.getByText('Μαρία Π.')).toBeInTheDocument();
+    expect(screen.getByText(/6941234567/)).toBeInTheDocument();
+  });
+
   it('κρατά τα υπόλοιπα στοιχεία της κράτησης', () => {
     render(<TourOrderSummary order={order({ passengers: [{ name: 'Μαρία', phone: null }] })} />);
     expect(screen.getByText('Διήμερη Θεσσαλονίκη')).toBeInTheDocument();

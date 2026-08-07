@@ -37,6 +37,21 @@ describe('parseBoardingPoints', () => {
   it('empty string -> empty array', () => {
     expect(parseBoardingPoints('')).toEqual([]);
   });
+
+  // Εύρημα Ε-5: κολλημένα προγράμματα εκδρομών μέσα στο πεδίο στάσεων.
+  it('κόβει διπλότυπα κρατώντας την πρώτη εμφάνιση', () => {
+    expect(parseBoardingPoints('Α\nΒ\nΑ\nΒ\nΓ')).toEqual(['Α', 'Β', 'Γ']);
+  });
+
+  it('κόβει γραμμές στους 120 χαρακτήρες', () => {
+    const long = 'Σ'.repeat(200);
+    expect(parseBoardingPoints(long)).toEqual(['Σ'.repeat(120)]);
+  });
+
+  it('δέχεται έως 20 σημεία', () => {
+    const text = Array.from({ length: 48 }, (_, i) => `Στάση ${i + 1}`).join('\n');
+    expect(parseBoardingPoints(text)).toHaveLength(20);
+  });
 });
 
 describe('resolveInitialRoute', () => {

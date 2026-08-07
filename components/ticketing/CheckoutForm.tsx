@@ -25,7 +25,8 @@ const ERROR_TEXT: Record<string, string> = {
   invalid_passenger_name: 'Συμπληρώστε ονοματεπώνυμο για κάθε επιβάτη.',
   invalid_passenger_phone: 'Συμπληρώστε τηλέφωνο για κάθε επιβάτη.',
   hold_lost: 'Η δέσμευση των θέσεων χάθηκε. Ξεκινήστε νέα κράτηση.',
-  invalid_boarding_point: 'Μη έγκυρο σημείο συνάντησης. Ξεκινήστε νέα κράτηση από την αρχή.',
+  invalid_boarding_point: 'Μη έγκυρο σημείο επιβίβασης. Ελέγξτε τις επιλογές σας.',
+  missing_boarding_point: 'Επιλέξτε σημείο επιβίβασης για κάθε επιβάτη.',
   payment_init: 'Η σύνδεση με την τράπεζα απέτυχε. Δοκιμάστε ξανά.',
   db: 'Κάτι πήγε στραβά. Δοκιμάστε ξανά.',
 };
@@ -43,7 +44,10 @@ function Field({ label, error, children }: { label: string; error?: string; chil
   );
 }
 
-function buildSchema(passengerCount: number) {
+/** Το σημείο επιβίβασης απαιτείται ΑΝΑ επιβάτη, και μόνο όταν η διαδρομή
+ *  έχει ορισμένα σημεία — αλλιώς το πεδίο μένει προαιρετικό/κρυφό. */
+export function buildSchema(passengerCount: number, boardingPoints: string[] = []) {
+  const bpRequired = boardingPoints.length > 0;
   return z.object({
     customer_name: z.string().min(2, 'Συμπληρώστε ονοματεπώνυμο.'),
     email: z.string().email('Μη έγκυρο email.'),
@@ -60,6 +64,12 @@ function buildSchema(passengerCount: number) {
           passenger_name: z.string().min(2, 'Συμπληρώστε ονοματεπώνυμο επιβάτη.'),
           passenger_phone: z.string().min(8, 'Συμπληρώστε ένα έγκυρο τηλέφωνο.'),
           fare_type_id: z.string().min(1, 'Επιλέξτε τύπο εισιτηρίου.'),
+          boarding_point: bpRequired
+            ? z
+                .string()
+                .min(1, 'Επιλέξτε σημείο επιβίβασης.')
+                .refine((v) => boardingPoints.includes(v), 'Μη έγκυρο σημείο επιβίβασης.')
+            : z.string().optional(),
         })
       )
       .length(passengerCount),
@@ -77,16 +87,27 @@ export function CheckoutForm({ bundle, token, offline, boardingPoint }: { bundle
   const outSeats = [...outboundLeg.seats].sort((a, b) => numeric(a) - numeric(b));
   const retSeats = returnLeg ? [...returnLeg.seats].sort((a, b) => numeric(a) - numeric(b)) : [];
 
-  const schema = useMemo(() => buildSchema(outSeats.length), [outSeats.length]);
+  const stops = useMemo(() => bundle.boarding_points ?? [], [bundle.boarding_points]);
+  const schema = useMemo(() => buildSchema(outSeats.length, stops), [outSeats.length, stops]);
   const defaultFare = fares.find((f) => f.is_default) ?? fares[0];
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+
+  // Prefill: η επιλογή του βήματος αναζήτησης (?bp=), εφόσον είναι ακόμη
+  // έγκυρο μέλος της λίστας· με ένα μόνο σημείο προεπιλέγεται αυτό.
+  const bpDefault =
+    boardingPoint && stops.includes(boardingPoint) ? boardingPoint : stops.length === 1 ? stops[0] : '';
 
   const { register, handleSubmit, watch, formState: { errors } } = useForm<CheckoutFields>({
     resolver: zodResolver(schema),
     defaultValues: {
       marketing_opt_in: false,
-      passengers: outSeats.map(() => ({ passenger_name: '', passenger_phone: '', fare_type_id: defaultFare?.id ?? '' })),
+      passengers: outSeats.map(() => ({
+        passenger_name: '',
+        passenger_phone: '',
+        fare_type_id: defaultFare?.id ?? '',
+        boarding_point: bpDefault,
+      })),
     },
   });
 
@@ -124,6 +145,7 @@ export function CheckoutForm({ bundle, token, offline, boardingPoint }: { bundle
               fare_type_id: p.fare_type_id,
               outbound_seat: outSeats[i],
               return_seat: kind === 'round' ? retSeats[i] : undefined,
+              boarding_point: p.boarding_point || undefined,
             })),
           });
           if (res && !res.ok) setError(ERROR_TEXT[res.error] ?? ERROR_TEXT.db);
@@ -186,6 +208,20 @@ export function CheckoutForm({ bundle, token, offline, boardingPoint }: { bundle
                   ))}
                 </select>
               </Field>
+              {stops.length > 0 && (
+                <div className="sm:col-start-2 sm:col-span-3">
+                  <Field label="Σημείο επιβίβασης *" error={errors.passengers?.[i]?.boarding_point?.message}>
+                    <select {...register(`passengers.${i}.boarding_point`)} className={inputCls}>
+                      <option value="">— Επιλέξτε σημείο —</option>
+                      {stops.map((point) => (
+                        <option key={point} value={point}>
+                          {point}
+                        </option>
+                      ))}
+                    </select>
+                  </Field>
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -204,9 +240,11 @@ export function CheckoutForm({ bundle, token, offline, boardingPoint }: { bundle
             <span className="text-muted">Θέσεις: {leg.seats.join(', ')}</span>
           </p>
         ))}
-        {boardingPoint && (
+        {/* Με ενεργά σημεία, η επιλογή γίνεται ανά επιβάτη παραπάνω — το recap
+            θα ήταν παραπλανητικό· μένει μόνο για URLs χωρίς λίστα σημείων. */}
+        {boardingPoint && stops.length === 0 && (
           <p className="mb-2 flex flex-wrap items-center gap-x-6 gap-y-1 text-[15px] text-body">
-            <span className="font-semibold uppercase text-[13px] tracking-[0.08em] text-primary">Σημείο συνάντησης:</span>
+            <span className="font-semibold uppercase text-[13px] tracking-[0.08em] text-primary">Σημείο επιβίβασης:</span>
             <span>{boardingPoint}</span>
           </p>
         )}

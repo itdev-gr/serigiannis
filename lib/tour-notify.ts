@@ -53,7 +53,7 @@ export async function notifyTourOrder(accessToken: string): Promise<void> {
   const summary = `
     <p style="margin:0 0 4px;color:#16233b">Αναχώρηση: <strong>${esc(dateLine)}</strong></p>
     <p style="margin:0 0 12px;color:#16233b">Κωδικός κράτησης: <strong>${esc(order.public_code)}</strong></p>
-    ${order.meeting_point ? `<p style="margin:0 0 12px;color:#16233b">Σημείο συνάντησης: <strong>${esc(order.meeting_point)}</strong></p>` : ''}
+    ${order.meeting_point ? `<p style="margin:0 0 12px;color:#16233b">Σημείο επιβίβασης: <strong>${esc(order.meeting_point)}</strong></p>` : ''}
     <table style="width:100%;max-width:520px;border-collapse:collapse">${itemRows}
       <tr><td style="padding-top:10px;border-top:1px solid #dbe2ec;font-weight:700;color:#00296b">Σύνολο</td>
         <td style="padding-top:10px;border-top:1px solid #dbe2ec;text-align:right;font-weight:700;color:#00296b">
@@ -61,7 +61,11 @@ export async function notifyTourOrder(accessToken: string): Promise<void> {
     </table>`;
 
   const passengerRows = (order.passengers ?? [])
-    .map((p) => `<li>${esc(p.name)}${p.phone ? ` — ${esc(p.phone)}` : ''}</li>`)
+    .map((p) =>
+      `<li>${esc(p.name)}${p.phone ? ` — ${esc(p.phone)}` : ''}${
+        p.meeting_point ? ` — <span style="color:#5b6b82">${esc(p.meeting_point)}</span>` : ''
+      }</li>`
+    )
     .join('');
   const passengersHtml = passengerRows
     ? `<p style="margin:14px 0 4px;color:#16233b;font-weight:600">Ταξιδιώτες</p>
@@ -70,16 +74,22 @@ export async function notifyTourOrder(accessToken: string): Promise<void> {
 
   const from = process.env.RESEND_FROM || 'Sergiani Travel <onboarding@resend.dev>';
 
+  // Η γραμμή «θα επικοινωνήσουμε για το σημείο» έχει νόημα μόνο όταν δεν
+  // έχει δηλωθεί κανένα σημείο επιβίβασης (εκδρομή χωρίς ορισμένα σημεία).
+  const hasStopInfo =
+    Boolean(order.meeting_point) || (order.passengers ?? []).some((p) => p.meeting_point);
+
   if (order.email) {
     const html = `
     <div style="font-family:sans-serif;max-width:640px">
       <h2 style="color:#00296b">Η κράτησή σας, ${esc(order.public_code)}</h2>
       <p style="color:#16233b">${esc(order.tour_title)} — ${esc(STATUS_LINE[order.status] ?? '')}</p>
       ${summary}
+      ${passengersHtml}
       ${order.notes ? `<p style="color:#5b6b82;font-size:13px">Σημειώσεις: ${esc(order.notes)}</p>` : ''}
       <p style="color:#5b6b82;font-size:13px">Δείτε την κράτησή σας online:
         <a href="${site}/kratisi/epivevaiosi?t=${accessToken}">${site}/kratisi/epivevaiosi</a></p>
-      <p style="color:#5b6b82;font-size:12px">Θα επικοινωνήσουμε μαζί σας για το σημείο και την ώρα αναχώρησης.</p>
+      ${hasStopInfo ? '' : '<p style="color:#5b6b82;font-size:12px">Θα επικοινωνήσουμε μαζί σας για το σημείο και την ώρα αναχώρησης.</p>'}
     </div>`;
     try {
       const res = await fetch('https://api.resend.com/emails', {

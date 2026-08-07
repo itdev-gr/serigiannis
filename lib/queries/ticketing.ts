@@ -174,7 +174,8 @@ export async function getAdminPatterns(): Promise<AdminPattern[]> {
 }
 
 export type AdminTrip = Trip & {
-  route: { title: string | null; origin: { name: string } | null; destination: { name: string } | null } | null;
+  /** boarding_points έρχεται μόνο από το getAdminTrip (φόρμα τηλεφωνικής κράτησης). */
+  route: { title: string | null; boarding_points?: string[]; origin: { name: string } | null; destination: { name: string } | null } | null;
   layout: { name: string } | null;
 };
 
@@ -193,7 +194,7 @@ export async function getAdminTrip(id: string): Promise<AdminTrip | null> {
   const sb = await createServerClient();
   const { data } = await sb
     .from('trips')
-    .select('*, route:bus_routes(title, origin:stations!bus_routes_origin_station_id_fkey(name), destination:stations!bus_routes_destination_station_id_fkey(name)), layout:bus_layouts(name)')
+    .select('*, route:bus_routes(title, boarding_points, origin:stations!bus_routes_origin_station_id_fkey(name), destination:stations!bus_routes_destination_station_id_fkey(name)), layout:bus_layouts(name)')
     .eq('id', id)
     .maybeSingle();
   return (data as AdminTrip) ?? null;
@@ -283,6 +284,9 @@ export type AdminTicket = {
   open_return_expires_on: string | null;
   refunded_cents: number | null;
   validated_at: string | null;
+  /** Σημείο επιβίβασης του επιβάτη (0027) — μόνο outbound· null σε
+   *  return/open-return και εισιτήρια προ-0027. */
+  boarding_point: string | null;
   trip?: {
     route_id: string;
     service_date: string;

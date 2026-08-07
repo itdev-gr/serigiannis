@@ -358,6 +358,7 @@ export async function manualBooking(formData: FormData) {
   const phone = g(formData, 'phone');
   const fareTypeId = g(formData, 'fare_type_id');
   const email = g(formData, 'email') || 'office@sergianitravel.gr';
+  const boardingPoint = g(formData, 'boarding_point');
   if (!tripId || !seat || !name || !fareTypeId) return;
 
   const { data: began, error } = await sb.rpc('begin_booking', {
@@ -383,8 +384,15 @@ export async function manualBooking(formData: FormData) {
       phone: phone || '0000000000',
       accept_terms: true,
       by_admin: true,
+      boarding_point: boardingPoint || undefined,
     },
-    p_passengers: [{ passenger_name: name, passenger_phone: phone || '0000000000', fare_type_id: fareTypeId, outbound_seat: seat }],
+    p_passengers: [{
+      passenger_name: name,
+      passenger_phone: phone || '0000000000',
+      fare_type_id: fareTypeId,
+      outbound_seat: seat,
+      boarding_point: boardingPoint || undefined,
+    }],
     p_provider: 'offline',
   });
   if (e2) console.error('manualBooking finalize:', e2.message);

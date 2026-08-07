@@ -50,6 +50,7 @@ function Harness({ panelKey, initialSeat }: { panelKey: string; initialSeat: str
       fares={fares}
       initialSeat={initialSeat}
       seatsLeft={3}
+      boardingPoints={[]}
     />
   );
 }

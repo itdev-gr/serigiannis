@@ -15,19 +15,22 @@ const ERROR_TEXT: Record<string, string> = {
   order_not_payable: 'Η κράτηση δεν μπορεί να πληρωθεί. Επικοινωνήστε μαζί μας.',
   invalid_customer: 'Ελέγξτε τα στοιχεία επικοινωνίας.',
   terms_required: 'Πρέπει να αποδεχθείτε τους όρους κράτησης.',
-  invalid_meeting_point: 'Επιλέξτε ένα έγκυρο σημείο συνάντησης από τη λίστα.',
+  invalid_meeting_point: 'Επιλέξτε έγκυρο σημείο επιβίβασης για κάθε ταξιδιώτη.',
+  passenger_count_mismatch: 'Συμπληρώστε τα στοιχεία όλων των ταξιδιωτών.',
   payment_init: 'Η σύνδεση με την τράπεζα απέτυχε. Δοκιμάστε ξανά.',
   db: 'Κάτι πήγε στραβά. Δοκιμάστε ξανά ή καλέστε μας.',
 };
 
-const PassengerSchema = z.object({
-  name: z.string().min(2, 'Συμπληρώστε ονοματεπώνυμο.'),
-  phone: z.string().optional(),
-});
-
-/** meeting_point is required only when the tour actually offers a list to
- *  choose from — a tour with none must not force a choice. */
-function buildSchema(requireMeetingPoint: boolean) {
+/** Το σημείο επιβίβασης απαιτείται ΑΝΑ ταξιδιώτη, και μόνο όταν η εκδρομή
+ *  έχει ορισμένα σημεία — εκδρομή χωρίς κανένα δεν επιβάλλει επιλογή. */
+export function buildTourCheckoutSchema(requireMeetingPoint: boolean) {
+  const passenger = z.object({
+    name: z.string().min(2, 'Συμπληρώστε ονοματεπώνυμο.'),
+    phone: z.string().optional(),
+    meeting_point: requireMeetingPoint
+      ? z.string().min(1, 'Επιλέξτε σημείο επιβίβασης.')
+      : z.string().optional(),
+  });
   return z.object({
     customer_name: z.string().min(2, 'Συμπληρώστε ονοματεπώνυμο.'),
     email: z.string().email('Μη έγκυρο email.'),
@@ -35,13 +38,10 @@ function buildSchema(requireMeetingPoint: boolean) {
     notes: z.string().optional(),
     marketing_opt_in: z.boolean().optional(),
     accept_terms: z.literal(true, { errorMap: () => ({ message: 'Απαιτείται αποδοχή των όρων.' }) }),
-    passengers: z.array(PassengerSchema),
-    meeting_point: requireMeetingPoint
-      ? z.string().min(1, 'Επιλέξτε σημείο συνάντησης.')
-      : z.string().optional(),
+    passengers: z.array(passenger),
   });
 }
-type Fields = z.infer<ReturnType<typeof buildSchema>>;
+type Fields = z.infer<ReturnType<typeof buildTourCheckoutSchema>>;
 
 const inputCls =
   'w-full rounded-md border border-border bg-surface px-4 py-2.5 font-sans text-[15px] text-body transition focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10';
@@ -72,7 +72,7 @@ export function TourCheckoutForm({
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const labels = useMemo(() => passengerLabels(order), [order]);
-  const schema = useMemo(() => buildSchema(meetingPoints.length > 0), [meetingPoints.length]);
+  const schema = useMemo(() => buildTourCheckoutSchema(meetingPoints.length > 0), [meetingPoints.length]);
   const {
     register,
     handleSubmit,
@@ -83,7 +83,12 @@ export function TourCheckoutForm({
     resolver: zodResolver(schema),
     defaultValues: {
       marketing_opt_in: false,
-      passengers: labels.map(() => ({ name: '', phone: '' })),
+      passengers: labels.map(() => ({
+        name: '',
+        phone: '',
+        // Με ένα μόνο σημείο δεν υπάρχει τίποτα να διαλέξεις — προεπιλέγεται.
+        meeting_point: meetingPoints.length === 1 ? meetingPoints[0] : '',
+      })),
     },
   });
 
@@ -103,8 +108,11 @@ export function TourCheckoutForm({
               notes: d.notes,
               marketing_opt_in: !!d.marketing_opt_in,
               accept_terms: true,
-              passengers: d.passengers.map((p) => ({ name: p.name.trim(), phone: p.phone?.trim() || null })),
-              meeting_point: d.meeting_point || undefined,
+              passengers: d.passengers.map((p) => ({
+                name: p.name.trim(),
+                phone: p.phone?.trim() || null,
+                meeting_point: p.meeting_point || null,
+              })),
             },
           });
           if (res && !res.ok) setError(ERROR_TEXT[res.error] ?? ERROR_TEXT.db);
@@ -124,21 +132,8 @@ export function TourCheckoutForm({
         </Field>
       </div>
       <Field label="Σημειώσεις">
-        <textarea rows={3} {...register('notes')} className={inputCls} placeholder="π.χ. σημείο επιβίβασης, ειδικές ανάγκες" />
+        <textarea rows={3} {...register('notes')} className={inputCls} placeholder="π.χ. ειδικές ανάγκες, αλλεργίες" />
       </Field>
-
-      {meetingPoints.length > 0 && (
-        <Field label="Σημείο συνάντησης *" error={errors.meeting_point?.message}>
-          <select {...register('meeting_point')} className={inputCls} defaultValue="">
-            <option value="">— Επιλέξτε σημείο συνάντησης —</option>
-            {meetingPoints.map((point) => (
-              <option key={point} value={point}>
-                {point}
-              </option>
-            ))}
-          </select>
-        </Field>
-      )}
 
       {labels.length > 0 && (
         <div className="grid gap-4">
@@ -166,6 +161,34 @@ export function TourCheckoutForm({
                     <input {...register(`passengers.${i}.phone` as const)} type="tel" className={inputCls} autoComplete="off" />
                   </Field>
                 </div>
+                {meetingPoints.length > 0 && (
+                  <div className="mt-4">
+                    <Field label="Σημείο επιβίβασης *" error={errors.passengers?.[i]?.meeting_point?.message}>
+                      <select
+                        className={inputCls}
+                        {...register(`passengers.${i}.meeting_point` as const, i === 0 ? {
+                          // Ευκολία: η επιλογή του 1ου προσυμπληρώνει όσους
+                          // δεν έχουν διαλέξει ακόμη· καθένας μένει επεξεργάσιμος.
+                          onChange: (e) => {
+                            const v = (e.target as HTMLSelectElement).value;
+                            getValues('passengers').forEach((p, j) => {
+                              if (j > 0 && !p.meeting_point) {
+                                setValue(`passengers.${j}.meeting_point`, v, { shouldValidate: false });
+                              }
+                            });
+                          },
+                        } : undefined)}
+                      >
+                        <option value="">— Επιλέξτε σημείο —</option>
+                        {meetingPoints.map((point) => (
+                          <option key={point} value={point}>
+                            {point}
+                          </option>
+                        ))}
+                      </select>
+                    </Field>
+                  </div>
+                )}
               </div>
             ))}
           </div>

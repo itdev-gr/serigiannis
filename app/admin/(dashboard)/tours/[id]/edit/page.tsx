@@ -72,6 +72,7 @@ export default async function EditTourPage({
         imageCount={images?.length ?? 0}
         tierCount={booking.tiers.filter((t) => t.is_active).length}
         futureDepartureCount={bookableDepartures(booking.departures, athensToday()).length}
+        meetingPointCount={(row.meeting_points ?? []).length}
       />
       <TourForm tour={tour} categories={categories} routes={routes} action={upsertTour} />
       <TourBookingEditor tourId={id} tiers={booking.tiers} departures={booking.departures} action={saveTourBooking} />

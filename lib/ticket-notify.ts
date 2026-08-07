@@ -41,6 +41,7 @@ export async function notifyTicketOrder(accessToken: string): Promise<void> {
       <p style="margin:0;font-size:15px"><strong>${esc(tk.passenger_name)}${tk.passenger_phone ? ' · ' + esc(tk.passenger_phone) : ''}</strong>
         · Θέση: <strong>${esc(tk.seat_no ?? 'Ανοιχτή')}</strong>
         · ${esc(tk.fare_name)} · ${esc(formatCents(tk.price_cents))}</p>
+      ${tk.boarding_point ? `<p style="margin:6px 0 0;font-size:13px;color:#16233b">Σημείο επιβίβασης: <strong>${esc(tk.boarding_point)}</strong></p>` : ''}
       <p style="margin:8px 0 0;font-size:18px;letter-spacing:4px;font-family:monospace">
         Κωδικός: <strong>${esc(tk.code)}</strong></p>
     </div>`
@@ -52,7 +53,7 @@ export async function notifyTicketOrder(accessToken: string): Promise<void> {
     <h2 style="color:#00296b">Τα εισιτήριά σας, ${esc(order.public_code)}</h2>
     <p style="color:#16233b">Εκδρομή · ${esc(ORDER_STATUS_LABEL[order.status] ?? order.status)}
       · Σύνολο: <strong>${esc(formatCents(order.amount_total_cents))}</strong></p>
-    ${order.boarding_point ? `<p style="color:#16233b">Σημείο συνάντησης: <strong>${esc(order.boarding_point)}</strong></p>` : ''}
+    ${order.boarding_point ? `<p style="color:#16233b">Σημείο επιβίβασης: <strong>${esc(order.boarding_point)}</strong></p>` : ''}
     ${order.status === 'offline' ? '<p style="color:#5b6b82">Η εξόφληση γίνεται στο γραφείο μας ή στο λεωφορείο πριν την αναχώρηση.</p>' : ''}
     ${ticketBlocks}
     <p style="color:#5b6b82;font-size:13px">Δείτε τα εισιτήριά σας online:
