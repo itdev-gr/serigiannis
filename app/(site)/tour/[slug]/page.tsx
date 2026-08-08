@@ -1,10 +1,12 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound, permanentRedirect } from 'next/navigation';
-import { Clock, Calendar, MapPin, Phone, Check } from 'lucide-react';
+import { Clock, Calendar, MapPin, Phone, Tag } from 'lucide-react';
 import { PageHeading } from '@/components/shared/PageHeading';
 import { TourCard } from '@/components/trips/TourCard';
+import { TourFaq } from '@/components/trips/TourFaq';
 import { TourGallery } from '@/components/trips/TourGallery';
+import { TourInfo } from '@/components/trips/TourInfo';
 import { OnlineBookingForm } from '@/components/booking/OnlineBookingForm';
 import { TourBookingWidget } from '@/components/booking/TourBookingWidget';
 import { Button } from '@/components/ui/Button';
@@ -20,6 +22,7 @@ import { telHref } from '@/lib/phone';
 import { SITE_URL, jsonLdHtml } from '@/lib/seo';
 import { decodeSlugParam } from '@/lib/slug';
 import { resolveTourAlias } from '@/lib/tour-aliases';
+import { tourFaqs } from '@/lib/tour-faq';
 
 export const revalidate = 3600;
 
@@ -67,7 +70,7 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
   const phone = settings.phones[0] ?? null;
   const related = all
     .filter((t) => t.slug !== tour.slug && t.categories?.some((c) => primaryCat && c.slug === primaryCat.slug))
-    .slice(0, 3);
+    .slice(0, 4);
 
   // Tours with price categories book online; the rest keep the enquiry form.
   const tiers = (tour.price_tiers ?? []).filter((t) => t.is_active);
@@ -91,8 +94,64 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
     bookingsOpen: tour.bookings_open !== false,
   });
 
+  const faqs = tourFaqs(tour);
+
+  // Κεφαλίδα κατά το πρότυπο: ετικέτες πάνω από τον τίτλο, σειρά στοιχείων με
+  // εικονίδια από κάτω και η περίληψη ως εισαγωγική παράγραφος.
+  const headerBadges = (
+    <>
+      {primaryCat && (
+        <span className="rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary">
+          {primaryCat.name_el}
+        </span>
+      )}
+      <span className="rounded-full bg-olive/10 px-3 py-1 text-sm font-semibold text-olive">
+        Κρατήσεις απευθείας από το γραφείο
+      </span>
+    </>
+  );
+  const hasFacts = Boolean(tour.duration_label || tour.departure_note || tour.meeting_point) || tour.price_from != null;
+  const headerMeta = hasFacts || tour.summary ? (
+    <>
+      {hasFacts && (
+        <div
+          data-testid="tour-facts"
+          className="mt-3.5 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted"
+        >
+          {tour.duration_label && (
+            <span className="inline-flex items-center gap-1.5">
+              <Clock className="h-[17px] w-[17px]" strokeWidth={1.75} />
+              {tour.duration_label}
+            </span>
+          )}
+          {tour.departure_note && (
+            <span className="inline-flex items-center gap-1.5">
+              <Calendar className="h-[17px] w-[17px]" strokeWidth={1.75} />
+              {tour.departure_note}
+            </span>
+          )}
+          {tour.meeting_point && (
+            <span className="inline-flex items-center gap-1.5">
+              <MapPin className="h-[17px] w-[17px]" strokeWidth={1.75} />
+              {tour.meeting_point}
+            </span>
+          )}
+          {tour.price_from != null && (
+            <span className="inline-flex items-center gap-1.5">
+              <Tag className="h-[17px] w-[17px]" strokeWidth={1.75} />
+              <span className="font-semibold text-body">από {tour.price_from}€</span>
+            </span>
+          )}
+        </div>
+      )}
+      {tour.summary && (
+        <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-body">{tour.summary}</p>
+      )}
+    </>
+  ) : null;
+
   const detailsCard = (tour.duration_label || tour.departure_note || tour.meeting_point || phone) ? (
-    <div className="rounded-lg border border-border bg-surface p-6">
+    <div className="rounded-2xl border border-border bg-surface p-6 shadow-card">
       <ul className="space-y-4 text-[15px]">
         {tour.duration_label && (
           <li className="flex items-center gap-3"><Clock className="h-5 w-5 shrink-0 text-primary/60" strokeWidth={1.75} /><span>{tour.duration_label}</span></li>
@@ -143,19 +202,39 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
       { '@type': 'ListItem', position: 3, name: tour.title, item: tourUrl },
     ],
   };
+  // Οι ίδιες ερωτήσεις που βλέπει ο επισκέπτης, δομημένες για τη Google.
+  const faqLd = faqs.length > 0
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: faqs.map((faq) => ({
+          '@type': 'Question',
+          name: faq.q,
+          acceptedAnswer: { '@type': 'Answer', text: faq.a },
+        })),
+      }
+    : null;
 
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdHtml(jsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdHtml(breadcrumbLd) }} />
+      {faqLd && (
+        <script
+          type="application/ld+json"
+          data-testid="faq-jsonld"
+          dangerouslySetInnerHTML={{ __html: jsonLdHtml(faqLd) }}
+        />
+      )}
       <PageHeading
-        eyebrow={primaryCat?.name_el}
         title={tour.title}
         breadcrumbs={[
           { label: 'Αρχική', href: '/' },
           { label: 'Εκδρομές', href: '/ekdromes' },
           { label: tour.title },
         ]}
+        badges={headerBadges}
+        meta={headerMeta}
       />
 
       {photos.length > 0 && (
@@ -167,27 +246,21 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
       )}
 
       <section className="py-16 md:py-24">
-        <div className="container grid gap-10 lg:grid-cols-12">
+        <div className="container flex flex-col gap-10 lg:flex-row">
           {/* Description */}
-          <div className="lg:col-span-7">
-            <h2 className="font-display text-display-editorial text-primary">Περιγραφή</h2>
-            <p className="mt-5 max-w-prose text-[17px] leading-relaxed text-muted">
-              {tour.summary ?? 'Αναλυτικό πρόγραμμα σύντομα. Επικοινωνήστε μαζί μας για πλήρεις λεπτομέρειες.'}
-            </p>
-            <ul className="mt-8 space-y-3">
-              {['Άνετα, σύγχρονα πούλμαν', 'Έμπειροι συνοδοί / ξεναγοί', 'Ξεκάθαρες τιμές, χωρίς κρυφές χρεώσεις'].map((f) => (
-                <li key={f} className="flex items-center gap-3 text-[15px] text-body">
-                  <Check className="h-5 w-5 shrink-0 text-olive" strokeWidth={2} />
-                  {f}
-                </li>
-              ))}
-            </ul>
+          <div className="min-w-0 flex-1">
+            <TourInfo tour={tour} />
+            {faqs.length > 0 && (
+              <div className="mt-12">
+                <TourFaq faqs={faqs} />
+              </div>
+            )}
           </div>
 
           {/* Booking box (tours with price categories) / info card + enquiry form */}
-          <aside className="lg:col-span-5">
+          <aside className="w-full shrink-0 lg:w-[380px]">
             {bookable ? (
-              <div className="sticky top-28 sm:top-40 space-y-5">
+              <div className="space-y-5 lg:sticky lg:top-40">
                 <TourBookingWidget
                   tourId={tour.id}
                   tourSlug={tour.slug}
@@ -206,8 +279,8 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
                 {detailsCard}
               </div>
             ) : hasPricing ? (
-              <div className="sticky top-28 sm:top-40 space-y-5">
-                <div className="rounded-lg border border-border bg-surface p-6 shadow-card">
+              <div className="space-y-5 lg:sticky lg:top-40">
+                <div className="rounded-2xl border border-border bg-surface p-6 shadow-card">
                   <h3 className="font-display text-xl font-bold text-primary">Οι κρατήσεις έχουν κλείσει</h3>
                   <p className="mt-3 text-[15px] text-muted">
                     Για αυτή την εκδρομή δεν δεχόμαστε online κρατήσεις αυτή τη στιγμή. Καλέστε μας για διαθεσιμότητα.
@@ -222,7 +295,7 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
               </div>
             ) : (
             <>
-            <div className="sticky top-28 sm:top-40 rounded-lg border border-border bg-surface p-8 shadow-card">
+            <div className="rounded-2xl border border-border bg-surface p-6 shadow-card lg:sticky lg:top-40">
               {tour.price_from != null && (
                 <div className="flex items-baseline gap-2">
                   {tour.price_original != null && tour.price_original > tour.price_from && (
@@ -279,8 +352,16 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
       {related.length > 0 && (
         <section className="bg-surface py-16 md:py-24">
           <div className="container">
-            <h2 className="mb-10 font-display text-display-section text-primary">Παρόμοιες εκδρομές</h2>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="mb-10 flex items-end justify-between gap-6">
+              <h2 className="font-display text-display-section text-primary">Παρόμοιες εκδρομές</h2>
+              <Link
+                href="/ekdromes"
+                className="shrink-0 font-sans text-[14px] font-semibold text-primary transition-colors hover:text-cta motion-reduce:transition-none"
+              >
+                Δείτε όλες →
+              </Link>
+            </div>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
               {related.map((t) => <TourCard key={t.id} tour={t} />)}
             </div>
           </div>

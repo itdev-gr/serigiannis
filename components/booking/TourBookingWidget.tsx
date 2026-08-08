@@ -123,7 +123,7 @@ export function TourBookingWidget({
   }
 
   return (
-    <div className="rounded-lg border border-border bg-surface p-6 shadow-card sm:p-7">
+    <div className="rounded-2xl border border-border bg-surface p-6 shadow-card sm:p-7">
       {headline && (
         <div className="flex items-baseline gap-2.5">
           {headline.originalCents != null && (

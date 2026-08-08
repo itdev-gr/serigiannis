@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import type { ReactNode } from 'react';
 import { ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -9,6 +10,10 @@ type Props = {
   title: string;
   subtitle?: string;
   breadcrumbs?: Crumb[];
+  /** Ετικέτες πάνω από τον τίτλο (π.χ. κατηγορία, εμπιστοσύνη). */
+  badges?: ReactNode;
+  /** Στοιχεία κάτω από τον τίτλο (π.χ. σειρά εικονιδίων, περίληψη). */
+  meta?: ReactNode;
 };
 
 /**
@@ -18,7 +23,7 @@ type Props = {
  * the bottom padding is deliberately modest because every page's next section
  * already supplies its own generous top spacing (py-16+/pt-10+).
  */
-export function PageHeading({ eyebrow, title, subtitle, breadcrumbs }: Props) {
+export function PageHeading({ eyebrow, title, subtitle, breadcrumbs, badges, meta }: Props) {
   return (
     <section className="w-full">
       {/* Το padding-top καθαρίζει το fixed Navbar. ΜΕΤΡΗΜΕΝΑ ύψη header:
@@ -56,7 +61,9 @@ export function PageHeading({ eyebrow, title, subtitle, breadcrumbs }: Props) {
         {eyebrow && (
           <p className="mb-3 font-sans text-[13px] font-semibold uppercase tracking-[0.18em] text-cta">{eyebrow}</p>
         )}
+        {badges && <div className="mb-3 flex flex-wrap items-center gap-2">{badges}</div>}
         <h1 className="max-w-4xl break-words text-balance font-display text-display-section text-primary">{title}</h1>
+        {meta}
         {subtitle && (
           <p className="mt-4 max-w-prose text-[17px] leading-relaxed text-muted md:text-[18px]">{subtitle}</p>
         )}
