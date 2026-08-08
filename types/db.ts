@@ -62,6 +62,13 @@ export type Tour = {
    *  by default — the customer only sees a picker at checkout when this is
    *  non-empty, mirroring bus_routes.boarding_points. */
   meeting_points: string[];
+  /** «Τι θα δείτε» — μία σειρά ανά αξιοθέατο/εμπειρία (0030). Κενό = η ενότητα
+   *  δεν εμφανίζεται καθόλου στη σελίδα της εκδρομής. */
+  highlights: string[];
+  /** Τι καλύπτει η τιμή (0030) — μία σειρά ανά παροχή. */
+  included: string[];
+  /** Τι ΔΕΝ καλύπτει η τιμή (0030) — μία σειρά ανά έξοδο του ταξιδιώτη. */
+  not_included: string[];
   /** Προαιρετική σύνδεση με bookable εκδρομή πούλμαν (bus_routes.id): η σελίδα
    *  δείχνει τότε στον οδηγό κρατήσεων. Ποτέ δεν αντιγράφει τιμές ή ημερομηνίες. */
   route_id: string | null;

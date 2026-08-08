@@ -337,7 +337,7 @@ describe('setupChecklist — πλήρεις καταστάσεις', () => {
 const tour = (o: Partial<Tour>): Tour => ({
   id: 'x', slug: 'x', title: 'x', subtitle: null, summary: null, body: {},
   price_from: 50, price_original: null, currency: 'EUR', duration_label: null,
-  departure_note: null, meeting_point: null, meeting_points: [], route_id: null,
+  departure_note: null, meeting_point: null, meeting_points: [], highlights: [], included: [], not_included: [], route_id: null,
   status: 'published', is_featured: false, bookings_open: true, cover_image_id: null,
   seo_title: null, seo_description: null, source_url: null, sort_order: 0, published_at: null,
   ...o,

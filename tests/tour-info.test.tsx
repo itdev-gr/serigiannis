@@ -17,6 +17,9 @@ const tour = (o: Partial<Tour> = {}): Tour => ({
   departure_note: null,
   meeting_point: null,
   meeting_points: [],
+  highlights: [],
+  included: [],
+  not_included: [],
   route_id: null,
   status: 'published',
   is_featured: false,
@@ -87,6 +90,72 @@ describe('TourInfo — καμία κενή ενότητα', () => {
     expect(screen.queryByRole('heading', { name: 'Σημεία επιβίβασης' })).not.toBeInTheDocument();
     expect(screen.getByText('Πρώτη παράγραφος.')).toBeInTheDocument();
     expect(screen.getByText('Δεύτερη παράγραφος.')).toBeInTheDocument();
+  });
+});
+
+describe('TourInfo — «Τι θα δείτε»', () => {
+  it('δείχνει κάθε highlight σε δική του γραμμή', () => {
+    render(
+      <TourInfo tour={tour({ highlights: ['Ξενάγηση στα μοναστήρια', 'Ελεύθερος χρόνος στην Καλαμπάκα'] })} />,
+    );
+    expect(screen.getByRole('heading', { name: 'Τι θα δείτε' })).toBeInTheDocument();
+    expect(screen.getAllByTestId('tour-highlight')).toHaveLength(2);
+    expect(screen.getByText('Ξενάγηση στα μοναστήρια')).toBeInTheDocument();
+    expect(screen.getByText('Ελεύθερος χρόνος στην Καλαμπάκα')).toBeInTheDocument();
+  });
+
+  it('χωρίς highlights δεν δείχνει την ενότητα', () => {
+    render(<TourInfo tour={tour({ duration_label: 'Ολοήμερη' })} />);
+    expect(screen.queryByRole('heading', { name: 'Τι θα δείτε' })).not.toBeInTheDocument();
+    expect(screen.queryAllByTestId('tour-highlight')).toHaveLength(0);
+  });
+
+  it('highlights με μόνο κενά δεν ανοίγουν ενότητα', () => {
+    const { container } = render(<TourInfo tour={tour({ highlights: ['', '   '] })} />);
+    expect(container).toBeEmptyDOMElement();
+  });
+});
+
+describe('TourInfo — «Τι περιλαμβάνεται»', () => {
+  it('δείχνει και τις δύο στήλες όταν υπάρχουν και τα δύο', () => {
+    render(
+      <TourInfo
+        tour={tour({
+          included: ['Μεταφορά με πούλμαν', 'Αρχηγός εκδρομής'],
+          not_included: ['Είσοδοι σε μουσεία'],
+        })}
+      />,
+    );
+    expect(screen.getByRole('heading', { name: 'Τι περιλαμβάνεται' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Περιλαμβάνονται' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Δεν περιλαμβάνονται' })).toBeInTheDocument();
+    expect(screen.getAllByTestId('tour-included')).toHaveLength(2);
+    expect(screen.getAllByTestId('tour-not-included')).toHaveLength(1);
+    expect(screen.getByText('Είσοδοι σε μουσεία')).toBeInTheDocument();
+  });
+
+  it('μόνο «Περιλαμβάνονται»: η άλλη στήλη λείπει εντελώς', () => {
+    render(<TourInfo tour={tour({ included: ['Ασφάλεια αστικής ευθύνης'] })} />);
+    expect(screen.getByRole('heading', { name: 'Περιλαμβάνονται' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Δεν περιλαμβάνονται' })).not.toBeInTheDocument();
+    expect(screen.queryAllByTestId('tour-not-included')).toHaveLength(0);
+  });
+
+  it('μόνο «Δεν περιλαμβάνονται»: η άλλη στήλη λείπει εντελώς', () => {
+    render(<TourInfo tour={tour({ not_included: ['Γεύματα'] })} />);
+    expect(screen.getByRole('heading', { name: 'Δεν περιλαμβάνονται' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Περιλαμβάνονται' })).not.toBeInTheDocument();
+    expect(screen.queryAllByTestId('tour-included')).toHaveLength(0);
+  });
+
+  it('χωρίς καμία από τις δύο λίστες δεν δείχνει την ενότητα', () => {
+    render(<TourInfo tour={tour({ duration_label: 'Ολοήμερη' })} />);
+    expect(screen.queryByRole('heading', { name: 'Τι περιλαμβάνεται' })).not.toBeInTheDocument();
+  });
+
+  it('λίστες με μόνο κενά δεν ανοίγουν ενότητα', () => {
+    const { container } = render(<TourInfo tour={tour({ included: [' '], not_included: ['', '  '] })} />);
+    expect(container).toBeEmptyDOMElement();
   });
 });
 

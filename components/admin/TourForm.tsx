@@ -179,6 +179,46 @@ export function TourForm({
       </p>
 
       <label className="block">
+        <span className={adminLabel}>Τι θα δείτε (ένα ανά γραμμή)</span>
+        <textarea
+          name="highlights"
+          rows={4}
+          defaultValue={(tour?.highlights ?? []).join('\n')}
+          className={adminInput}
+          placeholder={'Ξενάγηση στον αρχαιολογικό χώρο\nΕλεύθερος χρόνος στη λίμνη'}
+        />
+        <span className="mt-1 block text-[12px] text-muted">
+          Τα βασικά σημεία της εκδρομής, με τη σειρά που τα βλέπει ο ταξιδιώτης. Εμφανίζονται πάνω από την περιγραφή.
+        </span>
+      </label>
+
+      <label className="block">
+        <span className={adminLabel}>Περιλαμβάνονται (ένα ανά γραμμή)</span>
+        <textarea
+          name="included"
+          rows={4}
+          defaultValue={(tour?.included ?? []).join('\n')}
+          className={adminInput}
+          placeholder={'Μεταφορά με πούλμαν\nΑρχηγός εκδρομής'}
+        />
+        <span className="mt-1 block text-[12px] text-muted">Ό,τι καλύπτει η τιμή της εκδρομής.</span>
+      </label>
+
+      <label className="block">
+        <span className={adminLabel}>Δεν περιλαμβάνονται (ένα ανά γραμμή)</span>
+        <textarea
+          name="not_included"
+          rows={4}
+          defaultValue={(tour?.not_included ?? []).join('\n')}
+          className={adminInput}
+          placeholder={'Είσοδοι σε μουσεία\nΓεύματα'}
+        />
+        <span className="mt-1 block text-[12px] text-muted">
+          Ό,τι πληρώνει ο ταξιδιώτης χωριστά. Βοηθά να μη γίνονται παρεξηγήσεις την ημέρα της εκδρομής.
+        </span>
+      </label>
+
+      <label className="block">
         <span className={adminLabel}>Σύνδεση με εκδρομή πούλμαν (προαιρετικό)</span>
         <select name="route_id" defaultValue={tour?.route_id ?? ''} className={adminInput}>
           <option value="">— Χωρίς σύνδεση —</option>

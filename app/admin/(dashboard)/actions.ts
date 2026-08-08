@@ -290,6 +290,11 @@ export async function upsertTour(formData: FormData) {
     departure_note: (String(formData.get('departure_note') || '').trim() || null) as string | null,
     meeting_point: (String(formData.get('meeting_point') || '').trim() || null) as string | null,
     meeting_points: parseBoardingPoints(String(formData.get('meeting_points') || '')),
+    // Ίδια υγιεινή με τα σημεία επιβίβασης (trim, dedupe χωρίς τόνους/πεζά,
+    // 120 χαρακτήρες ανά γραμμή, 20 γραμμές) — μία γραμμή ανά σημείο.
+    highlights: parseBoardingPoints(String(formData.get('highlights') || '')),
+    included: parseBoardingPoints(String(formData.get('included') || '')),
+    not_included: parseBoardingPoints(String(formData.get('not_included') || '')),
     route_id: (String(formData.get('route_id') || '').trim() || null) as string | null,
     seo_title: (String(formData.get('seo_title') || '').trim() || null) as string | null,
     seo_description: (String(formData.get('seo_description') || '').trim() || null) as string | null,

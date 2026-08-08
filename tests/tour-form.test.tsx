@@ -40,6 +40,9 @@ const tour = {
   departure_note: null,
   meeting_point: null,
   meeting_points: [],
+  highlights: [],
+  included: [],
+  not_included: [],
   route_id: 'r-1',
   status: 'published',
   is_featured: false,
@@ -71,6 +74,44 @@ describe('TourForm — σύνδεση με εκδρομή πούλμαν', () =>
     render(<TourForm categories={categories} routes={routes} action={() => {}} />);
     const select = screen.getByLabelText(/Σύνδεση με εκδρομή πούλμαν/) as HTMLSelectElement;
     expect(select.value).toBe('');
+  });
+});
+
+
+describe('TourForm — highlights και τι περιλαμβάνεται', () => {
+  const area = (label: RegExp) => screen.getByLabelText(label) as HTMLTextAreaElement;
+
+  it('έχει και τα τρία πεδία με τα σωστά ονόματα', () => {
+    render(<TourForm tour={tour} categories={categories} routes={routes} action={() => {}} />);
+    expect(area(/Τι θα δείτε/).name).toBe('highlights');
+    expect(area(/^Περιλαμβάνονται/).name).toBe('included');
+    expect(area(/^Δεν περιλαμβάνονται/).name).toBe('not_included');
+  });
+
+  it('γεμίζει κάθε πεδίο από την εκδρομή, μία γραμμή ανά σημείο', () => {
+    render(
+      <TourForm
+        tour={{
+          ...tour,
+          highlights: ['Ξενάγηση στα μοναστήρια', 'Ελεύθερος χρόνος'],
+          included: ['Μεταφορά με πούλμαν'],
+          not_included: ['Είσοδοι', 'Γεύματα'],
+        }}
+        categories={categories}
+        routes={routes}
+        action={() => {}}
+      />,
+    );
+    expect(area(/Τι θα δείτε/).value).toBe('Ξενάγηση στα μοναστήρια\nΕλεύθερος χρόνος');
+    expect(area(/^Περιλαμβάνονται/).value).toBe('Μεταφορά με πούλμαν');
+    expect(area(/^Δεν περιλαμβάνονται/).value).toBe('Είσοδοι\nΓεύματα');
+  });
+
+  it('νέα εκδρομή: και τα τρία πεδία άδεια', () => {
+    render(<TourForm categories={categories} routes={routes} action={() => {}} />);
+    expect(area(/Τι θα δείτε/).value).toBe('');
+    expect(area(/^Περιλαμβάνονται/).value).toBe('');
+    expect(area(/^Δεν περιλαμβάνονται/).value).toBe('');
   });
 });
 
