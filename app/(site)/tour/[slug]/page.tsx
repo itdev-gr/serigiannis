@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { notFound, permanentRedirect } from 'next/navigation';
 import { Clock, Calendar, MapPin, Phone, Tag } from 'lucide-react';
 import { PageHeading } from '@/components/shared/PageHeading';
-import { TourCard } from '@/components/trips/TourCard';
+import { RelatedToursCarousel } from '@/components/trips/RelatedToursCarousel';
 import { TourFaq } from '@/components/trips/TourFaq';
 import { TourGallery } from '@/components/trips/TourGallery';
 import { TourInfo } from '@/components/trips/TourInfo';
@@ -70,7 +70,7 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
   const phone = settings.phones[0] ?? null;
   const related = all
     .filter((t) => t.slug !== tour.slug && t.categories?.some((c) => primaryCat && c.slug === primaryCat.slug))
-    .slice(0, 4);
+    .slice(0, 8);
 
   // Tours with price categories book online; the rest keep the enquiry form.
   const tiers = (tour.price_tiers ?? []).filter((t) => t.is_active);
@@ -345,24 +345,8 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
         </div>
       </section>
 
-      {related.length > 0 && (
-        <section className="bg-surface py-16 md:py-24">
-          <div className="container">
-            <div className="mb-10 flex items-end justify-between gap-6">
-              <h2 className="font-display text-display-section text-primary">Παρόμοιες εκδρομές</h2>
-              <Link
-                href="/ekdromes"
-                className="shrink-0 font-sans text-[14px] font-semibold text-primary transition-colors hover:text-cta motion-reduce:transition-none"
-              >
-                Δείτε όλες →
-              </Link>
-            </div>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-              {related.map((t) => <TourCard key={t.id} tour={t} />)}
-            </div>
-          </div>
-        </section>
-      )}
+      {/* Το carousel κρύβεται μόνο του όταν δεν υπάρχουν παρόμοιες εκδρομές. */}
+      <RelatedToursCarousel tours={related} />
     </>
   );
 }

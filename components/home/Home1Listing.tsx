@@ -9,8 +9,10 @@ import type { ListingCopy } from './resolve-content';
 export function Home1Listing({ tours, content = homeContent.listing }: { tours: Tour[]; content?: ListingCopy }) {
   const c = content;
   if (tours.length === 0) return null;
+  // Η προηγούμενη ενότητα κλείνει ήδη με pb-24/32· χωρίς κομμένο πάνω
+  // περιθώριο μαζεύονταν ~256px νεκρού χώρου ανάμεσά τους.
   return (
-    <section className="py-24 md:py-32" aria-label={c.title}>
+    <section className="pb-24 pt-4 md:pb-32 md:pt-6" aria-label={c.title}>
       <div className="container">
         <SectionHeading
           title={c.title}

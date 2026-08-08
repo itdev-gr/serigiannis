@@ -68,7 +68,10 @@ export function ToursExplorer({
   const pageItems = filtered.slice((current - 1) * PAGE_SIZE, current * PAGE_SIZE);
 
   const activeCategory = lockedCategory ?? category;
-  const hasFilters = Boolean(activeCategory);
+  // Μόνο όταν υπάρχει κάτι που ο επισκέπτης ΜΠΟΡΕΙ να καθαρίσει. Σε σελίδα
+  // κατηγορίας η κατηγορία είναι κλειδωμένη, οπότε χωρίς αυτόν τον έλεγχο
+  // εμφανιζόταν άδεια γραμμή «Ενεργά φίλτρα:» με μόνο το «Καθαρισμός όλων».
+  const hasFilters = (!lockedCategory && Boolean(category)) || sort !== 'date';
   const categoryLabel = activeCategory
     ? categories.find((c) => c.slug === activeCategory)?.name_el ?? activeCategory
     : null;
