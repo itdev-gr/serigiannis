@@ -32,7 +32,7 @@ export default async function KroyazieresPage() {
         subtitle={hero.subtitle}
         breadcrumbs={[{ label: 'Αρχική', href: '/' }, { label: 'Κρουαζιέρες' }]}
       />
-      <section className="py-16 md:py-24">
+      <section className="pb-16 pt-4 md:pb-24 md:pt-6">
         <div className="container">
           <p className="mx-auto max-w-prose text-center font-display text-[19px] italic leading-relaxed text-muted">
             Οι κρουαζιέρες μας αναχωρούν από τον Πειραιά κάθε πρωί, ημερήσιες περιηγήσεις σε νησιά ή ταξίδια κολύμβησης, μαζί με ξεναγό, γεύμα και μουσική.

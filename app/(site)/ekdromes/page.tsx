@@ -25,7 +25,7 @@ export default async function EkdromesPage() {
         subtitle={hero.subtitle}
         breadcrumbs={[{ label: 'Αρχική', href: '/' }, { label: 'Εκδρομές' }]}
       />
-      <section className="py-16 md:py-24">
+      <section className="pb-16 pt-4 md:pb-24 md:pt-6">
         <div className="container">
           <ToursExplorer tours={tours} categories={categories} />
         </div>

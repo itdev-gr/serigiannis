@@ -36,7 +36,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
         subtitle={cat.description_el ?? `Οργανωμένες ${cat.name_el.toLowerCase()} εκδρομές από την Αθήνα.`}
         breadcrumbs={[{ label: 'Αρχική', href: '/' }, { label: 'Εκδρομές', href: '/ekdromes' }, { label: cat.name_el }]}
       />
-      <section className="py-16 md:py-24">
+      <section className="pb-16 pt-4 md:pb-24 md:pt-6">
         <div className="container">
           <ToursExplorer tours={tours} categories={categories} lockedCategory={cat.slug} />
         </div>
