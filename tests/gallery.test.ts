@@ -23,13 +23,17 @@ describe('galleryLayout', () => {
     expect(galleryLayout(2)).toEqual({ variant: 'duo', visibleCount: 2, showSeeAll: false });
   });
 
-  it('3–4 photos → one photo plus the See-all button', () => {
-    expect(galleryLayout(3)).toEqual({ variant: 'single', visibleCount: 1, showSeeAll: true });
-    expect(galleryLayout(4)).toEqual({ variant: 'single', visibleCount: 1, showSeeAll: true });
+  it('3–4 photos → mosaic με όλες ορατές, χωρίς κουμπί', () => {
+    expect(galleryLayout(3)).toEqual({ variant: 'hero', visibleCount: 3, showSeeAll: false });
+    expect(galleryLayout(4)).toEqual({ variant: 'hero', visibleCount: 4, showSeeAll: false });
   });
 
-  it('5+ photos → hero grid (1 big + 4 small) with the See-all pill', () => {
-    expect(galleryLayout(5)).toEqual({ variant: 'hero', visibleCount: 5, showSeeAll: true });
+  it('5 φωτο → mosaic 1+4 χωρίς κρυμμένες, άρα χωρίς κουμπί', () => {
+    expect(galleryLayout(5)).toEqual({ variant: 'hero', visibleCount: 5, showSeeAll: false });
+  });
+
+  it('6+ φωτο → mosaic 1+4 και κουμπί για τις υπόλοιπες', () => {
+    expect(galleryLayout(6)).toEqual({ variant: 'hero', visibleCount: 5, showSeeAll: true });
     expect(galleryLayout(20)).toEqual({ variant: 'hero', visibleCount: 5, showSeeAll: true });
   });
 });

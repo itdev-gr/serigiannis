@@ -26,6 +26,7 @@ import { FlashBanner } from '@/components/admin/FlashBanner';
 import { AdminCard, AdminPageHeader, Pill, adminInput, adminLabel } from '@/components/admin/ui';
 import { routeLabel } from '@/lib/ticketing';
 import { POYLMAN_LIST, poylmanHref } from '@/lib/admin-routes';
+import { DURATION_UNITS, splitDuration } from '@/lib/duration';
 import { cn } from '@/lib/utils';
 
 const DAYS = [
@@ -85,6 +86,8 @@ export default async function ExcursionDetailPage({
   }
 
   const base = poylmanHref(id);
+  // Τα λεπτά της βάσης εμφανίζονται στη μεγαλύτερη ακέραια μονάδα τους.
+  const duration = splitDuration(route.duration_min);
 
   return (
     <div className="max-w-4xl">
@@ -161,8 +164,13 @@ export default async function ExcursionDetailPage({
                 <option value="draft">Πρόχειρη</option>
               </select>
             </label>
-            <label className={adminLabel}>Διάρκεια (λεπτά)
-              <input name="duration_min" type="number" defaultValue={route.duration_min ?? ''} className={adminInput} />
+            <label className={adminLabel}>Διάρκεια
+              <div className="mt-1 flex gap-2">
+                <input name="duration_min" type="number" min={0} defaultValue={duration.value} className={adminInput} />
+                <select name="duration_unit" defaultValue={duration.unit} className={`${adminInput} w-32 shrink-0`}>
+                  {DURATION_UNITS.map((u) => <option key={u.value} value={u.value}>{u.label}</option>)}
+                </select>
+              </div>
             </label>
             <label className={adminLabel}>Cutoff πώλησης (λεπτά)
               <input name="sales_cutoff_min" type="number" defaultValue={route.sales_cutoff_min ?? ''} placeholder="default" className={adminInput} />

@@ -67,12 +67,6 @@ export function TourGallery({ images }: { images: GalleryImage[] }) {
         priority={index === 0}
         className={PHOTO}
       />
-      {layout.showSeeAll && index === layout.visibleCount - 1 && (
-        <span className="pointer-events-none absolute bottom-3 right-3 z-10 inline-flex items-center gap-2 rounded-full bg-surface/95 px-4 py-2 font-sans text-[13px] font-semibold text-primary shadow-card">
-          <LayoutGrid className="h-4 w-4" strokeWidth={2} />
-          Δείτε και τις {images.length}
-        </span>
-      )}
     </button>
   );
 
@@ -150,18 +144,51 @@ export function TourGallery({ images }: { images: GalleryImage[] }) {
         )}
       </div>
 
-      <div className="hidden md:block">
+      <div className="relative hidden md:block">
         {layout.variant === 'hero' ? (
-          <div className="grid grid-cols-4 grid-rows-2 gap-2">
-            {cell(visible[0], 0, '(max-width: 768px) 0px, 50vw', 'col-span-2 row-span-2 h-full')}
-            {visible.slice(1).map((image, i) => cell(image, i + 1, '(max-width: 768px) 0px, 25vw', 'aspect-[4/3]'))}
+          // Μεγάλη αριστερά + οι υπόλοιπες δεξιά. Η δεξιά πλευρά αλλάζει
+          // στήλες ώστε να μη μένει ποτέ κενό κελί: 4 μικρές → 2×2, 3 → 1×3,
+          // 2 → 1×2. Το ύψος το ορίζει η αριστερή, με σταθερή αναλογία.
+          <div className="grid grid-cols-2 gap-2 overflow-hidden rounded-xl">
+            {cell(visible[0], 0, '(max-width: 768px) 0px, 50vw', 'aspect-[4/3] h-full')}
+            <div
+              // Ρητές κλάσεις: το Tailwind δεν βλέπει δυναμικά ονόματα.
+              className={cn(
+                'grid gap-2',
+                visible.length - 1 >= 4
+                  ? 'grid-cols-2 grid-rows-2'
+                  : visible.length - 1 === 3
+                    ? 'grid-cols-1 grid-rows-3'
+                    : visible.length - 1 === 2
+                      ? 'grid-cols-1 grid-rows-2'
+                      : 'grid-cols-1 grid-rows-1'
+              )}
+            >
+              {visible.slice(1).map((image, i) =>
+                cell(image, i + 1, '(max-width: 768px) 0px, 25vw', 'h-full min-h-0')
+              )}
+            </div>
           </div>
         ) : layout.variant === 'single' ? (
           cell(visible[0], 0, '(max-width: 768px) 0px, min(100vw, 1280px)', 'aspect-[4/3]')
         ) : (
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-2 overflow-hidden rounded-xl">
             {visible.map((image, i) => cell(image, i, '(max-width: 768px) 0px, 50vw', 'aspect-[4/3]'))}
           </div>
+        )}
+
+        {/* Πραγματικό κουμπί, ΑΔΕΛΦΟΣ του πλέγματος — τα κελιά είναι ήδη
+            <button> και τα φωλιασμένα κουμπιά είναι άκυρο HTML. */}
+        {layout.showSeeAll && (
+          <button
+            type="button"
+            onClick={() => openAt(0)}
+            data-testid="gallery-see-all"
+            className="absolute bottom-4 right-4 z-10 inline-flex items-center gap-2 rounded-full bg-surface/95 px-4 py-2 font-sans text-[13px] font-semibold text-primary shadow-card transition hover:bg-surface focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/25"
+          >
+            <LayoutGrid className="h-4 w-4" strokeWidth={2} />
+            Δείτε και τις {images.length}
+          </button>
         )}
       </div>
 

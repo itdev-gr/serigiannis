@@ -8,6 +8,12 @@ import { parseBoardingPoints, slugify } from '@/lib/excursions';
 import { flashQuery, withFlash } from '@/lib/admin-flash';
 import { POYLMAN_LIST, poylmanHref, poylmanTabHref } from '@/lib/admin-routes';
 import { athensDepartureAt } from '@/lib/athens-time';
+import { durationUnit, toMinutes, type DurationUnit } from '@/lib/duration';
+
+/** null μένει null («χωρίς διάρκεια»)· αλλιώς μετατροπή σε ακέραια λεπτά. */
+function durationToMinutes(value: number | null, unit: DurationUnit): number | null {
+  return value == null ? null : toMinutes(value, unit);
+}
 
 function revalidateTicketing() {
   revalidatePath('/admin/tours');
@@ -46,7 +52,7 @@ export async function upsertRoute(formData: FormData) {
     origin_station_id: g(formData, 'origin_station_id'),
     destination_station_id: g(formData, 'destination_station_id'),
     status: g(formData, 'status') === 'draft' ? 'draft' : 'published',
-    duration_min: num(formData, 'duration_min'),
+    duration_min: durationToMinutes(num(formData, 'duration_min'), durationUnit(g(formData, 'duration_unit'))),
     sales_cutoff_min: num(formData, 'sales_cutoff_min'),
     position: num(formData, 'position') ?? 0,
     title: g(formData, 'title') || null,

@@ -35,17 +35,26 @@ describe('TourGallery', () => {
     expect(screen.getByText('Δείτε και τις 7')).toBeInTheDocument();
   });
 
-  it('shows one cell and the See-all pill when there are three', () => {
+  it('με τρεις φωτογραφίες δείχνει και τις τρεις σε mosaic, χωρίς κουμπί', () => {
     render(<TourGallery images={photos(3)} />);
-    expect(screen.getAllByTestId('gallery-cell')).toHaveLength(1);
-    expect(screen.getByText('Δείτε και τις 3')).toBeInTheDocument();
+    expect(screen.getAllByTestId('gallery-cell')).toHaveLength(3);
+    expect(screen.queryByTestId('gallery-see-all')).not.toBeInTheDocument();
   });
 
-  it('shows one cell and the See-all pill when there are four', () => {
+  it('με τέσσερις φωτογραφίες δείχνει και τις τέσσερις, χωρίς κουμπί', () => {
     render(<TourGallery images={photos(4)} />);
-    expect(screen.getAllByTestId('gallery-cell')).toHaveLength(1);
-    expect(screen.getByText('Δείτε και τις 4')).toBeInTheDocument();
+    expect(screen.getAllByTestId('gallery-cell')).toHaveLength(4);
+    expect(screen.queryByTestId('gallery-see-all')).not.toBeInTheDocument();
     expect(screen.getAllByTestId('lightbox-photo')).toHaveLength(4);
+  });
+
+  it('με έξι φωτογραφίες δείχνει πέντε και κουμπί που δεν είναι μέσα σε κελί', () => {
+    render(<TourGallery images={photos(6)} />);
+    expect(screen.getAllByTestId('gallery-cell')).toHaveLength(5);
+    const btn = screen.getByTestId('gallery-see-all');
+    expect(btn.tagName).toBe('BUTTON');
+    expect(btn.closest('[data-testid="gallery-cell"]')).toBeNull();
+    expect(screen.getByText('Δείτε και τις 6')).toBeInTheDocument();
   });
 
   it('still lists all three photos in the lightbox', () => {
