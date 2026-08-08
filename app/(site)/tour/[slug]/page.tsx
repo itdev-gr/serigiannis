@@ -110,7 +110,9 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
       </span>
     </>
   );
-  const hasFacts = Boolean(tour.duration_label || tour.departure_note || tour.meeting_point) || tour.price_from != null;
+  // Το σημείο συνάντησης λείπει επίτηδες: είναι μακρύ και εμφανίζεται ήδη
+  // στα πλακίδια «Καλό να ξέρετε» και στα «Σημεία επιβίβασης» πιο κάτω.
+  const hasFacts = Boolean(tour.duration_label || tour.departure_note) || tour.price_from != null;
   const headerMeta = hasFacts || tour.summary ? (
     <>
       {hasFacts && (
@@ -128,12 +130,6 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
             <span className="inline-flex items-center gap-1.5">
               <Calendar className="h-[17px] w-[17px]" strokeWidth={1.75} />
               {tour.departure_note}
-            </span>
-          )}
-          {tour.meeting_point && (
-            <span className="inline-flex items-center gap-1.5">
-              <MapPin className="h-[17px] w-[17px]" strokeWidth={1.75} />
-              {tour.meeting_point}
             </span>
           )}
           {tour.price_from != null && (

@@ -73,8 +73,10 @@ describe('σελίδα εκδρομής — κεφαλίδα με στοιχεί
     const facts = screen.getByTestId('tour-facts');
     expect(facts).toHaveTextContent('2 ημέρες');
     expect(facts).toHaveTextContent('Κάθε Σάββατο');
-    expect(facts).toHaveTextContent('Πλατεία Ελευθερίας');
     expect(facts).toHaveTextContent('από 89€');
+    // Το σημείο συνάντησης λείπει επίτηδες από τη σειρά: είναι μακρύ και
+    // εμφανίζεται πιο κάτω, στα πλακίδια και στα σημεία επιβίβασης.
+    expect(facts).not.toHaveTextContent('Πλατεία Ελευθερίας');
   });
 
   it('παραλείπει όσα πεδία λείπουν', async () => {
