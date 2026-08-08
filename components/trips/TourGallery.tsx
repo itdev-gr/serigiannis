@@ -5,8 +5,10 @@ import { ChevronLeft, ChevronRight, LayoutGrid, X } from 'lucide-react';
 import { galleryLayout, type GalleryImage } from '@/lib/gallery';
 import { cn } from '@/lib/utils';
 
+// Χωρίς δικές του στρογγυλές γωνίες: τις κόβει ο εξωτερικός περιέκτης, ώστε το
+// πλέγμα να διαβάζεται σαν μία επιφάνεια — όπως στο πρότυπο.
 const CELL =
-  'group relative block w-full overflow-hidden rounded-lg bg-primary/5 focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/25';
+  'group relative block w-full overflow-hidden bg-primary/5 focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/25';
 const PHOTO =
   'object-cover transition-transform duration-500 group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100';
 
@@ -74,7 +76,7 @@ export function TourGallery({ images }: { images: GalleryImage[] }) {
     <>
       <div
         data-testid="gallery-carousel"
-        className="relative aspect-[4/3] w-full touch-pan-y overflow-hidden rounded-lg bg-primary/5 md:hidden"
+        className="relative aspect-square w-full touch-pan-y overflow-hidden rounded-lg bg-primary/5 md:hidden"
         onTouchStart={(e) => { touchStartX.current = e.touches[0].clientX; swiped.current = false; }}
         onTouchMove={(e) => { if (Math.abs(e.touches[0].clientX - touchStartX.current) > 10) swiped.current = true; }}
         onTouchEnd={(e) => {
@@ -146,34 +148,39 @@ export function TourGallery({ images }: { images: GalleryImage[] }) {
 
       <div className="relative hidden md:block">
         {layout.variant === 'hero' ? (
-          // Μεγάλη αριστερά + οι υπόλοιπες δεξιά. Η δεξιά πλευρά αλλάζει
-          // στήλες ώστε να μη μένει ποτέ κενό κελί: 4 μικρές → 2×2, 3 → 1×3,
-          // 2 → 1×2. Το ύψος το ορίζει η αριστερή, με σταθερή αναλογία.
-          <div className="grid grid-cols-2 gap-2 overflow-hidden rounded-xl">
-            {cell(visible[0], 0, '(max-width: 768px) 0px, 50vw', 'aspect-[4/3] h-full')}
-            <div
-              // Ρητές κλάσεις: το Tailwind δεν βλέπει δυναμικά ονόματα.
-              className={cn(
-                'grid gap-2',
-                visible.length - 1 >= 4
-                  ? 'grid-cols-2 grid-rows-2'
-                  : visible.length - 1 === 3
-                    ? 'grid-cols-1 grid-rows-3'
-                    : visible.length - 1 === 2
-                      ? 'grid-cols-1 grid-rows-2'
-                      : 'grid-cols-1 grid-rows-1'
-              )}
-            >
+          // Μεγάλη αριστερά + 2×2 μικρές δεξιά. Ο πίνακας του galleryLayout
+          // στέλνει εδώ πάντα ακριβώς 5 φωτογραφίες, οπότε δεν μένει κενό κελί.
+          <div className="grid grid-cols-2 gap-2 overflow-hidden rounded-2xl">
+            {cell(visible[0], 0, '(max-width: 768px) 0px, 50vw', 'aspect-square')}
+            <div className="grid grid-cols-2 grid-rows-2 gap-2">
               {visible.slice(1).map((image, i) =>
-                cell(image, i + 1, '(max-width: 768px) 0px, 25vw', 'h-full min-h-0')
+                cell(image, i + 1, '(max-width: 768px) 0px, 25vw', 'aspect-square')
               )}
             </div>
           </div>
         ) : layout.variant === 'single' ? (
-          cell(visible[0], 0, '(max-width: 768px) 0px, min(100vw, 1280px)', 'aspect-[4/3]')
+          // Χωρίς περιέκτη να την κόψει, η μοναδική φωτογραφία στρογγυλεύει μόνη της.
+          cell(visible[0], 0, '(max-width: 768px) 0px, 500px', 'mx-auto aspect-square max-w-[500px] rounded-2xl')
         ) : (
-          <div className="grid grid-cols-2 gap-2 overflow-hidden rounded-xl">
-            {visible.map((image, i) => cell(image, i, '(max-width: 768px) 0px, 50vw', 'aspect-[4/3]'))}
+          <div
+            // Ρητές κλάσεις: το Tailwind δεν βλέπει δυναμικά ονόματα.
+            className={cn(
+              'grid gap-2 overflow-hidden rounded-2xl',
+              layout.variant === 'duo' ? 'grid-cols-2' : layout.variant === 'trio' ? 'grid-cols-3' : 'grid-cols-4'
+            )}
+          >
+            {visible.map((image, i) =>
+              cell(
+                image,
+                i,
+                layout.variant === 'duo'
+                  ? '(max-width: 768px) 0px, 50vw'
+                  : layout.variant === 'trio'
+                    ? '(max-width: 768px) 0px, 33vw'
+                    : '(max-width: 768px) 0px, 25vw',
+                'aspect-square'
+              )
+            )}
           </div>
         )}
 

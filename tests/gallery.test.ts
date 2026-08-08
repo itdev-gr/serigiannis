@@ -23,9 +23,9 @@ describe('galleryLayout', () => {
     expect(galleryLayout(2)).toEqual({ variant: 'duo', visibleCount: 2, showSeeAll: false });
   });
 
-  it('3–4 photos → mosaic με όλες ορατές, χωρίς κουμπί', () => {
-    expect(galleryLayout(3)).toEqual({ variant: 'hero', visibleCount: 3, showSeeAll: false });
-    expect(galleryLayout(4)).toEqual({ variant: 'hero', visibleCount: 4, showSeeAll: false });
+  it('3 φωτο → τρεις στήλες, 4 → τέσσερις, όλες ορατές χωρίς κουμπί', () => {
+    expect(galleryLayout(3)).toEqual({ variant: 'trio', visibleCount: 3, showSeeAll: false });
+    expect(galleryLayout(4)).toEqual({ variant: 'quad', visibleCount: 4, showSeeAll: false });
   });
 
   it('5 φωτο → mosaic 1+4 χωρίς κρυμμένες, άρα χωρίς κουμπί', () => {
