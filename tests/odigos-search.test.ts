@@ -88,4 +88,50 @@ describe('odigos content', () => {
     const ids = ODIGOS_SECTIONS.map((s) => s.id);
     expect(new Set(ids).size).toBe(ids.length);
   });
+
+  // Οι σελίδες /admin/excursions, /admin/routes, /admin/schedules και
+  // /admin/stations έχουν διαγραφεί — ένας σύνδεσμος προς αυτές στέλνει τον
+  // υπάλληλο σε 404 και ο οδηγός χάνει την αξιοπιστία του.
+  it('κάθε σύνδεσμος δείχνει σε σελίδα του admin που υπάρχει', () => {
+    const DELETED = ['/admin/excursions', '/admin/routes', '/admin/schedules', '/admin/stations'];
+    const hrefs = ODIGOS_SECTIONS.flatMap((s) =>
+      s.blocks.filter((b) => b.kind === 'link').map((b) => (b as { href: string }).href)
+    );
+    expect(hrefs.length).toBeGreaterThan(0);
+    for (const href of hrefs) {
+      expect(href.startsWith('/admin/'), `bad href: ${href}`).toBe(true);
+      expect(DELETED, `deleted page: ${href}`).not.toContain(href.split('?')[0]);
+    }
+  });
+});
+
+/** Όλο το κείμενο του οδηγού σε μία συμβολοσειρά, για ελέγχους περιεχομένου. */
+function allText(): string {
+  const texts: string[] = [];
+  for (const s of ODIGOS_SECTIONS) {
+    texts.push(s.title, ...s.keywords);
+    for (const b of s.blocks) {
+      if (b.kind === 'p' || b.kind === 'tip' || b.kind === 'warning') texts.push(b.text);
+      else if (b.kind === 'steps') texts.push(...b.items);
+      else if (b.kind === 'table') texts.push(...b.head, ...b.rows.flat());
+      else if (b.kind === 'link') texts.push(b.label);
+    }
+  }
+  return texts.join(' ');
+}
+
+describe('odigos: ο οδηγός περιγράφει το σημερινό admin', () => {
+  it('αναφέρει και τις τρεις καρτέλες των «Εκδρομών»', () => {
+    const all = allText();
+    for (const tab of ['Σελίδες εκδρομών', 'Πούλμαν & θέσεις', 'Κατηγορίες']) {
+      expect(all, `λείπει η καρτέλα: ${tab}`).toContain(tab);
+    }
+  });
+
+  it('εξηγεί το προαιρετικό email επιβάτη και τα νέα πεδία της σελίδας εκδρομής', () => {
+    const all = allText();
+    expect(all).toMatch(/email επιβάτη/i);
+    expect(all).toContain('Τι θα δείτε');
+    expect(all).toContain('Δεν περιλαμβάνονται');
+  });
 });
