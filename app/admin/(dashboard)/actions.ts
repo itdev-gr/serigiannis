@@ -283,6 +283,7 @@ export async function upsertTour(formData: FormData) {
     title,
     subtitle: (String(formData.get('subtitle') || '').trim() || null) as string | null,
     slug,
+    short_description: (String(formData.get('short_description') || '').trim() || null) as string | null,
     summary: (String(formData.get('summary') || '').trim() || null) as string | null,
     price_from: formData.get('price_from') ? Number(formData.get('price_from')) : null,
     price_original: parseEuroDecimal(String(formData.get('price_original') || '')),

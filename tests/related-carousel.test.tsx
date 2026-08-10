@@ -14,7 +14,7 @@ beforeEach(() => {
 });
 
 const tour = (o: Partial<Tour> = {}): Tour => ({
-  id: 'a', slug: 'ydra', title: 'Ύδρα', subtitle: null, summary: 'Το νησί του Μιαούλη', body: {},
+  id: 'a', slug: 'ydra', title: 'Ύδρα', subtitle: null, short_description: null, summary: 'Το νησί του Μιαούλη', body: {},
   price_from: 25, price_original: null, currency: 'EUR', duration_label: 'Μονοήμερη',
   departure_note: null, meeting_point: null, meeting_points: [], highlights: [], included: [],
   not_included: [], route_id: null, status: 'published', is_featured: false, bookings_open: true,

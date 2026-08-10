@@ -31,6 +31,7 @@ const tour = {
   slug: 'monoimeri-nafplio',
   title: 'Μονοήμερη Ναύπλιο',
   subtitle: null,
+  short_description: null,
   summary: null,
   body: {},
   price_from: null,

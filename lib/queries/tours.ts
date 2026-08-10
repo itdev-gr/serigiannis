@@ -38,6 +38,7 @@ function normalize(row: RawTour): Tour {
     ...clean,
     title: decodeEntities(clean.title),
     subtitle: decodeMaybe(clean.subtitle),
+    short_description: decodeMaybe(clean.short_description),
     summary: decodeMaybe(clean.summary),
     duration_label: decodeMaybe(clean.duration_label),
     departure_note: decodeMaybe(clean.departure_note),

@@ -946,6 +946,7 @@ describe('TourCard', () => {
     slug: 'ydra',
     title: 'Ύδρα',
     subtitle: null,
+    short_description: null,
     summary: 'Το νησί του Μιαούλη',
     body: {},
     price_from: 25,

@@ -50,6 +50,10 @@ export type Tour = {
   slug: string;
   title: string;
   subtitle: string | null;
+  /** Σύντομη περιγραφή 1–2 προτάσεων (0032) — η εισαγωγική παράγραφος κάτω από
+   *  τον τίτλο στη σελίδα της εκδρομής. Το summary μένει μόνο στην ενότητα
+   *  «Περιγραφή» πιο κάτω. */
+  short_description: string | null;
   summary: string | null;
   body: Record<string, unknown>;
   price_from: number | null;

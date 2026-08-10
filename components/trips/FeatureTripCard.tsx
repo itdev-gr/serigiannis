@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 export function FeatureTripCard({ tour, size = 'lg' }: { tour: Tour; size?: 'lg' | 'sm' }) {
   const cover = coverImage(tour);
   const meta = [tour.duration_label, tour.departure_note].filter(Boolean).join(' · ');
+  const blurb = tour.short_description ?? tour.summary;
   return (
     <Link
       href={`/tour/${tour.slug}`}
@@ -39,7 +40,7 @@ export function FeatureTripCard({ tour, size = 'lg' }: { tour: Tour; size?: 'lg'
         <h3 className={cn('font-display font-semibold text-balance leading-[1.1]', size === 'lg' ? 'text-4xl lg:text-5xl' : 'text-2xl')}>
           {tour.title}
         </h3>
-        {size === 'lg' && tour.summary && <p className="mt-3 max-w-md text-[15px] leading-relaxed text-surface/85">{tour.summary}</p>}
+        {size === 'lg' && blurb && <p className="mt-3 max-w-md text-[15px] leading-relaxed text-surface/85">{blurb}</p>}
         <div className="mt-6 flex items-center gap-2 font-sans text-[13px] font-semibold uppercase tracking-[0.12em]">
           <span>Ανακαλύψτε τη διαδρομή</span>
           <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" strokeWidth={1.75} />

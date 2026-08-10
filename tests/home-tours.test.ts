@@ -3,7 +3,7 @@ import { pickNewsTours } from '@/components/home/home-tours';
 import type { Tour } from '@/types/db';
 
 const t = (o: Partial<Tour>): Tour => ({
-  id: 'x', slug: 'x', title: 'x', subtitle: null, summary: null, body: {},
+  id: 'x', slug: 'x', title: 'x', subtitle: null, short_description: null, summary: null, body: {},
   price_from: null, price_original: null, currency: 'EUR', duration_label: null,
   departure_note: null, meeting_point: null, meeting_points: [], highlights: [], included: [], not_included: [], route_id: null, status: 'published', is_featured: false,
   bookings_open: true, cover_image_id: null, seo_title: null, seo_description: null, source_url: null,

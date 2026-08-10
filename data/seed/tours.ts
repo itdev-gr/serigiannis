@@ -23,7 +23,7 @@ function mk(i: number, s: SeedInput): Tour {
   const id = `seed-${i}`;
   const imgId = `${id}-img`;
   return {
-    id, slug: s.slug, title: s.title, subtitle: null, summary: s.desc, body: {},
+    id, slug: s.slug, title: s.title, subtitle: null, short_description: null, summary: s.desc, body: {},
     price_from: s.price, price_original: s.original ?? null, currency: 'EUR',
     duration_label: s.duration, departure_note: s.dates, meeting_point: null, meeting_points: [], highlights: [], included: [], not_included: [], route_id: null,
     status: 'published', is_featured: s.featured ?? false, bookings_open: true, cover_image_id: imgId,

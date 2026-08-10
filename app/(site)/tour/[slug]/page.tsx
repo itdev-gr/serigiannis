@@ -38,11 +38,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const img = imageUrl(cover);
   return {
     title: tour.seo_title ?? tour.title,
-    description: tour.seo_description ?? tour.summary ?? undefined,
+    description: tour.seo_description ?? tour.short_description ?? tour.summary ?? undefined,
     alternates: { canonical: `/tour/${tour.slug}` },
     openGraph: {
       title: tour.title,
-      description: tour.summary ?? undefined,
+      description: tour.short_description ?? tour.summary ?? undefined,
       images: img ? [img] : undefined,
     },
   };
@@ -97,7 +97,9 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
   const faqs = tourFaqs(tour);
 
   // Κεφαλίδα κατά το πρότυπο: ετικέτες πάνω από τον τίτλο, σειρά στοιχείων με
-  // εικονίδια από κάτω και η περίληψη ως εισαγωγική παράγραφος.
+  // εικονίδια από κάτω και η σύντομη περιγραφή ως εισαγωγική παράγραφος.
+  // Χωρίς εφεδρικό στο summary — αυτό εμφανίζεται μόνο στην ενότητα
+  // «Περιγραφή» πιο κάτω, αλλιώς το ίδιο κείμενο θα φαινόταν δύο φορές.
   const headerBadges = (
     <>
       {primaryCat && (
@@ -113,7 +115,7 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
   // Το σημείο συνάντησης λείπει επίτηδες: είναι μακρύ και εμφανίζεται ήδη
   // στα πλακίδια «Καλό να ξέρετε» και στα «Σημεία επιβίβασης» πιο κάτω.
   const hasFacts = Boolean(tour.duration_label || tour.departure_note) || tour.price_from != null;
-  const headerMeta = hasFacts || tour.summary ? (
+  const headerMeta = hasFacts || tour.short_description ? (
     <>
       {hasFacts && (
         <div
@@ -140,8 +142,8 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
           )}
         </div>
       )}
-      {tour.summary && (
-        <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-body">{tour.summary}</p>
+      {tour.short_description && (
+        <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-body">{tour.short_description}</p>
       )}
     </>
   ) : null;
@@ -173,7 +175,7 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
     '@context': 'https://schema.org',
     '@type': 'TouristTrip',
     name: tour.title,
-    description: tour.summary ?? undefined,
+    description: tour.short_description ?? tour.summary ?? undefined,
     url: tourUrl,
     ...(coverUrl ? { image: [coverUrl] } : {}),
     ...(offerPrice != null

@@ -8,6 +8,7 @@ const tour = (o: Partial<Tour> = {}): Tour => ({
   slug: 'meteora',
   title: 'Μετέωρα διήμερο',
   subtitle: null,
+  short_description: null,
   summary: null,
   body: {},
   price_from: null,

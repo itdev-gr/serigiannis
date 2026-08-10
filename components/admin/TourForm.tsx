@@ -104,8 +104,15 @@ export function TourForm({
       </label>
 
       <label className="block">
-        <span className={adminLabel}>Σύνοψη</span>
+        <span className={adminLabel}>Σύντομη περιγραφή</span>
+        <textarea name="short_description" rows={2} defaultValue={tour?.short_description ?? ''} className={adminInput} />
+        <span className="mt-1 block text-[12px] text-muted">1–2 προτάσεις· εμφανίζεται κάτω από τον τίτλο στη σελίδα της εκδρομής.</span>
+      </label>
+
+      <label className="block">
+        <span className={adminLabel}>Περιγραφή</span>
         <textarea name="summary" rows={3} defaultValue={tour?.summary ?? ''} className={adminInput} />
+        <span className="mt-1 block text-[12px] text-muted">Εμφανίζεται στην ενότητα «Περιγραφή» πιο κάτω στη σελίδα. Κενή γραμμή = νέα παράγραφος.</span>
       </label>
 
       <div className="grid gap-5 sm:grid-cols-3">

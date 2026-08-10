@@ -24,6 +24,7 @@ const tour = (o: Partial<Tour> = {}): Tour =>
     slug: 'meteora',
     title: 'Μετέωρα διήμερο',
     subtitle: null,
+    short_description: null,
     summary: null,
     body: {},
     price_from: null,
@@ -90,6 +91,28 @@ describe('σελίδα εκδρομής — κεφαλίδα με στοιχεί
   it('χωρίς κανένα πεδίο δεν υπάρχει καθόλου σειρά στοιχείων', async () => {
     await renderPage(tour());
     expect(screen.queryByTestId('tour-facts')).not.toBeInTheDocument();
+  });
+
+  it('η σύντομη περιγραφή μπαίνει κάτω από τον τίτλο· η πλήρης μόνο στην «Περιγραφή»', async () => {
+    await renderPage(
+      tour({
+        short_description: 'Μια σύντομη ματιά στην εκδρομή.',
+        summary: 'Η πλήρης περιγραφή της εκδρομής.',
+      }),
+    );
+    expect(screen.getByText('Μια σύντομη ματιά στην εκδρομή.')).toBeInTheDocument();
+    // Χωρίς διπλοεμφάνιση: η πλήρης περιγραφή υπάρχει μία φορά, στην ενότητά της.
+    expect(screen.getAllByText('Η πλήρης περιγραφή της εκδρομής.')).toHaveLength(1);
+    expect(screen.getByText('Περιγραφή')).toBeInTheDocument();
+  });
+
+  it('χωρίς σύντομη περιγραφή το summary δεν ανεβαίνει στην κεφαλίδα', async () => {
+    await renderPage(tour({ summary: 'Η πλήρης περιγραφή της εκδρομής.', duration_label: 'Ολοήμερη' }));
+    const heading = screen.getByRole('heading', { level: 1 });
+    expect(heading.closest('header, div, section')?.textContent ?? '').not.toContain(
+      'Η πλήρης περιγραφή της εκδρομής.',
+    );
+    expect(screen.getAllByText('Η πλήρης περιγραφή της εκδρομής.')).toHaveLength(1);
   });
 
   it('δείχνει την ετικέτα εμπιστοσύνης και την κατηγορία', async () => {
