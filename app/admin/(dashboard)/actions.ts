@@ -5,7 +5,7 @@ import { createServerClient } from '@/lib/supabase/server';
 import type { SettingsData } from '@/types/db';
 import { resolvePublishedAt } from '@/lib/posts-publish';
 import { parseEuroToCents } from '@/lib/booking';
-import { parseBoardingPoints, slugifyWithFallback } from '@/lib/excursions';
+import { parseBoardingPoints, slugifyWithFallback, slugNeedsCleanup } from '@/lib/excursions';
 import { flashQuery, withFlash } from '@/lib/admin-flash';
 
 function revalidatePublic() {
@@ -494,7 +494,15 @@ function revalidatePosts(slug?: string) {
 export async function upsertPost(formData: FormData) {
   const sb = await createServerClient();
   const id = (formData.get('id') as string) || null;
-  const slug = String(formData.get('slug') || '').trim();
+  // Στο πεδίο slug έχει μπει και ολόκληρη λίστα λέξεων-κλειδιών με ελληνικά,
+  // κόμματα και κενά — ένα τέτοιο slug 215 χαρακτήρων έριξε το build στο
+  // Vercel (ENAMETOOLONG στο prerender του /nea/<slug>). Ό,τι δεν είναι ήδη
+  // καθαρό URL segment καθαρίζεται εδώ, με εφεδρικό τον τίτλο.
+  const rawSlug = String(formData.get('slug') || '').trim();
+  const slug =
+    rawSlug && !slugNeedsCleanup(rawSlug)
+      ? rawSlug
+      : slugifyWithFallback(rawSlug || String(formData.get('title') || ''), 'arthro');
   const status = String(formData.get('status') || 'draft');
 
   let existingPublishedAt: string | null = null;
