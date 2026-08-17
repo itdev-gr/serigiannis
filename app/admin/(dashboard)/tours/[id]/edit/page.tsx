@@ -8,6 +8,7 @@ import { TourBookingEditor } from '@/components/admin/TourBookingEditor';
 import { TourSetupChecklist } from '@/components/admin/TourSetupChecklist';
 import { getTourBookingSetup } from '@/lib/queries/tour-orders';
 import { getAdminRoutes } from '@/lib/queries/ticketing';
+import { getTourPresets, presetsOfKind } from '@/lib/queries/presets';
 import { routeLabel } from '@/lib/ticketing';
 import { ConfirmForm } from '@/components/admin/ConfirmForm';
 import { FlashBanner } from '@/components/admin/FlashBanner';
@@ -26,15 +27,22 @@ export default async function EditTourPage({
   const { id } = await params;
   const { saved, error } = await searchParams;
   const sb = await createServerClient();
-  const [{ data: row }, categories, { data: images }, booking, ordersCount, allRoutes] = await Promise.all([
+  const [{ data: row }, categories, { data: images }, booking, ordersCount, allRoutes, allPresets] = await Promise.all([
     sb.from('tours').select('*, categories:tour_categories(category:categories(*))').eq('id', id).maybeSingle(),
     getCategories(),
     sb.from('tour_images').select('*').eq('tour_id', id).order('position'),
     getTourBookingSetup(id),
     sb.from('tour_orders').select('id', { count: 'exact', head: true }).eq('tour_id', id),
     getAdminRoutes(),
+    getTourPresets(),
   ]);
   if (!row) notFound();
+
+  const presets = {
+    meeting_points: presetsOfKind(allPresets, 'meeting_point').map((p) => p.label),
+    included: presetsOfKind(allPresets, 'included').map((p) => p.label),
+    not_included: presetsOfKind(allPresets, 'not_included').map((p) => p.label),
+  };
 
   const tour = {
     ...row,
@@ -74,7 +82,7 @@ export default async function EditTourPage({
         futureDepartureCount={bookableDepartures(booking.departures, athensToday()).length}
         meetingPointCount={(row.meeting_points ?? []).length}
       />
-      <TourForm tour={tour} categories={categories} routes={routes} action={upsertTour} />
+      <TourForm tour={tour} categories={categories} routes={routes} presets={presets} action={upsertTour} />
       <TourBookingEditor tourId={id} tiers={booking.tiers} departures={booking.departures} action={saveTourBooking} />
       <GalleryManager tourId={id} images={(images ?? []) as TourImage[]} coverImageId={row.cover_image_id} />
 

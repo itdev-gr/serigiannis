@@ -4,6 +4,7 @@ import type { AdminRoute } from '@/lib/queries/ticketing';
 import { routeLabel } from '@/lib/ticketing';
 import { Button } from '@/components/ui/Button';
 import { adminInput, adminLabel } from '@/components/admin/ui';
+import { RichTextEditor } from '@/components/admin/RichTextEditor';
 
 const STATUSES = [
   { v: 'published', l: 'Δημοσιευμένο' },
@@ -39,10 +40,13 @@ export function PostForm({
         <textarea name="excerpt" rows={3} defaultValue={post?.excerpt ?? ''} className={adminInput} />
       </label>
 
-      <label className="block">
+      <div className="block">
         <span className={adminLabel}>Κείμενο</span>
-        <textarea name="body" rows={12} defaultValue={post?.body ?? ''} className={adminInput} />
-      </label>
+        <RichTextEditor name="body" defaultValue={post?.body ?? ''} minHeight={280} />
+        <span className="mt-1 block text-[12px] text-muted">
+          Μαρκάρετε κείμενο και χρησιμοποιήστε τη μπάρα για έντονα, λίστες και χρώμα — ό,τι θέλετε να χτυπάει στο μάτι.
+        </span>
+      </div>
 
       <div className="grid gap-5 sm:grid-cols-3">
         <label className="block">

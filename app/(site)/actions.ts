@@ -29,6 +29,7 @@ export async function createLead(input: LeadInput): Promise<{ ok: boolean; error
     preferred_date: input.preferred_date || null,
     party_size: partySize,
     source_path: input.source_path?.slice(0, 200) || null,
+    marketing_opt_in: input.marketing_opt_in === true,
   };
   const sb = await createServerClient();
   const { error } = await sb.from('leads').insert(row);

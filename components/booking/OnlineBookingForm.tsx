@@ -14,6 +14,8 @@ const Schema = z.object({
   date: z.string().optional(),
   seats: z.string().regex(/^\d+$/, 'Συμπληρώστε τον αριθμό θέσεων.').refine((v) => Number(v) >= 1, 'Τουλάχιστον 1 θέση.'),
   notes: z.string().optional(),
+  marketing: z.boolean().optional(),
+  terms: z.boolean().refine((v) => v === true, 'Πρέπει να αποδεχθείτε τους όρους για να συνεχίσετε.'),
   hp: z.string().optional(),
 });
 type Input = z.infer<typeof Schema>;
@@ -47,7 +49,7 @@ export function OnlineBookingForm({
   const [error, setError] = useState<string | null>(null);
   const { register, handleSubmit, watch, formState: { errors, isSubmitting } } = useForm<Input>({
     resolver: zodResolver(Schema),
-    defaultValues: { date: defaultDate ?? '', seats: '' },
+    defaultValues: { date: defaultDate ?? '', seats: '', marketing: false, terms: false },
   });
   const mountedAt = useRef(Date.now());
   const seats = watch('seats') ?? '';
@@ -76,6 +78,7 @@ export function OnlineBookingForm({
           party_size: Number(d.seats),
           subject: subject ? `Κράτηση: ${subject}` : 'Online κράτηση',
           message: message || null, source_path: sourcePath,
+          marketing_opt_in: d.marketing === true,
           hp: d.hp, ts: mountedAt.current,
         });
         if (res.ok) setSent(true); else setError('Κάτι πήγε στραβά. Δοκιμάστε ξανά ή καλέστε μας.');
@@ -102,6 +105,21 @@ export function OnlineBookingForm({
         </p>
       )}
       <Field label="Σημειώσεις"><textarea rows={3} {...register('notes')} className={inputCls} /></Field>
+      {/* Το opt-in ενημερώσεων ΠΑΝΩ από την αποδοχή όρων — ρητό αίτημα του γραφείου. */}
+      <label className="flex items-start gap-2.5 text-[14px] text-body">
+        <input type="checkbox" {...register('marketing')} className="mt-0.5 h-4 w-4 shrink-0 accent-primary" />
+        <span>Θέλω να λαμβάνω ενημερώσεις για νέες εκδρομές.</span>
+      </label>
+      <label className="flex items-start gap-2.5 text-[14px] text-body">
+        <input type="checkbox" {...register('terms')} className="mt-0.5 h-4 w-4 shrink-0 accent-primary" />
+        <span>
+          Αποδέχομαι τους{' '}
+          <a href="/oroi-proypotheseis" target="_blank" className="font-semibold underline underline-offset-2 hover:text-cta">όρους &amp; προϋποθέσεις</a>{' '}
+          και την{' '}
+          <a href="/politiki-aporritou" target="_blank" className="font-semibold underline underline-offset-2 hover:text-cta">πολιτική απορρήτου</a>. *
+        </span>
+      </label>
+      {errors.terms?.message && <p className="-mt-2 text-[13px] text-cta">{errors.terms.message}</p>}
       {error && <p className="text-[14px] text-cta">{error}</p>}
       <Button type="submit" disabled={isSubmitting}>{isSubmitting ? 'Αποστολή…' : 'Αποστολή Αιτήματος'}</Button>
     </form>

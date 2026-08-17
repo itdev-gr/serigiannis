@@ -14,6 +14,7 @@ export const ADMIN_ERROR_TEXT: Record<string, string> = {
   invalid_boarding_point: 'Το σημείο επιβίβασης δεν είναι έγκυρο. Ανανεώστε τη σελίδα και δοκιμάστε ξανά.',
   duplicate_post_slug: 'Αυτό το slug χρησιμοποιείται ήδη από άλλο άρθρο. Επιλέξτε διαφορετικό.',
   duplicate_category: 'Υπάρχει ήδη κατηγορία με αυτό το slug.',
+  duplicate_preset: 'Υπάρχει ήδη έτοιμο κείμενο με αυτή τη διατύπωση.',
   seat_not_blocked: 'Η θέση δεν ήταν κλειδωμένη.',
   delete_image: 'Η διαγραφή της φωτογραφίας απέτυχε. Η φωτογραφία παραμένει.',
 };

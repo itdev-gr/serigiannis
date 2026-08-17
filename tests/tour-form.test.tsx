@@ -81,16 +81,22 @@ describe('TourForm — σύνδεση με εκδρομή πούλμαν', () =>
 
 describe('TourForm — highlights και τι περιλαμβάνεται', () => {
   const area = (label: RegExp) => screen.getByLabelText(label) as HTMLTextAreaElement;
+  // Τα included/not_included/meeting_points ζουν πλέον σε PresetPicker: το
+  // textarea δεν έχει δικό του label (η επικεφαλίδα είναι legend), οπότε
+  // εντοπίζεται από το name του.
+  const areaByName = (container: HTMLElement, name: string) =>
+    container.querySelector(`textarea[name="${name}"]`) as HTMLTextAreaElement;
 
   it('έχει και τα τρία πεδία με τα σωστά ονόματα', () => {
-    render(<TourForm tour={tour} categories={categories} routes={routes} action={() => {}} />);
+    const { container } = render(<TourForm tour={tour} categories={categories} routes={routes} action={() => {}} />);
     expect(area(/Τι θα δείτε/).name).toBe('highlights');
-    expect(area(/^Περιλαμβάνονται/).name).toBe('included');
-    expect(area(/^Δεν περιλαμβάνονται/).name).toBe('not_included');
+    expect(areaByName(container, 'included')).toBeInTheDocument();
+    expect(areaByName(container, 'not_included')).toBeInTheDocument();
+    expect(areaByName(container, 'meeting_points')).toBeInTheDocument();
   });
 
   it('γεμίζει κάθε πεδίο από την εκδρομή, μία γραμμή ανά σημείο', () => {
-    render(
+    const { container } = render(
       <TourForm
         tour={{
           ...tour,
@@ -104,15 +110,56 @@ describe('TourForm — highlights και τι περιλαμβάνεται', () 
       />,
     );
     expect(area(/Τι θα δείτε/).value).toBe('Ξενάγηση στα μοναστήρια\nΕλεύθερος χρόνος');
-    expect(area(/^Περιλαμβάνονται/).value).toBe('Μεταφορά με πούλμαν');
-    expect(area(/^Δεν περιλαμβάνονται/).value).toBe('Είσοδοι\nΓεύματα');
+    expect(areaByName(container, 'included').value).toBe('Μεταφορά με πούλμαν');
+    expect(areaByName(container, 'not_included').value).toBe('Είσοδοι\nΓεύματα');
   });
 
   it('νέα εκδρομή: και τα τρία πεδία άδεια', () => {
-    render(<TourForm categories={categories} routes={routes} action={() => {}} />);
+    const { container } = render(<TourForm categories={categories} routes={routes} action={() => {}} />);
     expect(area(/Τι θα δείτε/).value).toBe('');
-    expect(area(/^Περιλαμβάνονται/).value).toBe('');
-    expect(area(/^Δεν περιλαμβάνονται/).value).toBe('');
+    expect(areaByName(container, 'included').value).toBe('');
+    expect(areaByName(container, 'not_included').value).toBe('');
+  });
+});
+
+
+// Έτοιμα κείμενα: οι γραμμές της καρτέλας «Έτοιμα κείμενα» εμφανίζονται ως
+// checkboxes (`<πεδίο>_preset`), οι τιμές της εκδρομής που ταιριάζουν
+// προεπιλέγονται, και ό,τι δεν ταιριάζει πάει στο textarea των έξτρα γραμμών.
+describe('TourForm — έτοιμα κείμενα (presets)', () => {
+  const presets = {
+    meeting_points: ['Πλατεία Συντάγματος', 'Σταθμός ΗΣΑΠ Πειραιά'],
+    included: ['Μεταφορά με πούλμαν', 'Αρχηγός εκδρομής'],
+    not_included: ['Γεύματα'],
+  };
+
+  it('τσεκάρει όσα έχει ήδη η εκδρομή και στέλνει τα υπόλοιπα ως έξτρα', () => {
+    const { container } = render(
+      <TourForm
+        tour={{ ...tour, included: ['Μεταφορά με πούλμαν', 'Καφές στο πούλμαν'], meeting_points: ['Πλατεία Συντάγματος'] }}
+        categories={categories}
+        routes={routes}
+        presets={presets}
+        action={() => {}}
+      />,
+    );
+    const boxes = [...container.querySelectorAll('input[name="included_preset"]')] as HTMLInputElement[];
+    expect(boxes.map((b) => b.value)).toEqual(['Μεταφορά με πούλμαν', 'Αρχηγός εκδρομής']);
+    expect(boxes[0].checked).toBe(true);
+    expect(boxes[1].checked).toBe(false);
+    const extra = container.querySelector('textarea[name="included"]') as HTMLTextAreaElement;
+    expect(extra.value).toBe('Καφές στο πούλμαν');
+    const meeting = [...container.querySelectorAll('input[name="meeting_points_preset"]')] as HTMLInputElement[];
+    expect(meeting[0].checked).toBe(true);
+    expect(meeting[1].checked).toBe(false);
+  });
+
+  it('χωρίς presets η φόρμα δουλεύει όπως πριν, με όλα στο textarea', () => {
+    const { container } = render(
+      <TourForm tour={{ ...tour, included: ['Μεταφορά'] }} categories={categories} routes={routes} action={() => {}} />,
+    );
+    expect(container.querySelectorAll('input[name="included_preset"]')).toHaveLength(0);
+    expect((container.querySelector('textarea[name="included"]') as HTMLTextAreaElement).value).toBe('Μεταφορά');
   });
 });
 

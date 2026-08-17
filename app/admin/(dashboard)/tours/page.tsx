@@ -5,7 +5,8 @@ import { getCategories } from '@/lib/queries/categories';
 import { AdminToursTable } from '@/components/admin/AdminToursTable';
 import { PoylmanRoutesList } from '@/components/admin/PoylmanRoutesList';
 import { getAdminAllFares, getAdminPatterns, getAdminRoutes, getAdminTrips } from '@/lib/queries/ticketing';
-import { upsertCategory, deleteCategory } from '../actions';
+import { upsertCategory, deleteCategory, upsertTourPreset, deleteTourPreset } from '../actions';
+import { getTourPresets, presetsOfKind, type TourPresetKind } from '@/lib/queries/presets';
 import { Button } from '@/components/ui/Button';
 import { ConfirmForm } from '@/components/admin/ConfirmForm';
 import { FlashBanner } from '@/components/admin/FlashBanner';
@@ -16,7 +17,30 @@ const TABS = [
   { key: 'ekdromes', label: 'Σελίδες εκδρομών' },
   { key: 'poylman', label: 'Πούλμαν & θέσεις' },
   { key: 'katigories', label: 'Κατηγορίες' },
+  { key: 'keimena', label: 'Έτοιμα κείμενα' },
 ] as const;
+
+// Οι τρεις λίστες της καρτέλας «Έτοιμα κείμενα» — ίδιο kind με τον πίνακα
+// tour_presets και με τα αντίστοιχα πεδία της φόρμας εκδρομής.
+const PRESET_SECTIONS: { kind: TourPresetKind; title: string; hint: string }[] = [
+  {
+    kind: 'meeting_point',
+    title: 'Σημεία συνάντησης',
+    hint: 'Εμφανίζονται ως επιλογές (τσεκ) στη φόρμα κάθε εκδρομής — τσεκάρετε εκεί ποια ισχύουν.',
+  },
+  {
+    kind: 'included',
+    title: 'Περιλαμβάνονται',
+    hint: 'Έτοιμες γραμμές για την ενότητα «Τι περιλαμβάνεται» — δεν τις ξαναγράφετε σε κάθε εκδρομή.',
+  },
+  {
+    kind: 'not_included',
+    title: 'Δεν περιλαμβάνονται',
+    hint: 'Έτοιμες γραμμές για το «Δεν περιλαμβάνονται» της σελίδας εκδρομής.',
+  },
+];
+
+const PRESET_ROW = 'grid grid-cols-[1fr_6rem_auto] items-center gap-3';
 type TabKey = (typeof TABS)[number]['key'];
 
 const CAT_ROW = 'grid grid-cols-[1fr_1fr_6rem_auto] items-center gap-3';
@@ -47,6 +71,9 @@ export default async function AdminToursPage({
     trips: Awaited<ReturnType<typeof getAdminTrips>>;
     fares: Awaited<ReturnType<typeof getAdminAllFares>>;
   };
+  // Κι εδώ μόνο στην καρτέλα τους — ο ίδιος λόγος με τα δεδομένα του πούλμαν.
+  const presets = tab === 'keimena' ? await getTourPresets() : [];
+
   if (tab === 'poylman') {
     const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Athens' });
     const in30 = addDays(today, 30);
@@ -149,6 +176,65 @@ export default async function AdminToursPage({
               <Button type="submit">Προσθήκη</Button>
             </form>
           </div>
+        </div>
+      )}
+
+      {tab === 'keimena' && (
+        <div className="max-w-3xl space-y-10">
+          <p className="text-[14px] text-muted">
+            Οι λίστες αυτές εμφανίζονται ως επιλογές (τσεκ) στη φόρμα κάθε εκδρομής. Γράψτε τα κείμενα μία φορά εδώ και
+            μετά απλώς τσεκάρετε ανά εκδρομή ποια ισχύουν — χωρίς να τα ξαναγράφετε από την αρχή.
+          </p>
+          {PRESET_SECTIONS.map((section) => {
+            const rows = presetsOfKind(presets, section.kind);
+            return (
+              <div key={section.kind}>
+                <h2 className="font-display text-xl font-semibold text-primary">{section.title}</h2>
+                <p className="mb-3 mt-1 text-[13px] text-muted">{section.hint}</p>
+                <div className="overflow-x-auto">
+                  <div className="min-w-[480px] overflow-hidden rounded-lg border border-border bg-surface">
+                    <div className={`${PRESET_ROW} border-b border-border bg-background/50 px-4 py-3 font-sans text-[12px] uppercase tracking-[0.1em] text-muted`}>
+                      <div>Κείμενο</div>
+                      <div>Σειρά</div>
+                      <div className="text-right">—</div>
+                    </div>
+                    {rows.length === 0 && (
+                      <p className="px-4 py-4 text-[14px] text-muted">Δεν υπάρχουν ακόμη — προσθέστε την πρώτη γραμμή από κάτω.</p>
+                    )}
+                    {rows.map((p) => {
+                      const formId = `preset-${p.id}`;
+                      return (
+                        <div key={p.id} className={`${PRESET_ROW} border-b border-border/60 px-4 py-2 last:border-0`}>
+                          <form id={formId} action={upsertTourPreset} className="hidden">
+                            <input type="hidden" name="id" value={p.id} />
+                            <input type="hidden" name="kind" value={p.kind} />
+                          </form>
+                          <input form={formId} name="label" defaultValue={p.label} maxLength={120} className={adminInput} />
+                          <input form={formId} name="sort_order" type="number" defaultValue={p.sort_order} className={adminInput} />
+                          <div className="flex items-center justify-end gap-3">
+                            <Button type="submit" form={formId} size="sm" variant="outline">Αποθήκευση</Button>
+                            <ConfirmForm
+                              action={deleteTourPreset.bind(null, p.id)}
+                              message={`Διαγραφή «${p.label}»; Οι εκδρομές που το έχουν ήδη το κρατούν — απλώς δεν θα προτείνεται σε νέες.`}
+                              title="Διαγραφή έτοιμου κειμένου"
+                            >
+                              <button type="button" className="text-[13px] text-cta hover:underline">Διαγραφή</button>
+                            </ConfirmForm>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+                <form action={upsertTourPreset} className="mt-3 grid gap-3 sm:grid-cols-[1fr_6rem_auto]">
+                  <input type="hidden" name="kind" value={section.kind} />
+                  <input name="label" placeholder="Νέα γραμμή…" required maxLength={120} className={adminInput} />
+                  <input name="sort_order" type="number" defaultValue={rows.length} className={adminInput} />
+                  <Button type="submit">Προσθήκη</Button>
+                </form>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

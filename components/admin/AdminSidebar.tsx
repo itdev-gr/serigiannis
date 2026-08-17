@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, MapPin, Newspaper, Inbox, Settings, LogOut, ExternalLink, Menu, X, Bus, Ticket, CalendarCheck, BookOpen, type LucideIcon } from 'lucide-react';
+import { LayoutDashboard, MapPin, Newspaper, Inbox, Settings, LogOut, ExternalLink, Menu, X, Bus, Ticket, CalendarCheck, BookOpen, Mail, type LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { signOut } from '@/app/admin/(dashboard)/actions';
 
@@ -22,7 +22,10 @@ const GROUPS: NavGroup[] = [
   },
   {
     heading: 'Αιτήματα',
-    items: [{ to: '/admin/requests', label: 'Αιτήματα & Πελάτες', icon: Inbox }],
+    items: [
+      { to: '/admin/requests', label: 'Αιτήματα & Πελάτες', icon: Inbox },
+      { to: '/admin/newsletter', label: 'Λίστα Ενημερώσεων', icon: Mail },
+    ],
   },
   {
     heading: 'Περιεχόμενο Site',

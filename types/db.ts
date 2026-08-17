@@ -224,6 +224,7 @@ export type LeadInput = {
   preferred_date?: string | null;
   party_size?: number | null;
   source_path?: string | null;
+  marketing_opt_in?: boolean;
   // Anti-spam (not stored): honeypot must stay empty; ts is the form-render timestamp (ms).
   hp?: string;
   ts?: number;

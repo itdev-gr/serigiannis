@@ -6,6 +6,7 @@ import type { AdminRoute } from '@/lib/queries/ticketing';
 import { routeLabel } from '@/lib/ticketing';
 import { Button } from '@/components/ui/Button';
 import { adminInput, adminLabel } from '@/components/admin/ui';
+import { RichTextEditor } from '@/components/admin/RichTextEditor';
 import { slugify, slugNeedsCleanup } from '@/lib/excursions';
 
 const STATUSES = [
@@ -15,15 +16,74 @@ const STATUSES = [
   { v: 'archived', l: 'Αρχειοθετημένη' },
 ];
 
+export type TourFormPresets = {
+  meeting_points: string[];
+  included: string[];
+  not_included: string[];
+};
+
+/** Λίστα με έτοιμες γραμμές (checkboxes, καρτέλα «Έτοιμα κείμενα») συν
+ *  textarea για έκτακτες γραμμές της συγκεκριμένης εκδρομής. Ο server ενώνει
+ *  τα δύο στο ίδιο text[] πεδίο που είχε πάντα η εκδρομή. */
+function PresetPicker({
+  label,
+  hint,
+  name,
+  presets,
+  current,
+  placeholder,
+}: {
+  label: string;
+  hint: string;
+  name: string;
+  presets: string[];
+  current: string[];
+  placeholder?: string;
+}) {
+  const presetSet = new Set(presets);
+  const extra = current.filter((v) => !presetSet.has(v));
+  return (
+    <fieldset className="block">
+      <legend className={adminLabel}>{label}</legend>
+      {presets.length > 0 && (
+        <div className="mt-1 grid gap-2 rounded-md border border-border bg-surface px-4 py-3">
+          {presets.map((p) => (
+            <label key={p} className="flex items-start gap-2.5 text-[14px] text-body">
+              <input
+                type="checkbox"
+                name={`${name}_preset`}
+                value={p}
+                defaultChecked={current.includes(p)}
+                className="mt-0.5 h-4 w-4 shrink-0 accent-primary"
+              />
+              {p}
+            </label>
+          ))}
+        </div>
+      )}
+      <textarea
+        name={name}
+        rows={2}
+        defaultValue={extra.join('\n')}
+        className={`${adminInput} mt-2`}
+        placeholder={placeholder ?? 'Έξτρα γραμμές μόνο για αυτή την εκδρομή (μία ανά γραμμή)'}
+      />
+      <span className="mt-1 block text-[12px] text-muted">{hint}</span>
+    </fieldset>
+  );
+}
+
 export function TourForm({
   tour,
   categories,
   routes = [],
+  presets,
   action,
 }: {
   tour?: Tour | null;
   categories: Category[];
   routes?: AdminRoute[];
+  presets?: TourFormPresets;
   action: (formData: FormData) => void | Promise<void>;
 }) {
   const isNew = !tour?.id;
@@ -37,13 +97,26 @@ export function TourForm({
   // rewritten automatically; we only warn and offer a one-click fix.
   const [slug, setSlug] = useState(tour?.slug ?? '');
   const [slugTouched, setSlugTouched] = useState(false);
+  const [catError, setCatError] = useState(false);
 
   const cleanSlug = slugify(slug);
   const showSlugWarning = !isNew && slugNeedsCleanup(slug);
 
   return (
-    <form action={action} className="grid max-w-2xl gap-5">
+    <form
+      action={action}
+      className="grid max-w-2xl gap-5"
+      onSubmit={(e) => {
+        // Χωρίς καμία κατηγορία η εκδρομή δεν φαίνεται σε κανένα φίλτρο του
+        // καταλόγου — μπλοκάρουμε την υποβολή πριν φτάσει στον server.
+        if (!e.currentTarget.querySelector('input[name="category"]:checked')) {
+          e.preventDefault();
+          setCatError(true);
+        }
+      }}
+    >
       {tour?.id && <input type="hidden" name="id" value={tour.id} />}
+      <input type="hidden" name="category_sync" value="1" />
 
       <label className="block">
         <span className={adminLabel}>Τίτλος *</span>
@@ -105,15 +178,17 @@ export function TourForm({
 
       <label className="block">
         <span className={adminLabel}>Σύντομη περιγραφή</span>
-        <textarea name="short_description" rows={2} defaultValue={tour?.short_description ?? ''} className={adminInput} />
-        <span className="mt-1 block text-[12px] text-muted">1–2 προτάσεις· εμφανίζεται κάτω από τον τίτλο στη σελίδα της εκδρομής.</span>
+        <textarea name="short_description" rows={3} defaultValue={tour?.short_description ?? ''} className={adminInput} />
+        <span className="mt-1 block text-[12px] text-muted">2–3 προτάσεις· εμφανίζεται κάτω από τον τίτλο στη σελίδα της εκδρομής και στις κάρτες του καταλόγου (έως 3 γραμμές).</span>
       </label>
 
-      <label className="block">
+      <div className="block">
         <span className={adminLabel}>Περιγραφή</span>
-        <textarea name="summary" rows={3} defaultValue={tour?.summary ?? ''} className={adminInput} />
-        <span className="mt-1 block text-[12px] text-muted">Εμφανίζεται στην ενότητα «Περιγραφή» πιο κάτω στη σελίδα. Κενή γραμμή = νέα παράγραφος.</span>
-      </label>
+        <RichTextEditor name="summary" defaultValue={tour?.summary ?? ''} minHeight={160} />
+        <span className="mt-1 block text-[12px] text-muted">
+          Εμφανίζεται στην ενότητα «Περιγραφή» πιο κάτω στη σελίδα. Με τη μπάρα βάζετε έντονα, λίστες και χρώμα.
+        </span>
+      </div>
 
       <div className="grid gap-5 sm:grid-cols-3">
         <label className="block">
@@ -143,6 +218,7 @@ export function TourForm({
                 name="category"
                 value={c.slug}
                 defaultChecked={defaultCats.has(c.slug)}
+                onChange={() => setCatError(false)}
                 className="h-4 w-4 accent-primary"
               />
               {c.name_el}
@@ -152,6 +228,11 @@ export function TourForm({
         <span className="mt-1 block text-[12px] text-muted">
           Η εκδρομή εμφανίζεται σε όλες τις επιλεγμένες κατηγορίες του καταλόγου. Η πρώτη επιλεγμένη είναι η κύρια.
         </span>
+        {catError && (
+          <p className="mt-1 text-[12px] font-semibold text-cta">
+            Επιλέξτε τουλάχιστον μία κατηγορία — αλλιώς η εκδρομή δεν θα εμφανίζεται στα φίλτρα του καταλόγου.
+          </p>
+        )}
       </fieldset>
 
       <div className="grid gap-5 sm:grid-cols-2">
@@ -170,20 +251,14 @@ export function TourForm({
         <input name="meeting_point" defaultValue={tour?.meeting_point ?? ''} className={adminInput} placeholder="π.χ. Πλατεία Συντάγματος, 07:00" />
       </label>
 
-      <label className="block">
-        <span className={adminLabel}>Σημεία συνάντησης (ένα ανά γραμμή)</span>
-        <textarea
-          name="meeting_points"
-          rows={3}
-          defaultValue={(tour?.meeting_points ?? []).join('\n')}
-          className={adminInput}
-          placeholder={'Πλατεία Συντάγματος\nΣταθμός ΗΣΑΠ Πειραιά'}
-        />
-      </label>
-      <p className="-mt-3 text-[12px] text-muted">
-        Το «Σημείο συνάντησης» από πάνω εμφανίζεται στη σελίδα της εκδρομής· τα «Σημεία συνάντησης» είναι η λίστα από την
-        οποία θα διαλέξει ο πελάτης κατά την κράτηση, αν συμπληρωθεί.
-      </p>
+      <PresetPicker
+        label="Σημεία συνάντησης"
+        name="meeting_points"
+        presets={presets?.meeting_points ?? []}
+        current={tour?.meeting_points ?? []}
+        placeholder={'Έξτρα σημεία μόνο για αυτή την εκδρομή (ένα ανά γραμμή)\nπ.χ. Πλατεία Συντάγματος'}
+        hint="Το «Σημείο συνάντησης» από πάνω εμφανίζεται στη σελίδα της εκδρομής· από αυτή τη λίστα διαλέγει ο πελάτης κατά την κράτηση. Τη λίστα με τα τσεκ τη διαχειρίζεστε στην καρτέλα «Έτοιμα κείμενα»."
+      />
 
       <label className="block">
         <span className={adminLabel}>Τι θα δείτε (ένα ανά γραμμή)</span>
@@ -199,31 +274,21 @@ export function TourForm({
         </span>
       </label>
 
-      <label className="block">
-        <span className={adminLabel}>Περιλαμβάνονται (ένα ανά γραμμή)</span>
-        <textarea
-          name="included"
-          rows={4}
-          defaultValue={(tour?.included ?? []).join('\n')}
-          className={adminInput}
-          placeholder={'Μεταφορά με πούλμαν\nΑρχηγός εκδρομής'}
-        />
-        <span className="mt-1 block text-[12px] text-muted">Ό,τι καλύπτει η τιμή της εκδρομής.</span>
-      </label>
+      <PresetPicker
+        label="Περιλαμβάνονται"
+        name="included"
+        presets={presets?.included ?? []}
+        current={tour?.included ?? []}
+        hint="Ό,τι καλύπτει η τιμή της εκδρομής. Τσεκάρετε τα έτοιμα κείμενα που ισχύουν — τα διαχειρίζεστε στην καρτέλα «Έτοιμα κείμενα»."
+      />
 
-      <label className="block">
-        <span className={adminLabel}>Δεν περιλαμβάνονται (ένα ανά γραμμή)</span>
-        <textarea
-          name="not_included"
-          rows={4}
-          defaultValue={(tour?.not_included ?? []).join('\n')}
-          className={adminInput}
-          placeholder={'Είσοδοι σε μουσεία\nΓεύματα'}
-        />
-        <span className="mt-1 block text-[12px] text-muted">
-          Ό,τι πληρώνει ο ταξιδιώτης χωριστά. Βοηθά να μη γίνονται παρεξηγήσεις την ημέρα της εκδρομής.
-        </span>
-      </label>
+      <PresetPicker
+        label="Δεν περιλαμβάνονται"
+        name="not_included"
+        presets={presets?.not_included ?? []}
+        current={tour?.not_included ?? []}
+        hint="Ό,τι πληρώνει ο ταξιδιώτης χωριστά. Βοηθά να μη γίνονται παρεξηγήσεις την ημέρα της εκδρομής."
+      />
 
       <label className="block">
         <span className={adminLabel}>Σύνδεση με εκδρομή πούλμαν (προαιρετικό)</span>
@@ -248,7 +313,7 @@ export function TourForm({
           <span className={adminLabel}>Σειρά εμφάνισης</span>
           <input name="sort_order" type="number" step="1" defaultValue={tour?.sort_order ?? 0} className={adminInput} />
           <span className="mt-1 block text-[12px] text-muted">
-            Μικρότερος αριθμός = πιο ψηλά στη λίστα «Εκδρομές». Μεγαλύτερος αριθμός = πιο ψηλά στις «Προτεινόμενες εκδρομές» της αρχικής σελίδας.
+            Μικρότερος αριθμός = πιο ψηλά στη λίστα «Εκδρομές»· με ίδιο αριθμό, οι νεότερες εκδρομές βγαίνουν πρώτες. Μεγαλύτερος αριθμός = πιο ψηλά στις «Προτεινόμενες εκδρομές» της αρχικής σελίδας.
           </span>
         </label>
       </div>

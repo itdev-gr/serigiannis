@@ -259,6 +259,14 @@ export async function deleteTour(id: string) {
   redirect('/admin/tours');
 }
 
+/** Ενώνει τις τσεκαρισμένες έτοιμες γραμμές (`<field>_preset`, μία τιμή ανά
+ *  checkbox) με τις έξτρα γραμμές του textarea (`<field>`) σε ένα text[]. */
+function mergePresetLines(formData: FormData, field: string): string[] {
+  const preset = formData.getAll(`${field}_preset`).map(String);
+  const extra = String(formData.get(field) || '');
+  return parseBoardingPoints([...preset, extra].join('\n'));
+}
+
 export async function upsertTour(formData: FormData) {
   const sb = await createServerClient();
   const id = (formData.get('id') as string) || null;
@@ -290,12 +298,13 @@ export async function upsertTour(formData: FormData) {
     duration_label: (String(formData.get('duration_label') || '').trim() || null) as string | null,
     departure_note: (String(formData.get('departure_note') || '').trim() || null) as string | null,
     meeting_point: (String(formData.get('meeting_point') || '').trim() || null) as string | null,
-    meeting_points: parseBoardingPoints(String(formData.get('meeting_points') || '')),
-    // Ίδια υγιεινή με τα σημεία επιβίβασης (trim, dedupe χωρίς τόνους/πεζά,
-    // 120 χαρακτήρες ανά γραμμή, 20 γραμμές) — μία γραμμή ανά σημείο.
+    // Έτοιμες γραμμές (checkboxes `<πεδίο>_preset`) + έξτρα γραμμές από το
+    // textarea, με την υγιεινή του parseBoardingPoints (trim, dedupe χωρίς
+    // τόνους/πεζά, 120 χαρακτήρες ανά γραμμή, 20 γραμμές).
+    meeting_points: mergePresetLines(formData, 'meeting_points'),
     highlights: parseBoardingPoints(String(formData.get('highlights') || '')),
-    included: parseBoardingPoints(String(formData.get('included') || '')),
-    not_included: parseBoardingPoints(String(formData.get('not_included') || '')),
+    included: mergePresetLines(formData, 'included'),
+    not_included: mergePresetLines(formData, 'not_included'),
     route_id: (String(formData.get('route_id') || '').trim() || null) as string | null,
     seo_title: (String(formData.get('seo_title') || '').trim() || null) as string | null,
     seo_description: (String(formData.get('seo_description') || '').trim() || null) as string | null,
@@ -324,11 +333,16 @@ export async function upsertTour(formData: FormData) {
   }
   if (!tourId) return;
 
-  // Κατηγορίες: η φόρμα στέλνει ένα `category` ανά επιλεγμένο checkbox. Ο
-  // συγχρονισμός γίνεται μόνο όταν έχει σταλεί έστω μία — έτσι μια φόρμα που
-  // δεν περιέχει καθόλου το πεδίο δεν ξεκρεμάει την εκδρομή από τον κατάλογο.
+  // Κατηγορίες: η φόρμα στέλνει ένα `category` ανά επιλεγμένο checkbox και το
+  // κρυφό `category_sync` ως δείκτη ότι το πεδίο υπήρχε στη φόρμα. Με τον
+  // δείκτη ο συγχρονισμός τρέχει πάντα — παλιότερα, αποθήκευση με κανένα
+  // checkbox άφηνε την εκδρομή χωρίς καμία κατηγορία, οπότε φαινόταν στις
+  // Προτεινόμενες αλλά σε κανένα φίλτρο κατηγορίας του καταλόγου. Φόρμα χωρίς
+  // το πεδίο εξακολουθεί να μην πειράζει τις κατηγορίες.
   const slugs = formData.getAll('category').map(String).filter(Boolean);
-  if (slugs.length > 0) {
+  if (formData.has('category_sync') && slugs.length === 0) {
+    await sb.from('tour_categories').delete().eq('tour_id', tourId);
+  } else if (slugs.length > 0) {
     const { data: cats } = await sb.from('categories').select('id, slug').in('slug', slugs);
     if (cats && cats.length > 0) {
       // Κύρια = η πρώτη με τη σειρά που την έστειλε η φόρμα (σειρά καταλόγου).
@@ -348,6 +362,9 @@ export async function upsertTour(formData: FormData) {
   if (previousSlug && previousSlug !== slug) revalidatePath(`/tour/${previousSlug}`);
   // Με σκέτο redirect ο υπάλληλος προσγειωνόταν στη λίστα χωρίς καμία
   // ένδειξη ότι η αποθήκευση πέτυχε — δυσδιάκριτο από απλή πλοήγηση.
+  // Νέα εκδρομή: κατευθείαν στη σελίδα επεξεργασίας, όπου συνεχίζει με
+  // φωτογραφίες, τιμές και αναχωρήσεις χωρίς να την ξαναψάχνει στη λίστα.
+  if (!id) redirect(`/admin/tours/${tourId}/edit${flashQuery(true)}`);
   redirect(`/admin/tours${flashQuery(true)}`);
 }
 
@@ -483,6 +500,38 @@ export async function deleteCategory(id: string) {
   revalidatePublic();
   revalidatePath('/admin/tours');
   redirect(withFlash('/admin/tours?tab=katigories', !error));
+}
+
+// ── Έτοιμα κείμενα φόρμας εκδρομής (tour_presets) ─────────────────────────
+
+const PRESET_KINDS = ['meeting_point', 'included', 'not_included'];
+
+export async function upsertTourPreset(formData: FormData) {
+  const sb = await createServerClient();
+  const id = (formData.get('id') as string) || null;
+  const payload = {
+    kind: String(formData.get('kind') || ''),
+    label: String(formData.get('label') || '').trim(),
+    sort_order: Number(formData.get('sort_order') || 0),
+  };
+  if (!payload.label || !PRESET_KINDS.includes(payload.kind)) {
+    redirect(withFlash('/admin/tours?tab=keimena', false, 'invalid_input'));
+  }
+  const { error } = id
+    ? await sb.from('tour_presets').update(payload).eq('id', id)
+    : await sb.from('tour_presets').insert(payload);
+  if (error) console.error('upsertTourPreset:', error.message);
+  revalidatePath('/admin/tours');
+  const code = error?.code === '23505' ? 'duplicate_preset' : 'db';
+  redirect(withFlash('/admin/tours?tab=keimena', !error, code));
+}
+
+export async function deleteTourPreset(id: string) {
+  const sb = await createServerClient();
+  const { error } = await sb.from('tour_presets').delete().eq('id', id);
+  if (error) console.error('deleteTourPreset:', error.message);
+  revalidatePath('/admin/tours');
+  redirect(withFlash('/admin/tours?tab=keimena', !error));
 }
 
 function revalidatePosts(slug?: string) {
