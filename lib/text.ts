@@ -21,3 +21,17 @@ export function decodeEntities(input: string): string {
 export function decodeMaybe(input: string | null): string | null {
   return input == null ? null : decodeEntities(input);
 }
+
+/** HTML → σκέτο κείμενο για κάρτες και SEO περιγραφές: πετάει τις ετικέτες,
+ *  αποκωδικοποιεί entities και μαζεύει τα κενά. Χρειάζεται από τότε που η
+ *  περιγραφή εκδρομής (tours.summary) γράφεται με τον επεξεργαστή του admin
+ *  και μπορεί να είναι HTML. Απλό κείμενο περνά ανέγγιχτο. */
+export function stripHtml(input: string): string {
+  if (!/<[a-z][\s\S]*>/i.test(input)) return input;
+  return decodeEntities(input.replace(/<[^>]*>/g, ' ')).replace(/\s+/g, ' ').trim();
+}
+
+/** stripHtml για nullable τιμές, διατηρώντας το null. */
+export function stripHtmlMaybe(input: string | null | undefined): string | null {
+  return input == null ? null : stripHtml(input);
+}

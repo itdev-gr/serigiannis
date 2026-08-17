@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { Calendar } from 'lucide-react';
 import { PageHeading } from '@/components/shared/PageHeading';
@@ -66,6 +67,11 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
       />
       <section className="py-16 md:py-24">
         <div className="container max-w-prose">
+          {coverUrl && (
+            <div className="relative mb-10 aspect-[16/9] overflow-hidden rounded-lg bg-primary/5 shadow-card">
+              <Image src={coverUrl} alt={post.title} fill priority sizes="(max-width: 768px) 100vw, 768px" className="object-cover" />
+            </div>
+          )}
           <div className="mb-10 flex flex-wrap items-center gap-x-8 gap-y-4 rounded-lg border border-border bg-surface p-6 shadow-card">
             {post.trip_date && (
               <div className="flex items-center gap-2.5 text-[15px] text-body">

@@ -76,7 +76,7 @@ export function TourGallery({ images }: { images: GalleryImage[] }) {
     <>
       <div
         data-testid="gallery-carousel"
-        className="relative aspect-square w-full touch-pan-y overflow-hidden rounded-lg bg-primary/5 md:hidden"
+        className="relative aspect-[4/3] w-full touch-pan-y overflow-hidden rounded-lg bg-primary/5 md:hidden"
         onTouchStart={(e) => { touchStartX.current = e.touches[0].clientX; swiped.current = false; }}
         onTouchMove={(e) => { if (Math.abs(e.touches[0].clientX - touchStartX.current) > 10) swiped.current = true; }}
         onTouchEnd={(e) => {
@@ -150,17 +150,19 @@ export function TourGallery({ images }: { images: GalleryImage[] }) {
         {layout.variant === 'hero' ? (
           // Μεγάλη αριστερά + 2×2 μικρές δεξιά. Ο πίνακας του galleryLayout
           // στέλνει εδώ πάντα ακριβώς 5 φωτογραφίες, οπότε δεν μένει κενό κελί.
+          // Καλούπι 4:3 παντού (ίδιο με τις κάρτες): το τετράγωνο κελί έκοβε
+          // το 1/3 μιας οριζόντιας φωτογραφίας δεξιά κι αριστερά.
           <div className="grid grid-cols-2 gap-2 overflow-hidden rounded-2xl">
-            {cell(visible[0], 0, '(max-width: 768px) 0px, 50vw', 'aspect-square')}
+            {cell(visible[0], 0, '(max-width: 768px) 0px, 50vw', 'aspect-[4/3]')}
             <div className="grid grid-cols-2 grid-rows-2 gap-2">
               {visible.slice(1).map((image, i) =>
-                cell(image, i + 1, '(max-width: 768px) 0px, 25vw', 'aspect-square')
+                cell(image, i + 1, '(max-width: 768px) 0px, 25vw', 'aspect-[4/3]')
               )}
             </div>
           </div>
         ) : layout.variant === 'single' ? (
           // Χωρίς περιέκτη να την κόψει, η μοναδική φωτογραφία στρογγυλεύει μόνη της.
-          cell(visible[0], 0, '(max-width: 768px) 0px, 500px', 'mx-auto aspect-square max-w-[500px] rounded-2xl')
+          cell(visible[0], 0, '(max-width: 768px) 0px, 640px', 'mx-auto aspect-[4/3] max-w-[640px] rounded-2xl')
         ) : (
           <div
             // Ρητές κλάσεις: το Tailwind δεν βλέπει δυναμικά ονόματα.
@@ -178,7 +180,7 @@ export function TourGallery({ images }: { images: GalleryImage[] }) {
                   : layout.variant === 'trio'
                     ? '(max-width: 768px) 0px, 33vw'
                     : '(max-width: 768px) 0px, 25vw',
-                'aspect-square'
+                'aspect-[4/3]'
               )
             )}
           </div>

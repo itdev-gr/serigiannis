@@ -6,6 +6,10 @@ import { getCategories } from '@/lib/queries/categories';
 import { getSettings } from '@/lib/queries/settings';
 import { resolvePageHero } from '@/components/home/resolve-content';
 
+// Δίχτυ ασφαλείας πέρα από το revalidatePublic() των admin actions: αν κάποια
+// ρητή ακύρωση αστοχήσει, ο κατάλογος φρεσκάρει μόνος του μέσα σε 5 λεπτά.
+export const revalidate = 300;
+
 export const metadata: Metadata = {
   title: 'Εκδρομές από την Αθήνα',
   description: 'Όλες οι οργανωμένες εκδρομές της Sergiani Travel, μονοήμερες, πολυήμερες, κρουαζιέρες, θαλάσσια μπάνια και πεζοπορίες από την Αθήνα.',

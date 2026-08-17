@@ -21,6 +21,7 @@ import { coverImage, imageUrl } from '@/lib/images';
 import { telHref } from '@/lib/phone';
 import { SITE_URL, jsonLdHtml } from '@/lib/seo';
 import { decodeSlugParam } from '@/lib/slug';
+import { stripHtmlMaybe } from '@/lib/text';
 import { resolveTourAlias } from '@/lib/tour-aliases';
 import { tourFaqs } from '@/lib/tour-faq';
 
@@ -38,11 +39,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const img = imageUrl(cover);
   return {
     title: tour.seo_title ?? tour.title,
-    description: tour.seo_description ?? tour.short_description ?? tour.summary ?? undefined,
+    description: tour.seo_description ?? tour.short_description ?? stripHtmlMaybe(tour.summary) ?? undefined,
     alternates: { canonical: `/tour/${tour.slug}` },
     openGraph: {
       title: tour.title,
-      description: tour.short_description ?? tour.summary ?? undefined,
+      description: tour.short_description ?? stripHtmlMaybe(tour.summary) ?? undefined,
       images: img ? [img] : undefined,
     },
   };
@@ -175,7 +176,7 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
     '@context': 'https://schema.org',
     '@type': 'TouristTrip',
     name: tour.title,
-    description: tour.short_description ?? tour.summary ?? undefined,
+    description: tour.short_description ?? stripHtmlMaybe(tour.summary) ?? undefined,
     url: tourUrl,
     ...(coverUrl ? { image: [coverUrl] } : {}),
     ...(offerPrice != null

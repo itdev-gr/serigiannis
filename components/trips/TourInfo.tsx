@@ -1,6 +1,7 @@
 import { Calendar, Check, Clock, MapPin, Tag, X } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { Tour } from '@/types/db';
+import { sanitizeArticleHtml } from '@/lib/sanitize-html';
 
 type Tile = { label: string; value: string; Icon: LucideIcon };
 
@@ -10,10 +11,18 @@ type Tile = { label: string; value: string; Icon: LucideIcon };
  * λείπουν τα δεδομένα της, ώστε να μη μένουν κενές κεφαλίδες.
  */
 export function TourInfo({ tour }: { tour: Tour }) {
-  const paragraphs = (tour.summary ?? '')
-    .split('\n')
-    .map((p) => p.trim())
-    .filter((p) => p.length > 0);
+  const summary = tour.summary ?? '';
+  // Νέες περιγραφές γράφονται με τον επεξεργαστή του admin και είναι HTML
+  // (έντονα, λίστες, χρώμα)· οι παλιές είναι απλό κείμενο με μία γραμμή ανά
+  // παράγραφο. Ίδια διάκριση με το PostBody των άρθρων.
+  const summaryHtml = /<[a-z][\s\S]*>/i.test(summary) ? sanitizeArticleHtml(summary) : null;
+  const paragraphs = summaryHtml
+    ? []
+    : summary
+        .split('\n')
+        .map((p) => p.trim())
+        .filter((p) => p.length > 0);
+  const hasSummary = Boolean(summaryHtml) || paragraphs.length > 0;
 
   const tiles: Tile[] = [];
   if (tour.duration_label) tiles.push({ label: 'Διάρκεια', value: tour.duration_label, Icon: Clock });
@@ -28,7 +37,7 @@ export function TourInfo({ tour }: { tour: Tour }) {
   const notIncluded = clean(tour.not_included);
 
   if (
-    paragraphs.length === 0 &&
+    !hasSummary &&
     tiles.length === 0 &&
     points.length === 0 &&
     highlights.length === 0 &&
@@ -56,14 +65,21 @@ export function TourInfo({ tour }: { tour: Tour }) {
         </section>
       )}
 
-      {paragraphs.length > 0 && (
+      {hasSummary && (
         <section className="py-8 first:pt-0">
           <h2 className="text-xl font-bold text-primary">Περιγραφή</h2>
-          <div className="mt-4 max-w-[64ch] space-y-3.5 text-[15.5px] leading-relaxed text-muted">
-            {paragraphs.map((p, i) => (
-              <p key={i}>{p}</p>
-            ))}
-          </div>
+          {summaryHtml ? (
+            <div
+              className="post-body mt-4 max-w-[64ch] text-[15.5px] leading-relaxed text-muted"
+              dangerouslySetInnerHTML={{ __html: summaryHtml }}
+            />
+          ) : (
+            <div className="mt-4 max-w-[64ch] space-y-3.5 text-[15.5px] leading-relaxed text-muted">
+              {paragraphs.map((p, i) => (
+                <p key={i}>{p}</p>
+              ))}
+            </div>
+          )}
         </section>
       )}
 

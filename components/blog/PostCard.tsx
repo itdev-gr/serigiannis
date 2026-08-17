@@ -29,7 +29,7 @@ export function PostCard({ post }: { post: Post }) {
       <div className="flex flex-1 flex-col p-6">
         {date && <span className="font-sans text-[13px] font-medium uppercase tracking-[0.1em] text-muted">{date}</span>}
         <h3 className="mt-2 font-display text-[22px] font-semibold leading-tight text-primary">{post.title}</h3>
-        {post.excerpt && <p className="mt-2 text-[15px] leading-relaxed text-muted line-clamp-2">{post.excerpt}</p>}
+        {post.excerpt && <p className="mt-2 text-[15px] leading-relaxed text-muted line-clamp-3">{post.excerpt}</p>}
         <div className="mt-6 flex items-center justify-between border-t border-border pt-5">
           <span className="font-sans text-[13px] font-semibold uppercase tracking-[0.12em] text-primary group-hover:text-cta">Διαβάστε περισσότερα</span>
           <ArrowUpRight className="h-4 w-4 text-primary transition-all group-hover:translate-x-1 group-hover:-translate-y-1 group-hover:text-cta" strokeWidth={1.75} />

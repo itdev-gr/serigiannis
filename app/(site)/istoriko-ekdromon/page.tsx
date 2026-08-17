@@ -6,6 +6,8 @@ import { getTours } from '@/lib/queries/tours';
 import { getSettings } from '@/lib/queries/settings';
 import { resolvePageHero } from '@/components/home/resolve-content';
 
+export const revalidate = 300;
+
 export const metadata: Metadata = {
   title: 'Ιστορικό Εκδρομών',
   description: 'Ένα δείγμα από τις εκδρομές που έχουμε πραγματοποιήσει, 30 χρόνια ταξιδιών σε όλη την Ελλάδα.',

@@ -5,11 +5,12 @@ import { PriceBadge } from '@/components/ui/Badge';
 import { TourImage } from '@/components/ui/TourImage';
 import { coverImage } from '@/lib/images';
 import { cn } from '@/lib/utils';
+import { stripHtmlMaybe } from '@/lib/text';
 
 export function FeatureTripCard({ tour, size = 'lg' }: { tour: Tour; size?: 'lg' | 'sm' }) {
   const cover = coverImage(tour);
   const meta = [tour.duration_label, tour.departure_note].filter(Boolean).join(' · ');
-  const blurb = tour.short_description ?? tour.summary;
+  const blurb = tour.short_description ?? stripHtmlMaybe(tour.summary);
   return (
     <Link
       href={`/tour/${tour.slug}`}

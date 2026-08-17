@@ -5,6 +5,10 @@ import { ToursExplorer } from '@/components/trips/ToursExplorer';
 import { getTours } from '@/lib/queries/tours';
 import { getCategories } from '@/lib/queries/categories';
 
+// Δίχτυ ασφαλείας: χωρίς αυτό οι σελίδες κατηγοριών έμεναν παγωμένες από το
+// build αν ξέφευγε κάποια ρητή ακύρωση (revalidatePublic).
+export const revalidate = 300;
+
 const CATEGORY_SLUGS = ['monoimeres', 'polyimeres', 'thalassia-mpania', 'kroyazieres', 'pezopories', 'eksoterikou'];
 
 export function generateStaticParams() {

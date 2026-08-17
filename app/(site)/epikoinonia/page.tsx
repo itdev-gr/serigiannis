@@ -92,7 +92,7 @@ export default async function ContactPage() {
         <div className="aspect-[16/6] w-full">
           <iframe
             title="Sergiani Travel, τοποθεσία γραφείου"
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3145.9!2d23.6835!3d38.014!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2sPeristeri!5e0!3m2!1sen!2sgr!4v1700000000000"
+            src={`https://www.google.com/maps?q=${encodeURIComponent(s.address)}&hl=el&z=16&output=embed`}
             width="100%"
             height="100%"
             loading="lazy"

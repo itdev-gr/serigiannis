@@ -56,7 +56,10 @@ export async function getTours(): Promise<Tour[]> {
     .from('tours')
     .select(SELECT)
     .eq('status', 'published')
-    .order('sort_order');
+    // Δεύτερο κριτήριο created_at: όσες μοιράζονται το ίδιο sort_order (το
+    // default 0 στην πράξη) βγαίνουν με τις νεότερες πρώτες.
+    .order('sort_order')
+    .order('created_at', { ascending: false });
   if (error) {
     console.error('getTours:', error.message);
     return [];
@@ -103,7 +106,8 @@ export async function getAdminTours(): Promise<AdminTourRow[]> {
   const { data, error } = await sb
     .from('tours')
     .select('id, slug, title, status, is_featured, price_from, bookings_open, tour_categories(category:categories(slug, name_el))')
-    .order('sort_order');
+    .order('sort_order')
+    .order('created_at', { ascending: false });
   if (error) {
     console.error('getAdminTours:', error.message);
     return [];
