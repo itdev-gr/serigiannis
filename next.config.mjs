@@ -6,6 +6,12 @@ const nextConfig = {
   experimental: {
     serverActions: { bodySizeLimit: '15mb' },
   },
+  // Το Viva payment source (WC-0001) κληρονομήθηκε από το παλιό WooCommerce
+  // site· όσο τα success/failure URLs του δείχνουν ακόμα στα /wc-api/ paths,
+  // η επιστροφή από την πληρωμή πρέπει να καταλήγει στο δικό μας endpoint.
+  async rewrites() {
+    return [{ source: '/wc-api/:path*', destination: '/api/payments/return' }];
+  },
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: '*.supabase.co' },

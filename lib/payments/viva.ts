@@ -66,7 +66,9 @@ export const vivaProvider: PaymentProvider = {
     const t = params.get('t'); // transaction id
     if (!t) return { ok: false };
     const trn = await getTransaction(t);
-    if (!trn || trn.statusId !== 'F') return { ok: false };
+    // A failed/aborted charge still names our order — pass the id through so the
+    // return handler can land the customer on the right family's error page.
+    if (!trn || trn.statusId !== 'F') return { ok: false, orderId: trn?.merchantTrns };
     return {
       ok: true,
       orderId: trn.merchantTrns,
