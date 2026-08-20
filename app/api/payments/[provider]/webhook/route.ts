@@ -23,7 +23,27 @@ export async function POST(req: Request, ctx: { params: Promise<{ provider: stri
     return NextResponse.json({ ok: false }, { status: 404 });
   }
 
+  const rawReq = req.clone();
   const event = await provider.verifyWebhook(req);
+
+  // Μητρώο συναλλαγών: κάθε event της Viva γράφεται στη viva_transactions,
+  // ακόμα κι όταν δεν αφορά δική μας παραγγελία (POS, payment links) — το
+  // γραφείο θέλει να βλέπει ΟΛΕΣ τις χρεώσεις στο admin. Best-effort: αν
+  // αποτύχει, το cron reconciliation θα την ξαναβρεί.
+  if (provider.id === 'viva') {
+    try {
+      const body = (await rawReq.json()) as { EventData?: { TransactionId?: string } };
+      const transactionId = body.EventData?.TransactionId;
+      if (transactionId) {
+        const { recordVivaTransactionById } = await import('@/lib/viva-sync');
+        const { getCheckoutTransactionRaw } = await import('@/lib/payments/viva');
+        await recordVivaTransactionById(transactionId, getCheckoutTransactionRaw);
+      }
+    } catch (e) {
+      console.error('viva transaction record:', e);
+    }
+  }
+
   if (!event) return NextResponse.json({ ok: true, ignored: true });
 
   const sb = createServiceClient();

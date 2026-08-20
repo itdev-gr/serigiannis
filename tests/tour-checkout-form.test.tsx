@@ -29,6 +29,7 @@ const order = (o: Partial<TourOrder> = {}): TourOrder => ({
   passengers: [],
   meeting_point: null,
   payment_provider: null,
+  payment_method: null,
   paid_at: null,
   created_at: '2026-08-07T10:00:00Z',
   ...o,

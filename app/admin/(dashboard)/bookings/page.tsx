@@ -2,7 +2,8 @@ import Link from 'next/link';
 import { getAdminTourOrders } from '@/lib/queries/tour-orders';
 import { formatCents } from '@/lib/booking';
 import { OrderStatusBadge } from '@/components/admin/StatusBadge';
-import { AdminPageHeader } from '@/components/admin/ui';
+import { AdminPageHeader, Pill } from '@/components/admin/ui';
+import { methodLabel } from '@/lib/payments/viva-report';
 import { AdminSearch } from '@/components/admin/AdminSearch';
 import { searchNormalize } from '@/lib/filters';
 
@@ -85,7 +86,12 @@ export default async function TourBookingsPage({
                 </span>
               </span>
               <span className="text-[14px] font-semibold text-body">{formatCents(o.amount_total_cents)}</span>
-              <OrderStatusBadge status={o.status} />
+              <span className="flex flex-col items-start gap-1">
+                <OrderStatusBadge status={o.status} />
+                {o.payment_method && (
+                  <Pill tone={o.payment_method === 'iris' ? 'ok' : 'muted'}>{methodLabel(o.payment_method)}</Pill>
+                )}
+              </span>
               <span className="text-right text-[13px] text-muted">
                 {new Date(o.created_at).toLocaleDateString('el-GR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
               </span>

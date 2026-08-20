@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { getAdminOrders } from '@/lib/queries/ticketing';
 import { formatCents } from '@/lib/ticketing';
 import { OrderStatusBadge } from '@/components/admin/StatusBadge';
+import { Pill } from '@/components/admin/ui';
+import { methodLabel } from '@/lib/payments/viva-report';
 import { Button } from '@/components/ui/Button';
 import { AdminSearch } from '@/components/admin/AdminSearch';
 import { searchNormalize } from '@/lib/filters';
@@ -77,7 +79,12 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
                 <span className="block truncate text-[12px] text-muted">{o.phone} {o.email && `· ${o.email}`}</span>
               </span>
               <span className="text-[14px] font-semibold text-body">{formatCents(o.amount_total_cents)}</span>
-              <OrderStatusBadge status={o.status} />
+              <span className="flex flex-col items-start gap-1">
+                <OrderStatusBadge status={o.status} />
+                {o.payment_method && (
+                  <Pill tone={o.payment_method === 'iris' ? 'ok' : 'muted'}>{methodLabel(o.payment_method)}</Pill>
+                )}
+              </span>
               <span className="text-right text-[13px] text-muted">
                 {new Date(o.created_at).toLocaleDateString('el-GR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
               </span>

@@ -173,6 +173,8 @@ export type OrderBundle =
         boarding_point: string | null;
         amount_total_cents: number;
         payment_provider: string | null;
+        /** card | iris | wallet | other — από το μητρώο συναλλαγών Viva (0034). */
+        payment_method: string | null;
         paid_at: string | null;
         created_at: string;
       };

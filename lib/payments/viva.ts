@@ -26,6 +26,17 @@ async function accessToken(): Promise<string> {
  *  which takes cents — converted once, in centsFromMajorUnits. */
 type VivaTransaction = { statusId: string; orderCode: number; merchantTrns?: string; amount?: number };
 
+/** Πλήρης (ακατέργαστη) συναλλαγή του checkout v2 — για το μητρώο συναλλαγών
+ *  (viva_transactions), που θέλει όλα τα πεδία (κάρτα, wallet, τράπεζα). */
+export async function getCheckoutTransactionRaw(transactionId: string): Promise<Record<string, unknown> | null> {
+  const token = await accessToken();
+  const res = await fetch(`${API}/checkout/v2/transactions/${transactionId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) return null;
+  return (await res.json()) as Record<string, unknown>;
+}
+
 async function getTransaction(transactionId: string): Promise<VivaTransaction | null> {
   const token = await accessToken();
   const res = await fetch(`${API}/checkout/v2/transactions/${transactionId}`, {

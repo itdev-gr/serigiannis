@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, MapPin, Newspaper, Inbox, Settings, LogOut, ExternalLink, Menu, X, Bus, Ticket, CalendarCheck, BookOpen, Mail, type LucideIcon } from 'lucide-react';
+import { LayoutDashboard, MapPin, Newspaper, Inbox, Settings, LogOut, ExternalLink, Menu, X, Bus, Ticket, CalendarCheck, BookOpen, Mail, CreditCard, type LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { signOut } from '@/app/admin/(dashboard)/actions';
 
@@ -17,6 +17,7 @@ const GROUPS: NavGroup[] = [
       { to: '/admin/tours', label: 'Εκδρομές', icon: MapPin },
       { to: '/admin/orders', label: 'Κρατήσεις Εισιτηρίων', icon: Ticket },
       { to: '/admin/bookings', label: 'Κρατήσεις Εκδρομών', icon: CalendarCheck },
+      { to: '/admin/payments', label: 'Πληρωμές', icon: CreditCard },
       { to: '/admin/layouts', label: 'Λεωφορεία', icon: Bus },
     ],
   },

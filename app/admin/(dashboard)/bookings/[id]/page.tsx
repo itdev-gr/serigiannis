@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getAdminTourOrder } from '@/lib/queries/tour-orders';
 import { formatCents } from '@/lib/booking';
+import { methodLabel } from '@/lib/payments/viva-report';
 import { OrderStatusBadge } from '@/components/admin/StatusBadge';
 import { ConfirmForm } from '@/components/admin/ConfirmForm';
 import { FlashBanner } from '@/components/admin/FlashBanner';
@@ -49,7 +50,7 @@ export default async function TourBookingDetailPage({
         <dt className="text-muted">Άτομα</dt><dd className="col-span-2">{order.party_size}</dd>
         {order.meeting_point && (<><dt className="text-muted">Σημείο επιβίβασης</dt><dd className="col-span-2">{order.meeting_point}</dd></>)}
         {order.notes && (<><dt className="text-muted">Σημειώσεις πελάτη</dt><dd className="col-span-2 whitespace-pre-wrap">{order.notes}</dd></>)}
-        {order.payment_provider && (<><dt className="text-muted">Πληρωμή</dt><dd className="col-span-2">{order.payment_provider}{order.paid_at ? ` · ${new Date(order.paid_at).toLocaleString('el-GR')}` : ''}</dd></>)}
+        {order.payment_provider && (<><dt className="text-muted">Πληρωμή</dt><dd className="col-span-2">{order.payment_provider}{order.payment_method ? ` · ${methodLabel(order.payment_method)}` : ''}{order.paid_at ? ` · ${new Date(order.paid_at).toLocaleString('el-GR')}` : ''}</dd></>)}
         <dt className="text-muted">Ημ/νία</dt><dd className="col-span-2">{new Date(order.created_at).toLocaleString('el-GR')}</dd>
       </dl>
 

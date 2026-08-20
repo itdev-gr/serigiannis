@@ -577,6 +577,7 @@ describe('TourOrderSummary — υπόλοιπα πεδία', () => {
     passengers: [],
     meeting_point: null,
     payment_provider: 'offline',
+    payment_method: null,
     paid_at: null,
     created_at: '2026-08-06T10:00:00Z',
     ...o,

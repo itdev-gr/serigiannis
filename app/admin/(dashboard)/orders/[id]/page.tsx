@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getAdminOrder, getAdminTrips, getBookingSettings } from '@/lib/queries/ticketing';
+import { methodLabel } from '@/lib/payments/viva-report';
 import { cancelTicket, markOrderPaid, moveTicket, renameTicket, saveOrderNotes } from '../../ticketing-actions';
 import { Button } from '@/components/ui/Button';
 import { ConfirmForm } from '@/components/admin/ConfirmForm';
@@ -57,7 +58,7 @@ export default async function OrderDetailPage({
           <h2 className="mb-2 text-[12px] font-semibold uppercase tracking-[0.1em] text-muted">Σύνολο</h2>
           <p className="font-display text-3xl font-bold text-primary">{formatCents(order.amount_total_cents)}</p>
           {order.paid_at
-            ? <p className="text-[13px] text-olive">Εξοφλήθηκε {new Date(order.paid_at).toLocaleString('el-GR')}</p>
+            ? <p className="text-[13px] text-olive">Εξοφλήθηκε {new Date(order.paid_at).toLocaleString('el-GR')}{order.payment_method ? ` · ${methodLabel(order.payment_method)}` : ''}</p>
             : order.status === 'offline' && (
               <ConfirmForm
                 action={markOrderPaid.bind(null, order.id)}

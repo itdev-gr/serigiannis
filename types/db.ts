@@ -131,6 +131,8 @@ export type TourOrder = {
    *  Η πηγή αλήθειας είναι το passengers[].meeting_point. */
   meeting_point: string | null;
   payment_provider: string | null;
+  /** card | iris | wallet | other — από το μητρώο συναλλαγών Viva (0034). */
+  payment_method: string | null;
   paid_at: string | null;
   created_at: string;
 };
