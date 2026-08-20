@@ -766,6 +766,29 @@ export async function setTourOrderStatus(id: string, status: string) {
   redirect(`/admin/bookings/${id}${flashQuery(ok)}`);
 }
 
+/** Επεξεργασία στοιχείων πελάτη μιας κράτησης εκδρομής — το γραφείο συχνά
+ *  διορθώνει τηλέφωνο/όνομα μετά από τηλεφώνημα του πελάτη. */
+export async function saveTourOrderContact(id: string, formData: FormData) {
+  const clean = (k: string) => {
+    const v = String(formData.get(k) ?? '').trim();
+    return v === '' ? null : v;
+  };
+  const sb = await createServerClient();
+  const { error } = await sb
+    .from('tour_orders')
+    .update({
+      customer_name: clean('customer_name'),
+      email: clean('email'),
+      phone: clean('phone'),
+      meeting_point: clean('meeting_point'),
+    })
+    .eq('id', id);
+  if (error) console.error('saveTourOrderContact:', error.message);
+  revalidatePath('/admin/bookings');
+  revalidatePath(`/admin/bookings/${id}`);
+  redirect(`/admin/bookings/${id}${flashQuery(!error)}`);
+}
+
 export async function saveTourOrderNotes(id: string, notes: string) {
   const sb = await createServerClient();
   const { error } = await sb.from('tour_orders').update({ admin_notes: notes }).eq('id', id);

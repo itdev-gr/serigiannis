@@ -8,7 +8,8 @@ import { OrderStatusBadge } from '@/components/admin/StatusBadge';
 import { ConfirmForm } from '@/components/admin/ConfirmForm';
 import { FlashBanner } from '@/components/admin/FlashBanner';
 import { Button } from '@/components/ui/Button';
-import { saveTourOrderNotes, setTourOrderStatus } from '../../actions';
+import { ContactEditCard } from '@/components/admin/ContactEditCard';
+import { saveTourOrderContact, saveTourOrderNotes, setTourOrderStatus } from '../../actions';
 
 const STATUSES = [
   { v: 'paid', l: 'Πληρωμένη' },
@@ -54,6 +55,16 @@ export default async function TourBookingDetailPage({
         {order.payment_provider && (<><dt className="text-muted">Πληρωμή</dt><dd className="col-span-2">{order.payment_provider}{order.payment_method ? ` · ${methodLabel(order.payment_method)}` : ''}{order.paid_at ? ` · ${athensDateTimeLabel(order.paid_at)}` : ''}</dd></>)}
         <dt className="text-muted">Ημ/νία</dt><dd className="col-span-2">{athensDateTimeLabel(order.created_at)}</dd>
       </dl>
+
+      <ContactEditCard
+        action={saveTourOrderContact.bind(null, order.id)}
+        fields={[
+          { name: 'customer_name', label: 'Ονοματεπώνυμο', value: order.customer_name },
+          { name: 'phone', label: 'Τηλέφωνο', value: order.phone, type: 'tel' },
+          { name: 'email', label: 'Email', value: order.email, type: 'email' },
+          { name: 'meeting_point', label: 'Σημείο επιβίβασης', value: order.meeting_point },
+        ]}
+      />
 
       <div className="mt-6 rounded-lg border border-border bg-surface p-6">
         <h2 className="font-sans text-[13px] font-semibold uppercase tracking-[0.1em] text-primary">Ανάλυση</h2>

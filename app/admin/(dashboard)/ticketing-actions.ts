@@ -492,6 +492,28 @@ export async function markOrderPaid(id: string) {
   redirect(`/admin/orders/${id}${flashQuery(ok, error ? 'db' : 'not_found')}`);
 }
 
+/** Επεξεργασία στοιχείων πελάτη μιας κράτησης εισιτηρίων. */
+export async function saveOrderContact(id: string, formData: FormData) {
+  const clean = (k: string) => {
+    const v = String(formData.get(k) ?? '').trim();
+    return v === '' ? null : v;
+  };
+  const sb = await createServerClient();
+  const { error } = await sb
+    .from('ticket_orders')
+    .update({
+      customer_name: clean('customer_name'),
+      email: clean('email'),
+      phone: clean('phone'),
+      boarding_point: clean('boarding_point'),
+    })
+    .eq('id', id);
+  if (error) console.error('saveOrderContact:', error.message);
+  revalidatePath('/admin/orders');
+  revalidatePath(`/admin/orders/${id}`);
+  redirect(`/admin/orders/${id}${flashQuery(!error)}`);
+}
+
 export async function saveOrderNotes(id: string, formData: FormData) {
   const sb = await createServerClient();
   const { error } = await sb

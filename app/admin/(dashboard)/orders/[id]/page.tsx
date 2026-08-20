@@ -3,7 +3,8 @@ import { athensDateTimeLabel } from '@/lib/athens-time';
 import { notFound } from 'next/navigation';
 import { getAdminOrder, getAdminTrips, getBookingSettings } from '@/lib/queries/ticketing';
 import { methodLabel } from '@/lib/payments/viva-report';
-import { cancelTicket, markOrderPaid, moveTicket, renameTicket, saveOrderNotes } from '../../ticketing-actions';
+import { cancelTicket, markOrderPaid, moveTicket, renameTicket, saveOrderContact, saveOrderNotes } from '../../ticketing-actions';
+import { ContactEditCard } from '@/components/admin/ContactEditCard';
 import { Button } from '@/components/ui/Button';
 import { ConfirmForm } from '@/components/admin/ConfirmForm';
 import { FlashBanner } from '@/components/admin/FlashBanner';
@@ -73,6 +74,16 @@ export default async function OrderDetailPage({
             )}
         </div>
       </div>
+
+      <ContactEditCard
+        action={saveOrderContact.bind(null, order.id)}
+        fields={[
+          { name: 'customer_name', label: 'Ονοματεπώνυμο', value: order.customer_name },
+          { name: 'phone', label: 'Τηλέφωνο', value: order.phone, type: 'tel' },
+          { name: 'email', label: 'Email', value: order.email, type: 'email' },
+          { name: 'boarding_point', label: 'Σημείο συνάντησης', value: order.boarding_point },
+        ]}
+      />
 
       <h2 className="mt-8 font-display text-2xl font-semibold text-primary">Εισιτήρια</h2>
       <div className="mt-3 grid gap-4">
