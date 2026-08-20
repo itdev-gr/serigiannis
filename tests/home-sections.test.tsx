@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import type { Category, Tour, SettingsData } from '@/types/db';
 import { Home1Hero } from '@/components/home/Home1Hero';
 import { Home1Destinations } from '@/components/home/Home1Destinations';
@@ -34,6 +34,8 @@ describe('Home1Hero', () => {
   it('renders the hero heading and a destination option per category', () => {
     render(<Home1Hero categories={cats} />);
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Μονοήμερες εκδρομές από Αθήνα');
+    // Το dropdown είναι πλέον custom listbox — οι επιλογές εμφανίζονται αφού ανοίξει.
+    fireEvent.click(screen.getByRole('button', { name: 'Βρείτε την εκδρομή σας' }));
     expect(screen.getByRole('option', { name: 'Μονοήμερες' })).toBeInTheDocument();
     expect(screen.getByRole('option', { name: 'Κρουαζιέρες' })).toBeInTheDocument();
     expect(screen.getByRole('option', { name: 'Όλες οι εκδρομές' })).toBeInTheDocument();

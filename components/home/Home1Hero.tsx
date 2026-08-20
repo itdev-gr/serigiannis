@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Search } from 'lucide-react';
 import type { Category } from '@/types/db';
 import { Button } from '@/components/ui/Button';
+import { SelectMenu } from '@/components/ui/SelectMenu';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { homeContent } from './content';
 import type { HeroCopy } from './resolve-content';
@@ -41,7 +42,10 @@ export function Home1Hero({
   }, [reduced]);
 
   return (
-    <section className="relative flex h-[72svh] min-h-[520px] max-h-[680px] w-full items-center justify-center overflow-hidden bg-deep-ink md:h-[100svh] md:max-h-none md:min-h-[100svh]">
+    // Στο κινητό το ύψος είναι ελεύθερο (min-h) με pt που καθαρίζει το fixed
+    // header: με σταθερό ύψος + overflow-hidden η πρώτη γραμμή του τίτλου
+    // χανόταν πίσω από το λευκό μενού.
+    <section className="relative flex min-h-[72svh] w-full items-center justify-center overflow-hidden bg-deep-ink md:h-[100svh] md:max-h-none md:min-h-[100svh]">
       {/* Rotating background slideshow */}
       {HERO_IMAGES.map((img, i) => (
         <div
@@ -67,7 +71,7 @@ export function Home1Hero({
       ))}
       <div className="absolute inset-0 bg-gradient-to-b from-deep-ink/70 via-deep-ink/45 to-deep-ink/90" />
 
-      <div className="container relative z-10 flex w-full flex-col items-center justify-center px-4 py-10 text-center text-surface sm:py-16 md:min-h-0 md:py-20">
+      <div className="container relative z-10 flex w-full flex-col items-center justify-center px-4 pb-12 pt-32 text-center text-surface sm:pb-16 sm:pt-36 md:min-h-0 md:py-20">
         <h1
           className={cn(
             'mx-auto w-full max-w-6xl text-balance text-center font-display font-semibold tracking-tight text-white',
@@ -98,17 +102,17 @@ export function Home1Hero({
           }}
         >
           <label className="sr-only" htmlFor="hero-destination">{c.searchLabel}</label>
-          <select
+          <SelectMenu
             id="hero-destination"
+            ariaLabel={c.searchLabel}
             value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="h-12 flex-1 rounded-xl border border-border bg-background px-4 font-sans text-[15px] text-body outline-none focus-visible:ring-2 focus-visible:ring-primary"
-          >
-            <option value="all">{c.allOption}</option>
-            {categories.map((cat) => (
-              <option key={cat.id} value={cat.slug}>{cat.name_el}</option>
-            ))}
-          </select>
+            onChange={setCategory}
+            className="flex-1"
+            options={[
+              { value: 'all', label: c.allOption },
+              ...categories.map((cat) => ({ value: cat.slug, label: cat.name_el })),
+            ]}
+          />
           <Button type="submit" variant="accent" size="lg" className="h-12 shrink-0">
             <Search className="h-4 w-4" strokeWidth={2} /> {c.searchCta}
           </Button>
