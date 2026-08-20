@@ -132,11 +132,11 @@ export function CookieConsent() {
         <X className="h-4 w-4" strokeWidth={1.75} />
       </button>
 
-      <div className="px-4 pb-4 pt-5">
-        <h2 id="cookie-consent-title" className="pr-8 font-display text-[17px] font-semibold leading-snug text-white">
+      <div className="px-3.5 pb-3 pt-4 sm:px-4 sm:pb-4 sm:pt-5">
+        <h2 id="cookie-consent-title" className="pr-8 font-display text-[15px] font-semibold leading-snug text-white sm:text-[17px]">
           Αυτός ο ιστότοπος χρησιμοποιεί cookies
         </h2>
-        <p className="mt-2 text-[13px] leading-relaxed text-white/85">
+        <p className="mt-1.5 text-[12px] leading-relaxed text-white/85 sm:mt-2 sm:text-[13px]">
           Χρησιμοποιούμε cookies για λειτουργία, στατιστικά και marketing.{' '}
           <Link href="/politiki-aporritou" className="font-medium text-gold hover:text-gold-hover">
             Διαβάστε περισσότερα
@@ -157,18 +157,18 @@ export function CookieConsent() {
           </div>
         )}
 
-        <div className="mt-3 grid grid-cols-2 gap-2">
+        <div className="mt-2.5 grid grid-cols-2 gap-2 sm:mt-3">
           <button
             type="button"
             onClick={() => closeWith(allAccepted, 'accepted')}
-            className="rounded-lg bg-gold px-4 py-3 font-sans text-[13px] font-bold uppercase tracking-[0.06em] text-deep-ink transition hover:bg-gold-hover"
+            className="rounded-lg bg-gold px-3 py-2.5 font-sans text-[12px] font-bold uppercase tracking-[0.06em] text-deep-ink transition hover:bg-gold-hover sm:px-4 sm:py-3 sm:text-[13px]"
           >
             Αποδοχή όλων
           </button>
           <button
             type="button"
             onClick={() => closeWith(defaultOptional, 'declined')}
-            className="rounded-lg border border-white/40 bg-transparent px-4 py-3 font-sans text-[13px] font-bold uppercase tracking-[0.06em] text-white transition hover:border-white hover:bg-white/5"
+            className="rounded-lg border border-white/40 bg-transparent px-3 py-2.5 font-sans text-[12px] font-bold uppercase tracking-[0.06em] text-white transition hover:border-white hover:bg-white/5 sm:px-4 sm:py-3 sm:text-[13px]"
           >
             Απόρριψη όλων
           </button>
@@ -177,7 +177,7 @@ export function CookieConsent() {
         <button
           type="button"
           onClick={() => setShowDetails((v) => !v)}
-          className="mt-2.5 flex w-full items-center justify-center gap-1.5 py-2.5 font-sans text-[13px] font-semibold uppercase tracking-[0.1em] text-white/90 transition hover:text-white"
+          className="mt-1.5 flex w-full items-center justify-center gap-1.5 py-2 font-sans text-[12px] font-semibold uppercase tracking-[0.1em] text-white/90 transition hover:text-white sm:mt-2.5 sm:py-2.5 sm:text-[13px]"
         >
           <Settings className="h-3.5 w-3.5" strokeWidth={1.75} />
           {showDetails ? 'Απόκρυψη λεπτομερειών' : 'Εμφάνιση λεπτομερειών'}
