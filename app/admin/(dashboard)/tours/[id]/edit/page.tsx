@@ -15,7 +15,8 @@ import { FlashBanner } from '@/components/admin/FlashBanner';
 import { Button } from '@/components/ui/Button';
 import { athensToday } from '@/lib/athens-time';
 import { bookableDepartures } from '@/lib/booking';
-import { deleteTour, saveTourBooking, setStatus, upsertTour } from '../../../actions';
+import { deleteTour, deleteTourPattern, saveTourBooking, saveTourPattern, setStatus, upsertTour } from '../../../actions';
+import { TourPatternsEditor } from '@/components/admin/TourPatternsEditor';
 
 export default async function EditTourPage({
   params,
@@ -83,6 +84,13 @@ export default async function EditTourPage({
         meetingPointCount={(row.meeting_points ?? []).length}
       />
       <TourForm tour={tour} categories={categories} routes={routes} presets={presets} action={upsertTour} />
+      <TourPatternsEditor
+        tourId={id}
+        tourSlug={row.slug}
+        patterns={booking.patterns}
+        saveAction={saveTourPattern}
+        deleteAction={deleteTourPattern}
+      />
       <TourBookingEditor tourId={id} tiers={booking.tiers} departures={booking.departures} action={saveTourBooking} />
       <GalleryManager tourId={id} images={(images ?? []) as TourImage[]} coverImageId={row.cover_image_id} />
 

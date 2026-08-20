@@ -43,6 +43,21 @@ export type TourDeparture = {
   note: string | null;
   capacity: number | null;
   is_active: boolean;
+  /** Ποιο εβδομαδιαίο πρόγραμμα τη γέννησε — null στις χειροκίνητες (0035). */
+  pattern_id?: string | null;
+};
+
+/** Εβδομαδιαίο πρόγραμμα αναχωρήσεων εκδρομής (0035) — «κάθε Σάββατο, 50 θέσεις». */
+export type TourDeparturePattern = {
+  id: string;
+  tour_id: string;
+  /** extract(dow): 0=Κυριακή … 6=Σάββατο. */
+  weekdays: number[];
+  valid_from: string; // 'YYYY-MM-DD'
+  valid_to: string | null;
+  capacity: number | null;
+  note: string | null;
+  is_active: boolean;
 };
 
 export type Tour = {

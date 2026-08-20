@@ -1,6 +1,6 @@
 import { createServerClient, isDbConfigured } from '@/lib/supabase/server';
 import { decodeEntities } from '@/lib/text';
-import type { TourDeparture, TourOrder, TourOrderBundle, TourPriceTier } from '@/types/db';
+import type { TourDeparture, TourDeparturePattern, TourOrder, TourOrderBundle, TourPriceTier } from '@/types/db';
 
 /** Token-gated read for the checkout / confirmation pages (SECURITY DEFINER RPC). */
 export async function getTourOrderByToken(token: string): Promise<TourOrderBundle> {
@@ -39,20 +39,24 @@ export async function getAdminTourOrder(id: string): Promise<(TourOrder & { admi
   return (data as (TourOrder & { admin_notes: string | null }) | null) ?? null;
 }
 
-/** Every tier + departure of a tour (including inactive ones) for the admin editors. */
+/** Every tier + departure + weekly pattern of a tour (including inactive ones)
+ *  for the admin editors. */
 export async function getTourBookingSetup(
   tourId: string
-): Promise<{ tiers: TourPriceTier[]; departures: TourDeparture[] }> {
-  if (!isDbConfigured()) return { tiers: [], departures: [] };
+): Promise<{ tiers: TourPriceTier[]; departures: TourDeparture[]; patterns: TourDeparturePattern[] }> {
+  if (!isDbConfigured()) return { tiers: [], departures: [], patterns: [] };
   const sb = await createServerClient();
-  const [tiers, departures] = await Promise.all([
+  const [tiers, departures, patterns] = await Promise.all([
     sb.from('tour_price_tiers').select('*').eq('tour_id', tourId).order('position'),
     sb.from('tour_departures').select('*').eq('tour_id', tourId).order('starts_on'),
+    sb.from('tour_departure_patterns').select('*').eq('tour_id', tourId).order('created_at'),
   ]);
   if (tiers.error) console.error('getTourBookingSetup tiers:', tiers.error.message);
   if (departures.error) console.error('getTourBookingSetup departures:', departures.error.message);
+  if (patterns.error) console.error('getTourBookingSetup patterns:', patterns.error.message);
   return {
     tiers: ((tiers.data ?? []) as TourPriceTier[]).map((t) => ({ ...t, label: decodeEntities(t.label) })),
     departures: (departures.data ?? []) as TourDeparture[],
+    patterns: (patterns.data ?? []) as TourDeparturePattern[],
   };
 }

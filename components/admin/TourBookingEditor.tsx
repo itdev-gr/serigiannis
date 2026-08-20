@@ -24,6 +24,8 @@ type DepartureRow = {
   note: string;
   capacity: string;
   is_active: boolean;
+  /** Γεννημένη από εβδομαδιαίο πρόγραμμα — δεν διαγράφεται (θα ξαναγεννιόταν). */
+  from_pattern?: boolean;
 };
 
 let seq = 0;
@@ -65,6 +67,7 @@ export function TourBookingEditor({
       note: d.note ?? '',
       capacity: d.capacity != null ? String(d.capacity) : '',
       is_active: d.is_active,
+      from_pattern: d.pattern_id != null,
     }))
   );
 
@@ -170,7 +173,14 @@ export function TourBookingEditor({
           {depRows.map((row) => (
             <div key={row.key} className="grid gap-3 rounded-md border border-border/70 p-3 sm:grid-cols-[9rem_9rem_1fr_5rem_auto]">
               <label className="block">
-                <span className={adminLabel}>Από</span>
+                <span className={adminLabel}>
+                  Από
+                  {row.from_pattern && (
+                    <span className="ml-1.5 rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.05em] text-primary">
+                      αυτόματη
+                    </span>
+                  )}
+                </span>
                 <input
                   type="date"
                   value={row.starts_on}
@@ -216,14 +226,18 @@ export function TourBookingEditor({
                   />
                   Ενεργή
                 </label>
-                <button
-                  type="button"
-                  onClick={() => setDepRows((rows) => rows.filter((r) => r.key !== row.key))}
-                  className="text-muted transition hover:text-cta"
-                  aria-label="Διαγραφή ημερομηνίας"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
+                {/* Οι αυτόματες δεν διαγράφονται (θα ξαναγεννιόνταν από το
+                    πρόγραμμα) — παραλείπονται με το «Ενεργή» από πάνω. */}
+                {!row.from_pattern && (
+                  <button
+                    type="button"
+                    onClick={() => setDepRows((rows) => rows.filter((r) => r.key !== row.key))}
+                    className="text-muted transition hover:text-cta"
+                    aria-label="Διαγραφή ημερομηνίας"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                )}
               </div>
             </div>
           ))}

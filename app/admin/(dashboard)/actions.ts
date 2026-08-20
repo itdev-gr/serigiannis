@@ -7,6 +7,7 @@ import { resolvePublishedAt } from '@/lib/posts-publish';
 import { parseEuroToCents } from '@/lib/booking';
 import { parseBoardingPoints, slugifyWithFallback, slugNeedsCleanup } from '@/lib/excursions';
 import { flashQuery, withFlash } from '@/lib/admin-flash';
+import { TOUR_PATTERN_HORIZON_DAYS, weekdaysFromForm } from '@/lib/tour-patterns';
 
 function revalidatePublic() {
   revalidatePath('/admin');
@@ -729,7 +730,10 @@ export async function saveTourBooking(formData: FormData) {
   const inList = (ids: string[]) => `("${ids.join('","')}")`;
   const delTiers = sb.from('tour_price_tiers').delete().eq('tour_id', tourId);
   await (keptTierIds.length ? delTiers.not('id', 'in', inList(keptTierIds)) : delTiers);
-  const delDeps = sb.from('tour_departures').delete().eq('tour_id', tourId);
+  // Οι αυτο-παραγόμενες γραμμές (pattern_id) εξαιρούνται: ένα πρόγραμμα μπορεί
+  // να γέννησε νέες ημερομηνίες ανάμεσα στο άνοιγμα της φόρμας και το save —
+  // το delete-not-in-list δεν πρέπει να τις σκοτώσει.
+  const delDeps = sb.from('tour_departures').delete().eq('tour_id', tourId).is('pattern_id', null);
   await (keptDepIds.length ? delDeps.not('id', 'in', inList(keptDepIds)) : delDeps);
 
   for (const t of tiers) {
@@ -751,6 +755,74 @@ export async function saveTourBooking(formData: FormData) {
   if (tour?.slug) revalidatePath(`/tour/${tour.slug}`);
   revalidatePath(`/admin/tours/${tourId}/edit`);
   revalidatePublic();
+}
+
+// ── Εβδομαδιαία προγράμματα αναχωρήσεων (0035) ────────────────────────────
+
+/** Δημιουργία/επεξεργασία εβδομαδιαίου προγράμματος αναχωρήσεων εκδρομής
+ *  («κάθε Σάββατο & Κυριακή, 50 θέσεις»). Μετά την αποθήκευση, το
+ *  resync_tour_pattern σβήνει τις μελλοντικές αδέσμευτες αυτο-παραγόμενες
+ *  ημερομηνίες και τις ξαναγεννά με τους νέους όρους — οι απενεργοποιημένες
+ *  (σκόπιμες παραλείψεις) και όσες έχουν κρατήσεις δεν αγγίζονται. */
+export async function saveTourPattern(tourId: string, tourSlug: string, formData: FormData) {
+  const back = `/admin/tours/${tourId}/edit`;
+  const weekdays = weekdaysFromForm((name) => formData.get(name) !== null);
+  if (weekdays.length === 0) redirect(`${back}${flashQuery(false, 'pattern_days')}`);
+
+  const id = String(formData.get('id') ?? '').trim() || null;
+  const capacityRaw = Number(formData.get('capacity'));
+  const row = {
+    tour_id: tourId,
+    weekdays,
+    valid_from: String(formData.get('valid_from') ?? '').trim(),
+    valid_to: String(formData.get('valid_to') ?? '').trim() || null,
+    capacity: Number.isFinite(capacityRaw) && capacityRaw > 0 ? capacityRaw : null,
+    note: String(formData.get('note') ?? '').trim() || null,
+    is_active: formData.get('is_active') !== null,
+  };
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(row.valid_from)) redirect(`${back}${flashQuery(false, 'pattern_from')}`);
+
+  const sb = await createServerClient();
+  let patternId = id;
+  if (id) {
+    const { error } = await sb.from('tour_departure_patterns').update(row).eq('id', id);
+    if (error) {
+      console.error('saveTourPattern update:', error.message);
+      redirect(`${back}${flashQuery(false)}`);
+    }
+  } else {
+    const { data, error } = await sb.from('tour_departure_patterns').insert(row).select('id').single();
+    if (error || !data) {
+      console.error('saveTourPattern insert:', error?.message);
+      redirect(`${back}${flashQuery(false)}`);
+    }
+    patternId = data.id;
+  }
+
+  const { error: syncErr } = await sb.rpc('resync_tour_pattern', {
+    p_pattern_id: patternId,
+    p_horizon_days: TOUR_PATTERN_HORIZON_DAYS,
+  });
+  if (syncErr) console.error('resync_tour_pattern:', syncErr.message);
+
+  revalidatePath(back);
+  revalidatePath(`/tour/${tourSlug}`);
+  redirect(`${back}${flashQuery(!syncErr)}`);
+}
+
+/** Διαγραφή προγράμματος: φεύγουν και οι μελλοντικές αδέσμευτες ημερομηνίες
+ *  που είχε γεννήσει (resync με ορίζοντα 0 = μόνο καθαρισμός)· όσες έχουν
+ *  κρατήσεις μένουν στο ιστορικό (FK set null). */
+export async function deleteTourPattern(patternId: string, tourId: string, tourSlug: string) {
+  const back = `/admin/tours/${tourId}/edit`;
+  const sb = await createServerClient();
+  const { error: depErr } = await sb.rpc('resync_tour_pattern', { p_pattern_id: patternId, p_horizon_days: -1 });
+  if (depErr) console.error('deleteTourPattern cleanup:', depErr.message);
+  const { error } = await sb.from('tour_departure_patterns').delete().eq('id', patternId);
+  if (error) console.error('deleteTourPattern:', error.message);
+  revalidatePath(back);
+  revalidatePath(`/tour/${tourSlug}`);
+  redirect(`${back}${flashQuery(!error)}`);
 }
 
 // ── Tour bookings (orders) ────────────────────────────────────────────────

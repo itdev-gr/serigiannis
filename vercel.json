@@ -1,3 +1,6 @@
 {
-  "crons": [{ "path": "/api/cron/viva-sync", "schedule": "*/15 * * * *" }]
+  "crons": [
+    { "path": "/api/cron/viva-sync", "schedule": "*/15 * * * *" },
+    { "path": "/api/cron/tour-departures", "schedule": "0 3 * * *" }
+  ]
 }
