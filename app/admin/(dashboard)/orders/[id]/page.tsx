@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { athensDateTimeLabel } from '@/lib/athens-time';
 import { notFound } from 'next/navigation';
 import { getAdminOrder, getAdminTrips, getBookingSettings } from '@/lib/queries/ticketing';
 import { methodLabel } from '@/lib/payments/viva-report';
@@ -51,14 +52,14 @@ export default async function OrderDetailPage({
           <p className="mt-1 text-[13px] text-muted">
             {order.kind !== 'oneway' && `${KIND_LABEL[order.kind as TripKind] ?? order.kind} · `}
             {order.created_by_admin && 'τηλεφωνική κράτηση · '}
-            {new Date(order.created_at).toLocaleString('el-GR')}
+            {athensDateTimeLabel(order.created_at)}
           </p>
         </div>
         <div className="sm:text-right">
           <h2 className="mb-2 text-[12px] font-semibold uppercase tracking-[0.1em] text-muted">Σύνολο</h2>
           <p className="font-display text-3xl font-bold text-primary">{formatCents(order.amount_total_cents)}</p>
           {order.paid_at
-            ? <p className="text-[13px] text-olive">Εξοφλήθηκε {new Date(order.paid_at).toLocaleString('el-GR')}{order.payment_method ? ` · ${methodLabel(order.payment_method)}` : ''}</p>
+            ? <p className="text-[13px] text-olive">Εξοφλήθηκε {athensDateTimeLabel(order.paid_at)}{order.payment_method ? ` · ${methodLabel(order.payment_method)}` : ''}</p>
             : order.status === 'offline' && (
               <ConfirmForm
                 action={markOrderPaid.bind(null, order.id)}
@@ -108,7 +109,7 @@ export default async function OrderDetailPage({
                 ? `${routeLabel(t.trip.route ?? {})} · ${new Date(`${t.trip.service_date}T12:00:00`).toLocaleDateString('el-GR')} · ${new Date(t.trip.departure_at).toLocaleTimeString('el-GR', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Athens' })} · Θέση ${t.seat_no}`
                 : `Ανοιχτή επιστροφή${t.open_return_expires_on ? ` (έως ${new Date(`${t.open_return_expires_on}T12:00:00`).toLocaleDateString('el-GR')})` : ''}`}
               {t.boarding_point && ` · Επιβίβαση: ${t.boarding_point}`}
-              {t.validated_at && ` · Επικυρώθηκε ${new Date(t.validated_at).toLocaleString('el-GR')}`}
+              {t.validated_at && ` · Επικυρώθηκε ${athensDateTimeLabel(t.validated_at)}`}
             </p>
 
             {t.status === 'valid' && (

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { athensDateLabel } from '@/lib/athens-time';
 import Image from 'next/image';
 import { ArrowUpRight } from 'lucide-react';
 import type { Post } from '@/types/db';
@@ -6,7 +7,7 @@ import { coverPathUrl } from '@/lib/images';
 
 export function PostCard({ post }: { post: Post }) {
   const cover = coverPathUrl(post.cover_path);
-  const date = post.published_at ? new Date(post.published_at).toLocaleDateString('el-GR') : null;
+  const date = post.published_at ? athensDateLabel(post.published_at) : null;
   return (
     <Link
       href={`/nea/${post.slug}`}

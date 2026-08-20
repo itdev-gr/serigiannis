@@ -25,3 +25,52 @@ export function athensDepartureAt(date: string, time: string): string {
   }
   return `${date}T${time}:00${offset}`;
 }
+
+// ─── Εμφάνιση χρόνου ────────────────────────────────────────────────────────
+// Ο server τρέχει σε UTC (Vercel), οπότε κάθε toLocaleString χωρίς timeZone
+// έδειχνε ώρες 2-3 ώρες πίσω. Όλες οι εμφανίσεις timestamp περνούν από εδώ.
+
+const DATE_TIME = new Intl.DateTimeFormat('el-GR', {
+  timeZone: 'Europe/Athens',
+  hour12: false,
+  day: '2-digit',
+  month: '2-digit',
+  year: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit',
+});
+const SHORT_DATE_TIME = new Intl.DateTimeFormat('el-GR', {
+  timeZone: 'Europe/Athens',
+  hour12: false,
+  day: '2-digit',
+  month: '2-digit',
+  hour: '2-digit',
+  minute: '2-digit',
+});
+const TIME_ONLY = new Intl.DateTimeFormat('el-GR', {
+  timeZone: 'Europe/Athens',
+  hour12: false,
+  hour: '2-digit',
+  minute: '2-digit',
+});
+const DATE_ONLY = new Intl.DateTimeFormat('el-GR', { timeZone: 'Europe/Athens' });
+
+/** «20/08/2026, 14:35» ώρα Ελλάδας — για created_at/paid_at/validated_at. */
+export function athensDateTimeLabel(iso: string): string {
+  return DATE_TIME.format(new Date(iso));
+}
+
+/** «20/08, 14:35» ώρα Ελλάδας — για στήλες λιστών του admin. */
+export function athensShortDateTimeLabel(iso: string): string {
+  return SHORT_DATE_TIME.format(new Date(iso));
+}
+
+/** «14:35» ώρα Ελλάδας — ώρα αναχώρησης, λήξη δέσμευσης. */
+export function athensTimeLabel(iso: string): string {
+  return TIME_ONLY.format(new Date(iso));
+}
+
+/** «20/08/2026» ώρα Ελλάδας — ημερομηνία από timestamp (π.χ. published_at). */
+export function athensDateLabel(iso: string): string {
+  return DATE_ONLY.format(new Date(iso));
+}

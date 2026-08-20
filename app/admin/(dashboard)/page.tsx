@@ -1,4 +1,5 @@
 import { POYLMAN_LIST } from '@/lib/admin-routes';
+import { athensShortDateTimeLabel } from '@/lib/athens-time';
 import Link from 'next/link';
 import { getAdminOrders, getAdminTrips, getTripsOccupancy } from '@/lib/queries/ticketing';
 import { getLeads } from '@/lib/queries/leads';
@@ -139,7 +140,7 @@ export default async function DashboardPage() {
                 <span className="text-[14px] font-semibold text-body tabular">{formatCents(o.amount_total_cents)}</span>
                 <OrderStatusBadge status={o.status} />
                 <span className="text-right text-[13px] text-muted">
-                  {new Date(o.created_at).toLocaleDateString('el-GR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                  {athensShortDateTimeLabel(o.created_at)}
                 </span>
               </Link>
             ))}

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { athensDateLabel } from '@/lib/athens-time';
 import { Plus, Pencil, Eye, EyeOff, Trash2 } from 'lucide-react';
 import { getAdminPosts } from '@/lib/queries/posts';
 import { setPostStatus, deletePost } from '../actions';
@@ -83,7 +84,7 @@ export default async function AdminPostsPage({
                   {p.trip_date ? new Date(p.trip_date).toLocaleDateString('el-GR') : '—'}
                 </td>
                 <td className="px-5 py-3 text-body">
-                  {p.published_at ? new Date(p.published_at).toLocaleDateString('el-GR') : '—'}
+                  {p.published_at ? athensDateLabel(p.published_at) : '—'}
                 </td>
                 <td className="px-5 py-3">
                   <div className="flex items-center justify-end gap-1.5">

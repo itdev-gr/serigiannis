@@ -79,17 +79,20 @@ export function passengerLabels(order: Pick<TourOrder, 'items' | 'party_size'>):
   return labels;
 }
 
-/** The headline price of a tour page: the cheapest active tier, with its
- *  «πριν» price when one is set and actually higher. */
+/** The headline price of a tour page: the FIRST active tier by position — the
+ *  office lists the standard ticket first and discounts (παιδικό κ.λπ.) after.
+ *  Picking the cheapest showed «από 5 €» (την παιδική) σε εκδρομή των 10 €.
+ *  Sorted here because embedded tiers do not arrive ordered. The «πριν» price
+ *  shows only when it is actually higher. */
 export function headlinePrice(tiers: TourPriceTier[]): { cents: number; originalCents: number | null } | null {
   const active = tiers.filter((t) => t.is_active);
   if (active.length === 0) return null;
-  const cheapest = active.reduce((min, t) => (t.price_cents < min.price_cents ? t : min), active[0]);
+  const standard = active.slice().sort((a, b) => a.position - b.position)[0];
   const original =
-    cheapest.price_original_cents != null && cheapest.price_original_cents > cheapest.price_cents
-      ? cheapest.price_original_cents
+    standard.price_original_cents != null && standard.price_original_cents > standard.price_cents
+      ? standard.price_original_cents
       : null;
-  return { cents: cheapest.price_cents, originalCents: original };
+  return { cents: standard.price_cents, originalCents: original };
 }
 
 /** Δέχεται κρατήσεις: έχει ενεργές κατηγορίες τιμών ΚΑΙ το γραφείο δεν την έχει κλείσει.

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { athensTimeLabel } from '@/lib/athens-time';
 import Link from 'next/link';
 import { Stepper } from '@/components/ticketing/Stepper';
 import { SeatSelection, type SeatLegData } from '@/components/ticketing/SeatSelection';
@@ -38,9 +39,7 @@ async function loadLeg(tripId: string, title: string): Promise<SeatLegData | nul
     dateLabel: new Date(`${t.service_date}T12:00:00`).toLocaleDateString('el-GR', {
       weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric',
     }),
-    time: new Date(t.departure_at).toLocaleTimeString('el-GR', {
-      hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Athens',
-    }),
+    time: athensTimeLabel(t.departure_at),
     layout: t.layout.layout,
     taken,
   };

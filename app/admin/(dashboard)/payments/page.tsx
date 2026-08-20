@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { RefreshCw } from 'lucide-react';
+import { athensDateTimeLabel } from '@/lib/athens-time';
 import { getAdminVivaTransactions, type AdminVivaTransaction } from '@/lib/queries/viva-transactions';
 import { methodLabel, sourceLabel } from '@/lib/payments/viva-report';
 import { formatCents } from '@/lib/booking';
@@ -43,14 +44,6 @@ function statusPill(status: string) {
   return <Pill tone="muted">{status}</Pill>;
 }
 
-const WHEN = new Intl.DateTimeFormat('el-GR', {
-  timeZone: 'Europe/Athens',
-  day: '2-digit',
-  month: '2-digit',
-  year: '2-digit',
-  hour: '2-digit',
-  minute: '2-digit',
-});
 
 export default async function AdminPaymentsPage({
   searchParams,
@@ -114,7 +107,7 @@ export default async function AdminPaymentsPage({
               key={t.transaction_id}
               className="grid grid-cols-[7.5rem_5.5rem_7rem_7.5rem_1fr_7rem_6rem] items-center gap-3 border-b border-border/60 px-4 py-3 last:border-0"
             >
-              <span className="font-mono text-[13px] text-body">{WHEN.format(new Date(t.occurred_at))}</span>
+              <span className="font-mono text-[13px] text-body">{athensDateTimeLabel(t.occurred_at)}</span>
               <span className="text-[14px] font-semibold text-body">{formatCents(t.amount_cents)}</span>
               <span className="flex flex-col gap-0.5">
                 <Pill tone={METHOD_TONE[t.payment_method] ?? 'muted'}>{methodLabel(t.payment_method)}</Pill>

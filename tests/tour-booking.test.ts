@@ -72,12 +72,22 @@ describe('buildOrderItems', () => {
 });
 
 describe('headlinePrice', () => {
-  it('uses the cheapest active tier and its «πριν» price', () => {
+  it('uses the FIRST active tier by position (την κανονική) and its «πριν» price', () => {
     const h = headlinePrice([
-      tier({ id: 'a', price_cents: 17000, price_original_cents: 20000 }),
-      tier({ id: 'b', price_cents: 25000 }),
+      tier({ id: 'a', price_cents: 17000, price_original_cents: 20000, position: 0 }),
+      tier({ id: 'b', price_cents: 25000, position: 1 }),
     ]);
     expect(h).toEqual({ cents: 17000, originalCents: 20000 });
+  });
+
+  // Βρέθηκε στο ζωντανό site: εκδρομή 10 € με παιδικό 5 € έδειχνε «από 5 €» —
+  // η επικεφαλίδα είναι η κανονική τιμή, όχι η φθηνότερη έκπτωση.
+  it('δεν διαλέγει το φθηνότερο παιδικό αντί της κανονικής, ακόμη και με ανακατεμένη σειρά', () => {
+    const h = headlinePrice([
+      tier({ id: 'child', label: 'Παιδικό έως 9 ετών', price_cents: 500, price_original_cents: 1200, position: 1 }),
+      tier({ id: 'adult', label: 'Κανονικό', price_cents: 1000, price_original_cents: 1200, position: 0 }),
+    ]);
+    expect(h).toEqual({ cents: 1000, originalCents: 1200 });
   });
 
   it('ignores a «πριν» price that is not higher', () => {

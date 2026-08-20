@@ -1,5 +1,6 @@
 'use client';
 import { useState, useTransition } from 'react';
+import { athensTimeLabel } from '@/lib/athens-time';
 import { DoorOpen, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { blockSeat, unblockSeat } from '@/app/admin/(dashboard)/ticketing-actions';
@@ -114,7 +115,7 @@ export function AdminSeatMap({
             )}
             {sel?.claim_type === 'hold' && (
               <p className="mt-2 text-[14px] text-muted">
-                Προσωρινή δέσμευση έως {sel.expires_at ? new Date(sel.expires_at).toLocaleTimeString('el-GR', { hour: '2-digit', minute: '2-digit' }) : '—'}.
+                Προσωρινή δέσμευση έως {sel.expires_at ? athensTimeLabel(sel.expires_at) : '—'}.
               </p>
             )}
             {sel?.claim_type === 'blocked' && (

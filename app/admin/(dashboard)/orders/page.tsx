@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { athensShortDateTimeLabel } from '@/lib/athens-time';
 import { getAdminOrders } from '@/lib/queries/ticketing';
 import { formatCents } from '@/lib/ticketing';
 import { OrderStatusBadge } from '@/components/admin/StatusBadge';
@@ -86,7 +87,7 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
                 )}
               </span>
               <span className="text-right text-[13px] text-muted">
-                {new Date(o.created_at).toLocaleDateString('el-GR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                {athensShortDateTimeLabel(o.created_at)}
               </span>
             </Link>
           ))}

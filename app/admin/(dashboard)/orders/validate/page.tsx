@@ -1,5 +1,6 @@
 'use client';
 import { useActionState } from 'react';
+import { athensDateTimeLabel } from '@/lib/athens-time';
 import Link from 'next/link';
 import { BadgeCheck, OctagonX } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
@@ -74,7 +75,7 @@ export default function ValidatePage() {
               <p className="mt-1 font-mono text-[13px] text-muted">{result.ticket.code} · {result.ticket.fare_name}</p>
               {!result.ok && result.ticket.validated_at && (
                 <p className="mt-1 text-[13px] text-cta">
-                  Επικυρώθηκε: {new Date(result.ticket.validated_at).toLocaleString('el-GR')}
+                  Επικυρώθηκε: {athensDateTimeLabel(result.ticket.validated_at)}
                 </p>
               )}
             </div>

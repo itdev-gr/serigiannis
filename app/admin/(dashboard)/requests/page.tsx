@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { athensDateLabel } from '@/lib/athens-time';
 import { getLeads, groupClients } from '@/lib/queries/leads';
 import { StatusBadge, TypeBadge } from '@/components/admin/StatusBadge';
 import { AdminPageHeader } from '@/components/admin/ui';
@@ -175,7 +176,7 @@ export default async function RequestsPage({
                         )}
                       </td>
                       <td className={`${TH} text-muted`}>{c.count}</td>
-                      <td className={`${TH} text-muted`}>{new Date(c.lastActivity).toLocaleDateString('el-GR')}</td>
+                      <td className={`${TH} text-muted`}>{athensDateLabel(c.lastActivity)}</td>
                     </tr>
                   );
                 })}

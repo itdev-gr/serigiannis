@@ -1,4 +1,5 @@
 import { createServerClient } from '@/lib/supabase/server';
+import { athensDateLabel } from '@/lib/athens-time';
 
 /** Όσοι τσέκαραν «Θέλω να λαμβάνω ενημερώσεις» σε οποιαδήποτε φόρμα του site:
  *  checkout εκδρομών (tour_orders), εισιτήρια (ticket_orders) και αιτήματα
@@ -78,7 +79,7 @@ export default async function NewsletterPage() {
                   <div className="truncate font-medium">{s.email}</div>
                   <div className="truncate text-muted">{s.name ?? '—'}</div>
                   <div className="text-muted">{s.source}</div>
-                  <div className="text-muted">{new Date(s.at).toLocaleDateString('el-GR')}</div>
+                  <div className="text-muted">{athensDateLabel(s.at)}</div>
                 </div>
               ))}
             </div>

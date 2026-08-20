@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { athensDateTimeLabel } from '@/lib/athens-time';
 import { notFound } from 'next/navigation';
 import { getLeadById } from '@/lib/queries/leads';
 import { StatusBadge, TypeBadge } from '@/components/admin/StatusBadge';
@@ -30,7 +31,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
         {lead.party_size != null && (<><dt className="text-muted">Θέσεις</dt><dd className="col-span-2">{lead.party_size}</dd></>)}
         {lead.subject && (<><dt className="text-muted">Θέμα</dt><dd className="col-span-2">{lead.subject}</dd></>)}
         {lead.message && (<><dt className="text-muted">Μήνυμα</dt><dd className="col-span-2 whitespace-pre-wrap">{lead.message}</dd></>)}
-        <dt className="text-muted">Ημ/νία</dt><dd className="col-span-2">{new Date(lead.created_at).toLocaleString('el-GR')}</dd>
+        <dt className="text-muted">Ημ/νία</dt><dd className="col-span-2">{athensDateTimeLabel(lead.created_at)}</dd>
       </dl>
 
       <div className="mt-6 rounded-lg border border-border bg-surface p-6">
