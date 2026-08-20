@@ -38,6 +38,8 @@ const CHANNEL_TONE: Record<string, PillTone> = { site: 'info', pos: 'warn', link
 function statusPill(status: string) {
   if (status === 'F') return <Pill tone="ok">Επιτυχής</Pill>;
   if (status === 'E') return <Pill tone="danger">Αποτυχία</Pill>;
+  if (status === 'R') return <Pill tone="warn">Επιστροφή</Pill>;
+  if (status === 'A') return <Pill tone="info">Δέσμευση</Pill>;
   return <Pill tone="muted">{status}</Pill>;
 }
 
