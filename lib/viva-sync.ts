@@ -72,12 +72,13 @@ export async function upsertVivaTransaction(
 
   if (!order) return { confirmedNow: false };
 
+  // Η μέθοδος της παραγγελίας = η μέθοδος της ΕΠΙΤΥΧΗΜΕΝΗΣ συναλλαγής.
+  // Οι αποτυχημένες απόπειρες (π.χ. δύο IRIS πριν πληρώσει με κάρτα) τη
+  // συμπληρώνουν μόνο όσο δεν υπάρχει τίποτα — ποτέ δεν την πατάνε.
   const table = order.family === 'tour' ? 'tour_orders' : 'ticket_orders';
-  const { error: methodErr } = await sb
-    .from(table)
-    .update({ payment_method: row.payment_method })
-    .eq('id', order.id)
-    .is('payment_method', null);
+  let methodUpdate = sb.from(table).update({ payment_method: row.payment_method }).eq('id', order.id);
+  if (row.status !== 'F') methodUpdate = methodUpdate.is('payment_method', null);
+  const { error: methodErr } = await methodUpdate;
   if (methodErr) console.error('payment_method update:', methodErr.message);
 
   // Επιβεβαίωση μόνο για ολοκληρωμένες συναλλαγές σε παραγγελίες που ακόμα
