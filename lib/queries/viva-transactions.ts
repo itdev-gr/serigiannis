@@ -18,6 +18,10 @@ export type AdminVivaTransaction = {
   merchant_trns: string | null;
   full_name: string | null;
   email: string | null;
+  /** Χειροκίνητα στοιχεία του γραφείου (0037) — κυρίως για χρεώσεις POS. */
+  office_name: string | null;
+  office_email: string | null;
+  office_phone: string | null;
   occurred_at: string;
   order_family: 'tour' | 'ticket' | null;
   order_id: string | null;
@@ -30,7 +34,7 @@ export async function getAdminVivaTransactions(): Promise<AdminVivaTransaction[]
   const { data, error } = await sb
     .from('viva_transactions')
     .select(
-      'transaction_id, order_code, amount_cents, status, source_code, terminal_id, bank_id, card_number, card_type, issuing_bank, receipt_ref, payment_method, customer_trns, merchant_trns, full_name, email, occurred_at, order_family, order_id'
+      'transaction_id, order_code, amount_cents, status, source_code, terminal_id, bank_id, card_number, card_type, issuing_bank, receipt_ref, payment_method, customer_trns, merchant_trns, full_name, email, office_name, office_email, office_phone, occurred_at, order_family, order_id'
     )
     .order('occurred_at', { ascending: false })
     .limit(500);

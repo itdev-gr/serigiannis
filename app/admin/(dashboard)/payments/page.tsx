@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { RefreshCw } from 'lucide-react';
+import { Pencil, RefreshCw } from 'lucide-react';
 import { athensDateTimeLabel } from '@/lib/athens-time';
 import { getAdminVivaTransactions, type AdminVivaTransaction } from '@/lib/queries/viva-transactions';
 import { methodLabel, sourceLabel } from '@/lib/payments/viva-report';
@@ -7,7 +7,7 @@ import { formatCents } from '@/lib/booking';
 import { searchNormalize } from '@/lib/filters';
 import { AdminPageHeader, Pill, type PillTone } from '@/components/admin/ui';
 import { AdminSearch } from '@/components/admin/AdminSearch';
-import { syncRecentVivaTransactions } from './actions';
+import { saveVivaTransactionContact, syncRecentVivaTransactions } from './actions';
 
 const CHANNEL_FILTERS: { key: string; label: string }[] = [
   { key: '', label: 'Όλες' },
@@ -66,11 +66,13 @@ export default async function AdminPaymentsPage({
   if (q) {
     const needle = searchNormalize(q);
     rows = rows.filter((t) =>
-      [t.full_name, t.email, t.customer_trns, t.order_code, t.card_number].some(
+      [t.full_name, t.email, t.customer_trns, t.order_code, t.card_number, t.office_name, t.office_email, t.office_phone, t.receipt_ref].some(
         (v) => v && searchNormalize(v).includes(needle)
       )
     );
   }
+
+  const backHref = `/admin/payments${f ? `?f=${f}` : ''}${q ? `${f ? '&' : '?'}q=${encodeURIComponent(q)}` : ''}`;
 
   return (
     <div className="max-w-6xl">
@@ -121,37 +123,82 @@ export default async function AdminPaymentsPage({
             <div className="text-right">Κράτηση</div>
           </div>
           {rows.map((t) => (
-            <div
-              key={t.transaction_id}
-              className="grid grid-cols-[7.5rem_5.5rem_7rem_7.5rem_1fr_7rem_6rem] items-center gap-3 border-b border-border/60 px-4 py-3 last:border-0"
-            >
-              <span className="font-mono text-[13px] text-body">{athensDateTimeLabel(t.occurred_at)}</span>
-              <span className="text-[14px] font-semibold text-body">{formatCents(t.amount_cents)}</span>
-              <span className="flex flex-col gap-0.5">
-                <Pill tone={METHOD_TONE[t.payment_method] ?? 'muted'}>{methodLabel(t.payment_method)}</Pill>
-                {t.card_number && <span className="pl-1 font-mono text-[11px] text-muted">•{t.card_number.slice(-4)}</span>}
-              </span>
-              <Pill tone={CHANNEL_TONE[channelOf(t)] ?? 'muted'}>{sourceLabel(t.source_code, t.terminal_id)}</Pill>
-              <span className="truncate text-[14px] text-body">
-                {t.full_name ?? t.customer_trns ?? cardIdentity(t) ?? '—'}
-                {t.email && <span className="block truncate text-[12px] text-muted">{t.email}</span>}
-                {!t.full_name && !t.customer_trns && t.receipt_ref && (
-                  <span className="block truncate text-[12px] text-muted">Απόδειξη #{t.receipt_ref}</span>
-                )}
-              </span>
-              {statusPill(t.status)}
-              <span className="text-right">
-                {t.order_id ? (
-                  <Link
-                    href={t.order_family === 'tour' ? `/admin/bookings/${t.order_id}` : `/admin/orders/${t.order_id}`}
-                    className="text-[13px] font-medium text-primary hover:underline"
+            <div key={t.transaction_id} className="border-b border-border/60 last:border-0">
+              <div className="grid grid-cols-[7.5rem_5.5rem_7rem_7.5rem_1fr_7rem_6rem] items-center gap-3 px-4 pt-3">
+                <span className="font-mono text-[13px] text-body">{athensDateTimeLabel(t.occurred_at)}</span>
+                <span className="text-[14px] font-semibold text-body">{formatCents(t.amount_cents)}</span>
+                <span className="flex flex-col gap-0.5">
+                  <Pill tone={METHOD_TONE[t.payment_method] ?? 'muted'}>{methodLabel(t.payment_method)}</Pill>
+                  {t.card_number && <span className="pl-1 font-mono text-[11px] text-muted">•{t.card_number.slice(-4)}</span>}
+                </span>
+                <Pill tone={CHANNEL_TONE[channelOf(t)] ?? 'muted'}>{sourceLabel(t.source_code, t.terminal_id)}</Pill>
+                <span className="truncate text-[14px] text-body">
+                  {t.office_name ?? t.full_name ?? t.customer_trns ?? cardIdentity(t) ?? '—'}
+                  {t.office_name && (t.full_name || t.customer_trns || cardIdentity(t)) && (
+                    <span className="block truncate text-[12px] text-muted">{t.full_name ?? t.customer_trns ?? cardIdentity(t)}</span>
+                  )}
+                  {(t.office_phone || t.office_email || t.email) && (
+                    <span className="block truncate text-[12px] text-muted">
+                      {[t.office_phone, t.office_email ?? t.email].filter(Boolean).join(' · ')}
+                    </span>
+                  )}
+                  {!t.office_name && !t.full_name && !t.customer_trns && t.receipt_ref && (
+                    <span className="block truncate text-[12px] text-muted">Απόδειξη #{t.receipt_ref}</span>
+                  )}
+                </span>
+                {statusPill(t.status)}
+                <span className="text-right">
+                  {t.order_id ? (
+                    <Link
+                      href={t.order_family === 'tour' ? `/admin/bookings/${t.order_id}` : `/admin/orders/${t.order_id}`}
+                      className="text-[13px] font-medium text-primary hover:underline"
+                    >
+                      Προβολή
+                    </Link>
+                  ) : (
+                    <span className="text-[13px] text-muted">—</span>
+                  )}
+                </span>
+              </div>
+              {/* Χειροκίνητα στοιχεία γραφείου — κυρίως για POS, όπου η Viva
+                  δεν ξέρει ποιος πλήρωσε. Δεν πατιούνται από τον συγχρονισμό. */}
+              <details className="px-4 pb-2.5">
+                <summary className="inline-flex cursor-pointer select-none items-center gap-1 py-1 text-[12px] text-muted hover:text-primary">
+                  <Pencil className="h-3 w-3" /> {t.office_name ? 'Επεξεργασία στοιχείων' : 'Σημείωση πελάτη'}
+                </summary>
+                <form
+                  action={saveVivaTransactionContact.bind(null, t.transaction_id)}
+                  className="mt-1.5 flex flex-wrap items-end gap-2"
+                >
+                  <input type="hidden" name="back" value={backHref} />
+                  <input
+                    name="office_name"
+                    defaultValue={t.office_name ?? ''}
+                    placeholder="Ονοματεπώνυμο"
+                    className="w-56 rounded-md border border-border bg-surface px-3 py-1.5 text-[13px] focus:border-primary focus:outline-none"
+                  />
+                  <input
+                    name="office_phone"
+                    type="tel"
+                    defaultValue={t.office_phone ?? ''}
+                    placeholder="Τηλέφωνο"
+                    className="w-40 rounded-md border border-border bg-surface px-3 py-1.5 text-[13px] focus:border-primary focus:outline-none"
+                  />
+                  <input
+                    name="office_email"
+                    type="email"
+                    defaultValue={t.office_email ?? ''}
+                    placeholder="Email"
+                    className="w-56 rounded-md border border-border bg-surface px-3 py-1.5 text-[13px] focus:border-primary focus:outline-none"
+                  />
+                  <button
+                    type="submit"
+                    className="rounded-md border border-primary bg-primary px-3 py-1.5 text-[13px] font-medium text-surface hover:bg-primary/90"
                   >
-                    Προβολή
-                  </Link>
-                ) : (
-                  <span className="text-[13px] text-muted">—</span>
-                )}
-              </span>
+                    Αποθήκευση
+                  </button>
+                </form>
+              </details>
             </div>
           ))}
           {rows.length === 0 && (
