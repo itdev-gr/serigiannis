@@ -16,6 +16,10 @@ export type VivaTransactionRow = {
   terminal_id: number | null;
   bank_id: string | null;
   card_number: string | null;
+  card_type: string | null;
+  issuing_bank: string | null;
+  /** ReferenceNumber της Viva — τυπώνεται στη χάρτινη απόδειξη του POS. */
+  receipt_ref: string | null;
   transaction_type_id: number | null;
   payment_method: string;
   customer_trns: string | null;
@@ -103,6 +107,19 @@ export function normalizeVivaTransaction(raw: Record<string, unknown>): VivaTran
     terminal_id: pick<number>(raw, 'SourceTerminalId', 'sourceTerminalId'),
     bank_id: pick<string>(raw, 'BankId', 'bankId'),
     card_number: cardNumberOf(raw),
+    card_type: (() => {
+      const cc = pick<Record<string, unknown>>(raw, 'CreditCard');
+      const ct = cc ? (cc['CardType'] as { Name?: string } | undefined) : undefined;
+      return ct?.Name ?? null;
+    })(),
+    issuing_bank: (() => {
+      const cc = pick<Record<string, unknown>>(raw, 'CreditCard');
+      return (cc ? (cc['IssuingBank'] as string | undefined) : undefined) ?? pick<string>(raw, 'cardIssuingBank');
+    })(),
+    receipt_ref: (() => {
+      const r = pick<number | string>(raw, 'ReferenceNumber', 'referenceNumber');
+      return r != null ? String(r) : null;
+    })(),
     transaction_type_id: pick<number>(raw, 'TransactionTypeId', 'transactionTypeId'),
     payment_method: derivePaymentMethod(raw),
     customer_trns: pick<string>(raw, 'CustomerTrns', 'customerTrns'),

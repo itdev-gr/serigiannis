@@ -97,6 +97,39 @@ describe('normalizeVivaTransaction', () => {
     });
   });
 
+  it('βγάζει τύπο κάρτας, τράπεζα και αριθμό απόδειξης από το legacy σχήμα (POS)', () => {
+    const row = normalizeVivaTransaction({
+      TransactionId: '449afb6a-cb07-41f9-b4d4-057a12ab0205',
+      InsDate: '2026-08-20T11:39:24.12+03:00',
+      StatusId: 'F',
+      Amount: 25.0,
+      SourceCode: 'Default',
+      ReferenceNumber: 356503,
+      CreditCard: {
+        Number: '535142XXXXXX9525',
+        CardType: { Name: 'MasterCard', CardTypeId: 1 },
+        IssuingBank: 'National Bank Of Greece S.a.',
+      },
+    });
+    expect(row).toMatchObject({
+      card_type: 'MasterCard',
+      issuing_bank: 'National Bank Of Greece S.a.',
+      receipt_ref: '356503',
+      card_number: '535142XXXXXX9525',
+    });
+  });
+
+  it('τα νέα πεδία μένουν null όταν λείπουν (checkout v2 χωρίς CreditCard)', () => {
+    const row = normalizeVivaTransaction({
+      transactionId: 'x-1',
+      insDate: '2026-08-20T12:00:00+03:00',
+      statusId: 'F',
+      amount: 10,
+      cardIssuingBank: 'Alpha Bank S.A.',
+    });
+    expect(row).toMatchObject({ card_type: null, issuing_bank: 'Alpha Bank S.A.', receipt_ref: null });
+  });
+
   it('null όταν λείπει id ή ώρα — δεν γράφουμε σκουπίδια', () => {
     expect(normalizeVivaTransaction({ StatusId: 'F' })).toBeNull();
     expect(normalizeVivaTransaction({ TransactionId: 'x', StatusId: 'F' })).toBeNull();

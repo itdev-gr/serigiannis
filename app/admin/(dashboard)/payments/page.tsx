@@ -36,6 +36,17 @@ function matchesFilter(t: AdminVivaTransaction, f: string): boolean {
 const METHOD_TONE: Record<string, PillTone> = { iris: 'ok', card: 'info', wallet: 'info', other: 'muted' };
 const CHANNEL_TONE: Record<string, PillTone> = { site: 'info', pos: 'warn', link: 'warn', other: 'muted' };
 
+/** Χρεώσεις POS: η Viva δεν έχει στοιχεία πελάτη (ανέπαφη κάρτα) — ό,τι
+ *  υπάρχει για ταυτοποίηση είναι η κάρτα και η τράπεζά της. */
+function cardIdentity(t: AdminVivaTransaction): string | null {
+  if (!t.card_number && !t.card_type) return null;
+  const parts = [
+    `Κάρτα${t.card_type ? ` ${t.card_type}` : ''}${t.card_number ? ` •${t.card_number.slice(-4)}` : ''}`,
+  ];
+  if (t.issuing_bank) parts.push(t.issuing_bank);
+  return parts.join(' — ');
+}
+
 function statusPill(status: string) {
   if (status === 'F') return <Pill tone="ok">Επιτυχής</Pill>;
   if (status === 'E') return <Pill tone="danger">Αποτυχία</Pill>;
@@ -91,6 +102,13 @@ export default async function AdminPaymentsPage({
         </form>
       </div>
 
+      {f === 'pos' && (
+        <p className="mb-3 rounded-md border border-border bg-surface px-4 py-2.5 text-[13px] text-muted">
+          Οι χρεώσεις POS δεν έχουν στοιχεία πελάτη — ο πελάτης περνά μόνο την κάρτα του στο τερματικό.
+          Η αντιστοίχιση γίνεται με τον αριθμό απόδειξης του POS και την κάρτα.
+        </p>
+      )}
+
       <div className="overflow-x-auto">
         <div className="min-w-[860px] overflow-hidden rounded-lg border border-border bg-surface">
           <div className="grid grid-cols-[7.5rem_5.5rem_7rem_7.5rem_1fr_7rem_6rem] items-center gap-3 border-b border-border bg-background/50 px-4 py-3 font-sans text-[12px] uppercase tracking-[0.1em] text-muted">
@@ -115,8 +133,11 @@ export default async function AdminPaymentsPage({
               </span>
               <Pill tone={CHANNEL_TONE[channelOf(t)] ?? 'muted'}>{sourceLabel(t.source_code, t.terminal_id)}</Pill>
               <span className="truncate text-[14px] text-body">
-                {t.full_name ?? t.customer_trns ?? '—'}
+                {t.full_name ?? t.customer_trns ?? cardIdentity(t) ?? '—'}
                 {t.email && <span className="block truncate text-[12px] text-muted">{t.email}</span>}
+                {!t.full_name && !t.customer_trns && t.receipt_ref && (
+                  <span className="block truncate text-[12px] text-muted">Απόδειξη #{t.receipt_ref}</span>
+                )}
               </span>
               {statusPill(t.status)}
               <span className="text-right">
