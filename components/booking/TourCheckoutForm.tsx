@@ -45,7 +45,6 @@ export function buildTourCheckoutSchema(
     customer_name: z.string().min(2, 'Συμπληρώστε ονοματεπώνυμο.'),
     email: z.string().email('Μη έγκυρο email.'),
     phone: z.string().min(8, 'Συμπληρώστε ένα έγκυρο τηλέφωνο.'),
-    notes: z.string().optional(),
     marketing_opt_in: z.boolean().optional(),
     accept_terms: z.literal(true, { errorMap: () => ({ message: 'Απαιτείται αποδοχή των όρων.' }) }),
     // Ένας ταξιδιώτης ανά θέση, όπως ακριβώς και στη φόρμα εισιτηρίων: χωρίς
@@ -121,7 +120,6 @@ export function TourCheckoutForm({
               customer_name: d.customer_name,
               email: d.email,
               phone: d.phone,
-              notes: d.notes,
               marketing_opt_in: !!d.marketing_opt_in,
               accept_terms: true,
               passengers: d.passengers.map((p) => ({
@@ -147,9 +145,6 @@ export function TourCheckoutForm({
           <input {...register('phone')} type="tel" className={inputCls} autoComplete="tel" />
         </Field>
       </div>
-      <Field label="Σημειώσεις">
-        <textarea rows={3} {...register('notes')} className={inputCls} placeholder="π.χ. ειδικές ανάγκες, αλλεργίες" />
-      </Field>
 
       {labels.length > 0 && (
         <div className="grid gap-4">

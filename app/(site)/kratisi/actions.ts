@@ -37,7 +37,6 @@ export type TourCheckoutInput = {
     customer_name: string;
     email: string;
     phone: string;
-    notes?: string;
     marketing_opt_in?: boolean;
     accept_terms: boolean;
     /** One entry per traveller; sanitised again server-side in finalize_tour_order.
