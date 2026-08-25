@@ -5,6 +5,7 @@ import { getAdminPosts } from '@/lib/queries/posts';
 import { setPostStatus, deletePost } from '../actions';
 import { ConfirmForm } from '@/components/admin/ConfirmForm';
 import { AdminSearch } from '@/components/admin/AdminSearch';
+import { FlashBanner } from '@/components/admin/FlashBanner';
 import { searchNormalize } from '@/lib/filters';
 
 const STATUS_STYLE: Record<string, string> = {
@@ -20,9 +21,9 @@ const STATUS_LABEL: Record<string, string> = {
 export default async function AdminPostsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; saved?: string; error?: string }>;
 }) {
-  const { q } = await searchParams;
+  const { q, saved, error } = await searchParams;
   const allPosts = await getAdminPosts();
   let posts = allPosts;
   if (q) {
@@ -36,6 +37,7 @@ export default async function AdminPostsPage({
 
   return (
     <div>
+      <FlashBanner saved={saved} error={error} />
       <div className="mb-8 flex items-end justify-between">
         <div>
           <h1 className="font-display text-4xl font-semibold text-primary">Νέα</h1>

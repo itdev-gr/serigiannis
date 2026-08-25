@@ -19,9 +19,25 @@ export const ADMIN_ERROR_TEXT: Record<string, string> = {
   delete_image: 'Η διαγραφή της φωτογραφίας απέτυχε. Η φωτογραφία παραμένει.',
 };
 
+/** Πορτοκαλί κείμενα για επιτυχή αποθήκευση σε ΜΗ δημόσια κατάσταση, keyed by
+ *  το `?saved=` — ο ιδιοκτήτης αποθήκευε εκδρομές ως «Πρόχειρη» και περίμενε
+ *  να τις δει στο site. */
+export const ADMIN_SAVED_WARNING_TEXT: Record<string, string> = {
+  draft: 'Αποθηκεύτηκε ως Πρόχειρο — ΔΕΝ φαίνεται στο site. Για να βγει live, αλλάξτε την «Κατάσταση» σε Δημοσιευμένη και πατήστε Αποθήκευση.',
+  hidden: 'Αποθηκεύτηκε ως Κρυμμένο — ΔΕΝ φαίνεται στο site.',
+  archived: 'Αποθηκεύτηκε ως Αρχειοθετημένο — ΔΕΝ φαίνεται στο site.',
+};
+
 /** The query suffix a server action redirects with so the target page flashes a banner. */
 export function flashQuery(ok: boolean, code?: string): string {
   return ok ? '?saved=1' : `?error=${code ?? 'db'}`;
+}
+
+/** Flash μετά από επιτυχή αποθήκευση εκδρομής/άρθρου: κουβαλά και τη μη
+ *  δημόσια κατάσταση, ώστε το banner να προειδοποιεί αντί για σκέτο
+ *  «Αποθηκεύτηκε.». */
+export function savedFlashQuery(status: string): string {
+  return status in ADMIN_SAVED_WARNING_TEXT ? `?saved=${status}` : '?saved=1';
 }
 
 /** Append a flash marker to a path that may already carry a query string

@@ -15,7 +15,7 @@ import {
   ORDER_STATUS_TONE,
   TICKET_STATUS_TONE,
 } from '@/lib/ticketing';
-import { ADMIN_ERROR_TEXT, flashQuery, withFlash } from '@/lib/admin-flash';
+import { ADMIN_ERROR_TEXT, ADMIN_SAVED_WARNING_TEXT, flashQuery, savedFlashQuery, withFlash } from '@/lib/admin-flash';
 import { POYLMAN_LIST, poylmanHref, poylmanTabHref } from '@/lib/admin-routes';
 import { searchNormalize, filterTours, sortTours } from '@/lib/filters';
 import { setupChecklist, type TourSetupInput } from '@/lib/tour-setup';
@@ -292,6 +292,17 @@ describe('flashQuery & withFlash — όλοι οι συνδυασμοί', () => 
   it('όταν η ενέργεια πέτυχε ο κωδικός σφάλματος αγνοείται εντελώς', () => {
     expect(flashQuery(true, 'seat_taken')).toBe('?saved=1');
     expect(withFlash('/admin/tours', true, 'seat_taken')).toBe('/admin/tours?saved=1');
+  });
+
+  it('αποθήκευση σε μη δημόσια κατάσταση κουβαλά την κατάσταση στο saved= και έχει κείμενο προειδοποίησης', () => {
+    expect(savedFlashQuery('published')).toBe('?saved=1');
+    for (const status of ['draft', 'hidden', 'archived']) {
+      expect(savedFlashQuery(status)).toBe(`?saved=${status}`);
+      expect(ADMIN_SAVED_WARNING_TEXT[status]).toContain('ΔΕΝ φαίνεται στο site');
+    }
+    // Το «1» του κανονικού saved δεν πρέπει ποτέ να αποκτήσει κείμενο
+    // προειδοποίησης — αλλιώς κάθε επιτυχής αποθήκευση θα έβγαινε πορτοκαλί.
+    expect(ADMIN_SAVED_WARNING_TEXT['1']).toBeUndefined();
   });
 
   it('κάθε κωδικός του λεξικού επιστρέφεται αυτούσιος μέσα στο query', () => {

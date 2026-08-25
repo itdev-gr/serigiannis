@@ -6,7 +6,7 @@ import type { SettingsData } from '@/types/db';
 import { resolvePublishedAt } from '@/lib/posts-publish';
 import { parseEuroToCents } from '@/lib/booking';
 import { parseBoardingPoints, slugifyWithFallback, slugNeedsCleanup } from '@/lib/excursions';
-import { flashQuery, withFlash } from '@/lib/admin-flash';
+import { flashQuery, savedFlashQuery, withFlash } from '@/lib/admin-flash';
 import { TOUR_PATTERN_HORIZON_DAYS, weekdaysFromForm } from '@/lib/tour-patterns';
 
 function revalidatePublic() {
@@ -365,8 +365,8 @@ export async function upsertTour(formData: FormData) {
   // ένδειξη ότι η αποθήκευση πέτυχε — δυσδιάκριτο από απλή πλοήγηση.
   // Νέα εκδρομή: κατευθείαν στη σελίδα επεξεργασίας, όπου συνεχίζει με
   // φωτογραφίες, τιμές και αναχωρήσεις χωρίς να την ξαναψάχνει στη λίστα.
-  if (!id) redirect(`/admin/tours/${tourId}/edit${flashQuery(true)}`);
-  redirect(`/admin/tours${flashQuery(true)}`);
+  if (!id) redirect(`/admin/tours/${tourId}/edit${savedFlashQuery(status)}`);
+  redirect(`/admin/tours${savedFlashQuery(status)}`);
 }
 
 export type UploadResult = { uploaded: number; failed: { name: string; message: string }[] };
@@ -634,7 +634,7 @@ export async function upsertPost(formData: FormData) {
   // Μετονομασία slug: χωρίς αυτό το άρθρο έμενε ζωντανό και στην παλιά
   // του διεύθυνση για όσο κρατά το cache της /nea/<slug>.
   if (previousPostSlug && previousPostSlug !== slug) revalidatePath(`/nea/${previousPostSlug}`);
-  redirect('/admin/posts');
+  redirect(`/admin/posts${savedFlashQuery(status)}`);
 }
 
 export async function setPostStatus(id: string, status: string) {
