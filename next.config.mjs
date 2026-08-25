@@ -12,6 +12,20 @@ const nextConfig = {
   async rewrites() {
     return [{ source: '/wc-api/:path*', destination: '/api/payments/return' }];
   },
+  // Το serigiannis.vercel.app είναι alias του ίδιου deployment· χωρίς redirect
+  // ο ιδιοκτήτης κατέληγε να δουλεύει το admin από εκεί αντί για το κανονικό
+  // domain. Τα /api/* μένουν απ' έξω: τα Vercel crons και το Viva webhook
+  // χτυπούν το deployment URL και δεν ακολουθούν redirects.
+  async redirects() {
+    return [
+      {
+        source: '/:path((?!api/).*)',
+        has: [{ type: 'host', value: 'serigiannis.vercel.app' }],
+        destination: 'https://www.sergianitravel.gr/:path',
+        permanent: true,
+      },
+    ];
+  },
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: '*.supabase.co' },

@@ -14,7 +14,7 @@ const STATUS_LINE: Record<string, string> = {
  *  Same Resend pattern as lib/notify.ts: no-op without RESEND_API_KEY, never throws. */
 export async function notifyTourOrder(accessToken: string): Promise<void> {
   const key = process.env.RESEND_API_KEY;
-  const site = process.env.NEXT_PUBLIC_SITE_URL || 'https://serigiannis.vercel.app';
+  const site = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.sergianitravel.gr';
 
   let order: TourOrder;
   try {

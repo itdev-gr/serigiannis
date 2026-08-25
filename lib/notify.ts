@@ -6,12 +6,13 @@ export async function sendLeadNotification(lead: LeadEmail, toEmail: string): Pr
   const key = process.env.RESEND_API_KEY;
   if (!key || !toEmail) return;
   const from = process.env.RESEND_FROM || 'Sergiani Travel <onboarding@resend.dev>';
+  const site = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.sergianitravel.gr';
   const label = TYPE_LABEL[lead.type] ?? lead.type;
   const rows = [
     ['Τύπος', label], ['Όνομα', lead.name], ['Τηλέφωνο', lead.phone], ['Email', lead.email],
     ['Εκδρομή', lead.tourTitle], ['Θέμα', lead.subject], ['Μήνυμα', lead.message],
   ].filter(([, v]) => v).map(([k, v]) => `<tr><td style="padding:4px 12px 4px 0;color:#5b6b82">${k}</td><td style="padding:4px 0">${String(v).replace(/</g,'&lt;')}</td></tr>`).join('');
-  const html = `<div style="font-family:sans-serif"><h2 style="color:#00296b">Νέο αίτημα, ${label}</h2><table>${rows}</table><p style="color:#5b6b82;font-size:13px">Δείτε το στο <a href="https://serigiannis.vercel.app/admin/requests">/admin/requests</a>.</p></div>`;
+  const html = `<div style="font-family:sans-serif"><h2 style="color:#00296b">Νέο αίτημα, ${label}</h2><table>${rows}</table><p style="color:#5b6b82;font-size:13px">Δείτε το στο <a href="${site}/admin/requests">/admin/requests</a>.</p></div>`;
   try {
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',

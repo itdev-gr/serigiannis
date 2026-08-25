@@ -1,8 +1,10 @@
 # Deploying Sergiani Travel (Vercel)
 
 The repo is a standard Next.js 16 app. It's already **linked** to the Vercel project
-`itdevs-projects-a8c0aa53/serigiani` and the **GitHub repo is connected**, so every push
-to `main` triggers a production deploy — once the environment variables below are set.
+**`serigiannis`** (team scope — see `.vercel/project.json` for the authoritative ids) and
+the **GitHub repo is connected**, so every push to `main` triggers a production deploy.
+Production domain: **`https://www.sergianitravel.gr`** (the `serigiannis.vercel.app` alias
+now 308-redirects all non-`/api` traffic there).
 
 ## 1. Set environment variables (required before the first build)
 
@@ -16,9 +18,9 @@ environments.
 | `NEXT_PUBLIC_SUPABASE_URL` | your `.env.local` | public |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | your `.env.local` | public |
 | `SUPABASE_SERVICE_ROLE_KEY` | your `.env.local` | **secret — server only, never expose** |
-| `NEXT_PUBLIC_SITE_URL` | the production domain (see step 3) | e.g. `https://serigiani.vercel.app` |
+| `NEXT_PUBLIC_SITE_URL` | the production domain | `https://www.sergianitravel.gr` |
 
-**Option A — Dashboard:** Vercel → Project `serigiani` → Settings → Environment Variables →
+**Option A — Dashboard:** Vercel → Project `serigiannis` → Settings → Environment Variables →
 add each of the four (copy values from `.env.local`), scope = Production (+ Preview).
 
 **Option B — CLI (run these yourself so the secrets stay in your session):**
@@ -35,11 +37,11 @@ Each command prompts for the value (paste from `.env.local`).
 - **Auto:** push to `main` (GitHub is connected) → Vercel builds & deploys, **or**
 - **Manual:** `vercel deploy --prod`
 
-## 3. Set the real site URL, then redeploy
+## 3. Site URL
 
-After the first deploy, note the assigned production domain (e.g. `https://serigiani.vercel.app`),
-set `NEXT_PUBLIC_SITE_URL` to it, and redeploy so canonical URLs, `sitemap.xml`, `robots.txt`
-and JSON-LD emit absolute production URLs.
+`NEXT_PUBLIC_SITE_URL` must be `https://www.sergianitravel.gr` (it is inlined at build
+time and drives canonical URLs, `sitemap.xml`, `robots.txt` and JSON-LD). If it ever
+changes, redeploy afterwards.
 
 ## 4. Verify
 
