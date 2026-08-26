@@ -449,6 +449,13 @@ describe('passengerLabels & computeBookingTotal — παραλλαγές', () =>
 });
 
 describe('isBookable & tourRouteCta — αλληλεπίδραση', () => {
+  it('«Μόνο αίτημα» δεν πουλάει online ακόμα κι αν έχει ενεργές τιμές (0038)', () => {
+    expect(isBookable({ bookings_open: true, booking_mode: 'request' }, [{}])).toBe(false);
+    expect(isBookable({ bookings_open: true, booking_mode: 'online' }, [{}])).toBe(true);
+    // παλιές γραμμές χωρίς το πεδίο = online
+    expect(isBookable({ bookings_open: true }, [{}])).toBe(true);
+  });
+
   it('κλειστή εκδρομή δεν πουλάει ούτε με ενεργές τιμές ούτε με σύνδεσμο πούλμαν', () => {
     expect(isBookable({ bookings_open: false }, [{}])).toBe(false);
     expect(

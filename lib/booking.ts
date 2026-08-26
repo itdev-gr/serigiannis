@@ -95,10 +95,15 @@ export function headlinePrice(tiers: TourPriceTier[]): { cents: number; original
   return { cents: standard.price_cents, originalCents: original };
 }
 
-/** Δέχεται κρατήσεις: έχει ενεργές κατηγορίες τιμών ΚΑΙ το γραφείο δεν την έχει κλείσει.
- *  `bookings_open` λείπει (undefined) μόνο σε παλιές seed γραμμές — αντιμετωπίζεται ως ανοιχτή. */
-export function isBookable(tour: { bookings_open?: boolean }, activeTiers: unknown[]): boolean {
-  return activeTiers.length > 0 && tour.bookings_open !== false;
+/** Δέχεται online κρατήσεις: έχει ενεργές κατηγορίες τιμών, το γραφείο δεν την
+ *  έχει κλείσει, ΚΑΙ δεν είναι σε λειτουργία «μόνο αίτημα» (booking_mode 0038).
+ *  `bookings_open`/`booking_mode` λείπουν μόνο σε παλιές seed γραμμές —
+ *  αντιμετωπίζονται ως ανοιχτή/online. */
+export function isBookable(
+  tour: { bookings_open?: boolean; booking_mode?: string },
+  activeTiers: unknown[]
+): boolean {
+  return activeTiers.length > 0 && tour.bookings_open !== false && tour.booking_mode !== 'request';
 }
 
 /** Departures a customer may still pick: active and not in the past.

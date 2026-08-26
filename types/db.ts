@@ -94,6 +94,9 @@ export type Tour = {
   status: TourStatus;
   is_featured: boolean;
   bookings_open: boolean;
+  /** 'online' = κράτηση με πληρωμή, 'request' = μόνο φόρμα αιτήματος (0038).
+   *  Optional: παλιές seed γραμμές χωρίς το πεδίο = 'online'. */
+  booking_mode?: 'online' | 'request';
   cover_image_id: string | null;
   seo_title: string | null;
   seo_description: string | null;

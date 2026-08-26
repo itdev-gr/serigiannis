@@ -277,7 +277,9 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
                 )}
                 {detailsCard}
               </div>
-            ) : hasPricing ? (
+            ) : hasPricing && tour.booking_mode !== 'request' ? (
+              // «Οι κρατήσεις έχουν κλείσει» μόνο για online εκδρομές που το
+              // γραφείο πάγωσε· σε λειτουργία «μόνο αίτημα» πέφτουμε στη φόρμα.
               <div className="space-y-5 lg:sticky lg:top-40">
                 <div className="rounded-2xl border border-border bg-surface p-6 shadow-card">
                   <h3 className="font-display text-xl font-bold text-primary">Οι κρατήσεις έχουν κλείσει</h3>

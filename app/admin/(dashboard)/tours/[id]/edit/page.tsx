@@ -77,6 +77,7 @@ export default async function EditTourPage({
       <TourSetupChecklist
         status={row.status}
         bookings_open={row.bookings_open}
+        booking_mode={row.booking_mode}
         summary={row.summary}
         imageCount={images?.length ?? 0}
         tierCount={booking.tiers.filter((t) => t.is_active).length}

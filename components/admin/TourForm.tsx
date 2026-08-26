@@ -327,6 +327,38 @@ export function TourForm({
           <input type="checkbox" name="bookings_closed" defaultChecked={tour ? !tour.bookings_open : false} className="h-4 w-4 accent-cta" />
           <span className="font-sans text-[14px] text-body">Κλειστή για κρατήσεις (ορατή στο site)</span>
         </label>
+
+        <div className="mt-2 border-t border-border/60 pt-4">
+          <p className="mb-2 font-sans text-[13px] font-semibold text-primary">Τρόπος κράτησης</p>
+          <label className="flex items-start gap-3">
+            <input
+              type="radio"
+              name="booking_mode"
+              value="online"
+              defaultChecked={(tour?.booking_mode ?? 'online') !== 'request'}
+              className="mt-0.5 h-4 w-4 accent-cta"
+            />
+            <span className="font-sans text-[14px] text-body">
+              Online κράτηση με πληρωμή
+              <span className="block text-[12px] text-muted">Ο πελάτης διαλέγει ημερομηνία/άτομα και πληρώνει με κάρτα.</span>
+            </span>
+          </label>
+          <label className="mt-2 flex items-start gap-3">
+            <input
+              type="radio"
+              name="booking_mode"
+              value="request"
+              defaultChecked={tour?.booking_mode === 'request'}
+              className="mt-0.5 h-4 w-4 accent-cta"
+            />
+            <span className="font-sans text-[14px] text-body">
+              Μόνο αίτημα / προσφορά
+              <span className="block text-[12px] text-muted">
+                Η σελίδα δείχνει τιμές και πληροφορίες, αλλά ο πελάτης στέλνει αίτημα αντί να πληρώσει online.
+              </span>
+            </span>
+          </label>
+        </div>
       </div>
 
       <div className="rounded-lg border border-border bg-surface p-5">

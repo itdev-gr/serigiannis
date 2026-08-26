@@ -13,6 +13,8 @@ export type TourSetupItem = {
 export type TourSetupInput = {
   status: TourStatus;
   bookings_open: boolean;
+  /** 'request' = μόνο αίτημα/προσφορά — τιμές/ημερομηνίες δεν είναι ελλείψεις. */
+  booking_mode?: 'online' | 'request';
   summary: string | null;
   imageCount: number;
   tierCount: number;
@@ -25,8 +27,9 @@ export type TourSetupInput = {
 export function setupChecklist(input: TourSetupInput): TourSetupItem[] {
   const hasSummary = Boolean(input.summary && input.summary.trim().length > 0);
   const hasPhotos = input.imageCount >= 1;
-  const hasPricing = input.tierCount >= 1;
-  const hasDepartures = input.futureDepartureCount >= 1;
+  const requestOnly = input.booking_mode === 'request';
+  const hasPricing = input.tierCount >= 1 || requestOnly;
+  const hasDepartures = input.futureDepartureCount >= 1 || requestOnly;
   const isPublished = input.status === 'published';
 
   return [
@@ -46,13 +49,21 @@ export function setupChecklist(input: TourSetupInput): TourSetupItem[] {
       id: 'pricing',
       label: 'Κατηγορίες τιμών',
       done: hasPricing,
-      hint: hasPricing ? undefined : 'Χωρίς τιμές, η σελίδα δείχνει φόρμα αιτήματος αντί για κράτηση.',
+      hint: requestOnly
+        ? 'Λειτουργεί με αιτήματα — δεν χρειάζονται κατηγορίες τιμών.'
+        : hasPricing
+          ? undefined
+          : 'Χωρίς τιμές, η σελίδα δείχνει φόρμα αιτήματος αντί για κράτηση.',
     },
     {
       id: 'departures',
       label: 'Ημερομηνίες αναχώρησης',
       done: hasDepartures,
-      hint: hasDepartures ? undefined : 'Ο πελάτης θα κάνει κράτηση χωρίς να διαλέξει ημερομηνία.',
+      hint: requestOnly
+        ? 'Λειτουργεί με αιτήματα — δεν χρειάζονται ημερομηνίες.'
+        : hasDepartures
+          ? undefined
+          : 'Ο πελάτης θα κάνει κράτηση χωρίς να διαλέξει ημερομηνία.',
     },
     {
       id: 'meeting_points',
