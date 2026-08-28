@@ -2,7 +2,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { createServerClient } from '@/lib/supabase/server';
-import type { SettingsData } from '@/types/db';
+import type { HomeImages, SettingsData } from '@/types/db';
 import { resolvePublishedAt } from '@/lib/posts-publish';
 import { parseEuroToCents } from '@/lib/booking';
 import { parseBoardingPoints, slugifyWithFallback, slugNeedsCleanup } from '@/lib/excursions';
@@ -199,6 +199,13 @@ export async function saveSettings(formData: FormData) {
     };
   }
 
+  // Η φόρμα ξαναγράφει ολόκληρο το blob· οι εικόνες της αρχικής (homeImages)
+  // δεν είναι πεδία της, οπότε τις κρατάμε από την τρέχουσα γραμμή αλλιώς θα
+  // σβήνονταν σε κάθε «Αποθήκευση» κειμένων.
+  const { data: current } = await sb.from('settings').select('data').eq('id', 1).maybeSingle();
+  const currentImages = (current?.data as SettingsData | null)?.homeImages;
+  if (currentImages) data.homeImages = currentImages;
+
   const { error } = await sb.from('settings').upsert({ id: 1, data }, { onConflict: 'id' });
   if (error) {
     console.error('saveSettings:', error.message);
@@ -207,6 +214,150 @@ export async function saveSettings(formData: FormData) {
   // Refresh the footer (root layout) and home copy everywhere.
   revalidatePath('/', 'layout');
   redirect('/admin/settings?saved=1');
+}
+
+// ---------------------------------------------------------------------------
+// Εικόνες αρχικής (hero slideshow + κάρτες κατηγοριών) — Ρυθμίσεις › Εικόνες.
+// Αποθηκεύονται ως storage paths στο settings.data.homeImages· τα αρχεία στο
+// bucket tour-images κάτω από site/home/. Οι actions δεν κάνουν redirect: το
+// component δείχνει status inline και το revalidatePath ανανεώνει τη σελίδα.
+
+const HOME_IMAGES_PREFIX = 'site/home';
+
+function uploadExt(file: File): string {
+  const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+  return ext === 'jpeg' ? 'jpg' : ext;
+}
+
+/** Διαβάζει το settings blob, εφαρμόζει την αλλαγή στο homeImages και το
+ *  ξαναγράφει. Επιστρέφει false αν η DB απέρριψε την εγγραφή. */
+async function patchHomeImages(
+  sb: Awaited<ReturnType<typeof createServerClient>>,
+  fn: (cur: HomeImages) => HomeImages,
+): Promise<boolean> {
+  const { data: row, error: readError } = await sb.from('settings').select('data').eq('id', 1).maybeSingle();
+  if (readError) {
+    console.error('patchHomeImages read:', readError.message);
+    return false;
+  }
+  const data = { ...((row?.data as SettingsData | null) ?? {}) } as SettingsData;
+  data.homeImages = fn(data.homeImages ?? {});
+  const { error } = await sb.from('settings').upsert({ id: 1, data }, { onConflict: 'id' });
+  if (error) {
+    console.error('patchHomeImages write:', error.message);
+    return false;
+  }
+  revalidatePath('/');
+  revalidatePath('/admin/settings');
+  return true;
+}
+
+async function removeStorageFiles(sb: Awaited<ReturnType<typeof createServerClient>>, paths: string[]) {
+  if (paths.length === 0) return;
+  const { error } = await sb.storage.from('tour-images').remove(paths);
+  if (error) console.error('homeImages storage remove:', error.message);
+}
+
+/** Ανεβάζει εικόνες στο hero slideshow της αρχικής (προστίθενται στο τέλος). */
+export async function addHomeHeroImages(formData: FormData): Promise<UploadResult> {
+  const sb = await createServerClient();
+  const files = formData.getAll('files').filter((f): f is File => f instanceof File && f.size > 0);
+  const failed: { name: string; message: string }[] = [];
+  const uploadedPaths: string[] = [];
+
+  for (const [i, file] of files.entries()) {
+    const path = `${HOME_IMAGES_PREFIX}/hero-${Date.now()}-${i}.${uploadExt(file)}`;
+    const buf = Buffer.from(await file.arrayBuffer());
+    const { error } = await sb.storage.from('tour-images').upload(path, buf, { contentType: file.type || 'image/jpeg', upsert: true });
+    if (error) {
+      console.error('addHomeHeroImages upload:', error.message);
+      failed.push({ name: file.name, message: 'Η αποθήκευση απέτυχε. Δοκιμάστε ξανά.' });
+      continue;
+    }
+    uploadedPaths.push(path);
+  }
+
+  if (uploadedPaths.length > 0) {
+    const ok = await patchHomeImages(sb, (cur) => ({
+      ...cur,
+      hero: [...(cur.hero ?? []), ...uploadedPaths.map((path) => ({ path }))],
+    }));
+    if (!ok) {
+      // Η καταχώρηση απέτυχε — μην αφήσουμε ορφανά αρχεία στο storage.
+      await removeStorageFiles(sb, uploadedPaths);
+      return { uploaded: 0, failed: [...failed, ...uploadedPaths.map(() => ({ name: '—', message: 'Η καταχώρηση απέτυχε. Δοκιμάστε ξανά.' }))] };
+    }
+  }
+  return { uploaded: uploadedPaths.length, failed };
+}
+
+/** Αφαιρεί μια εικόνα από το hero slideshow (πρώτα από τις ρυθμίσεις, μετά το αρχείο). */
+export async function removeHomeHeroImage(path: string): Promise<{ ok: boolean }> {
+  const sb = await createServerClient();
+  const ok = await patchHomeImages(sb, (cur) => ({
+    ...cur,
+    hero: (cur.hero ?? []).filter((h) => h.path !== path),
+  }));
+  if (!ok) return { ok: false };
+  await removeStorageFiles(sb, [path]);
+  return { ok: true };
+}
+
+/** Μετακινεί μια εικόνα του hero μία θέση πάνω (-1) ή κάτω (+1). */
+export async function moveHomeHeroImage(path: string, dir: -1 | 1): Promise<{ ok: boolean }> {
+  const sb = await createServerClient();
+  const ok = await patchHomeImages(sb, (cur) => {
+    const hero = [...(cur.hero ?? [])];
+    const from = hero.findIndex((h) => h.path === path);
+    const to = from + dir;
+    if (from < 0 || to < 0 || to >= hero.length) return cur;
+    [hero[from], hero[to]] = [hero[to], hero[from]];
+    return { ...cur, hero };
+  });
+  return { ok };
+}
+
+/** Ορίζει/αντικαθιστά το εξώφυλλο μιας κάρτας κατηγορίας στην αρχική. */
+export async function setHomeCategoryImage(slug: string, formData: FormData): Promise<UploadResult> {
+  const sb = await createServerClient();
+  const file = formData.getAll('files').find((f): f is File => f instanceof File && f.size > 0);
+  if (!file) return { uploaded: 0, failed: [{ name: '—', message: 'Δεν επιλέχθηκε αρχείο.' }] };
+  if (!/^[a-z0-9-]+$/.test(slug)) return { uploaded: 0, failed: [{ name: file.name, message: 'Μη έγκυρη κατηγορία.' }] };
+
+  const path = `${HOME_IMAGES_PREFIX}/category-${slug}-${Date.now()}.${uploadExt(file)}`;
+  const buf = Buffer.from(await file.arrayBuffer());
+  const { error } = await sb.storage.from('tour-images').upload(path, buf, { contentType: file.type || 'image/jpeg', upsert: true });
+  if (error) {
+    console.error('setHomeCategoryImage upload:', error.message);
+    return { uploaded: 0, failed: [{ name: file.name, message: 'Η αποθήκευση απέτυχε. Δοκιμάστε ξανά.' }] };
+  }
+
+  let previous: string | undefined;
+  const ok = await patchHomeImages(sb, (cur) => {
+    previous = cur.categories?.[slug]?.path;
+    return { ...cur, categories: { ...(cur.categories ?? {}), [slug]: { path } } };
+  });
+  if (!ok) {
+    await removeStorageFiles(sb, [path]);
+    return { uploaded: 0, failed: [{ name: file.name, message: 'Η καταχώρηση απέτυχε. Δοκιμάστε ξανά.' }] };
+  }
+  if (previous && previous !== path) await removeStorageFiles(sb, [previous]);
+  return { uploaded: 1, failed: [] };
+}
+
+/** Επαναφέρει την κάρτα κατηγορίας στην προεπιλεγμένη εικόνα του site. */
+export async function resetHomeCategoryImage(slug: string): Promise<{ ok: boolean }> {
+  const sb = await createServerClient();
+  let previous: string | undefined;
+  const ok = await patchHomeImages(sb, (cur) => {
+    const categories = { ...(cur.categories ?? {}) };
+    previous = categories[slug]?.path;
+    delete categories[slug];
+    return { ...cur, categories };
+  });
+  if (!ok) return { ok: false };
+  if (previous) await removeStorageFiles(sb, [previous]);
+  return { ok: true };
 }
 
 export async function signOut() {

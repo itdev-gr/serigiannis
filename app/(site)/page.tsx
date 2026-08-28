@@ -4,6 +4,7 @@ import { getCategories } from '@/lib/queries/categories';
 import { getSettings } from '@/lib/queries/settings';
 import { pickNewsTours } from '@/components/home/home-tours';
 import { resolveHomeContent, resolveStats, resolveTestimonials } from '@/components/home/resolve-content';
+import { resolveCategoryCovers, resolveHeroImages } from '@/components/home/resolve-images';
 import { websiteJsonLd, tourItemListJsonLd, jsonLdHtml } from '@/lib/seo';
 import { Home1Hero } from '@/components/home/Home1Hero';
 import { Home1Destinations } from '@/components/home/Home1Destinations';
@@ -39,13 +40,15 @@ export default async function HomePage() {
   const copy = resolveHomeContent(settings);
   const homeStats = resolveStats(settings);
   const homeTestimonials = resolveTestimonials(settings);
+  const heroImages = resolveHeroImages(settings);
+  const categoryCovers = resolveCategoryCovers(categories, settings);
 
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdHtml(websiteJsonLd()) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdHtml(tourItemListJsonLd(featured)) }} />
-      <Home1Hero categories={categories} content={copy.hero} />
-      <Home1Destinations categories={categories} tours={allTours} content={copy.destinations} />
+      <Home1Hero categories={categories} content={copy.hero} images={heroImages} />
+      <Home1Destinations categories={categories} tours={allTours} content={copy.destinations} categoryCovers={categoryCovers} />
       <Home1About content={copy.about} stats={homeStats} />
       <Home1Listing tours={featured} content={copy.listing} />
       <Home1Promo content={copy.promo} />

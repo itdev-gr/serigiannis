@@ -7,6 +7,7 @@ import { SectionHeading } from '@/components/shared/SectionHeading';
 import { homeContent } from './content';
 import { HOME_SECTION_TITLE } from './home-section-title';
 import type { DestinationsCopy } from './resolve-content';
+import type { HomeImage } from './resolve-images';
 
 function tourCategoryImage(slug: string, tours: Tour[]): string | null {
   const match = tours.find((t) => t.categories?.some((c) => c.slug === slug));
@@ -17,10 +18,13 @@ export function Home1Destinations({
   categories,
   tours,
   content = homeContent.destinations,
+  // Εξώφυλλα κατηγοριών όπως τα έλυσε η σελίδα (admin → στατικά), keyed by slug.
+  categoryCovers = {},
 }: {
   categories: Category[];
   tours: Tour[];
   content?: DestinationsCopy;
+  categoryCovers?: Record<string, HomeImage>;
 }) {
   const c = content;
   return (
@@ -34,7 +38,7 @@ export function Home1Destinations({
         />
         <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {categories.map((cat) => {
-            const cover = categoryCoverImage(cat.slug);
+            const cover = categoryCovers[cat.slug] ?? categoryCoverImage(cat.slug);
             const imgSrc = cover?.src ?? tourCategoryImage(cat.slug, tours);
             const imgAlt = cover?.alt ?? cat.name_el;
             return (

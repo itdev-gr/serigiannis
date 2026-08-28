@@ -10,36 +10,36 @@ import { SelectMenu } from '@/components/ui/SelectMenu';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { homeContent } from './content';
 import type { HeroCopy } from './resolve-content';
+import type { HomeImage } from './resolve-images';
+import { DEFAULT_HERO_IMAGES } from '@/data/hero-images';
 import { buildSearchHref } from './home-search';
 import { cn } from '@/lib/utils';
-
-// Real hero images from sergianitravel.gr (self-hosted in /public/hero).
-const HERO_IMAGES = [
-  { src: '/hero/hero-1.jpg', alt: 'Χαλκίδα, ηλιοβασίλεμα' },
-  { src: '/hero/hero-2.jpg', alt: 'Γέφυρα και φυσικό τοπίο' },
-  { src: '/hero/hero-3.jpg', alt: 'Παραλία και θάλασσα' },
-];
 
 const ROTATE_MS = 5000;
 
 export function Home1Hero({
   categories,
   content = homeContent.hero,
+  // Οι εικόνες του slideshow: από τις Ρυθμίσεις (admin) ή οι προεπιλεγμένες
+  // του repo — η σελίδα τις λύνει με resolveHeroImages().
+  images = DEFAULT_HERO_IMAGES,
 }: {
   categories: Category[];
   content?: HeroCopy;
+  images?: readonly HomeImage[];
 }) {
   const c = content;
   const router = useRouter();
   const reduced = useReducedMotion();
   const [category, setCategory] = useState('all');
   const [active, setActive] = useState(0);
+  const count = images.length;
 
   useEffect(() => {
-    if (reduced) return;
-    const id = setInterval(() => setActive((i) => (i + 1) % HERO_IMAGES.length), ROTATE_MS);
+    if (reduced || count < 2) return;
+    const id = setInterval(() => setActive((i) => (i + 1) % count), ROTATE_MS);
     return () => clearInterval(id);
-  }, [reduced]);
+  }, [reduced, count]);
 
   return (
     // Στο κινητό το ύψος είναι ελεύθερο (min-h) με pt που καθαρίζει το fixed
@@ -47,7 +47,7 @@ export function Home1Hero({
     // χανόταν πίσω από το λευκό μενού.
     <section className="relative flex min-h-[72svh] w-full items-center justify-center overflow-hidden bg-deep-ink md:h-[100svh] md:max-h-none md:min-h-[100svh]">
       {/* Rotating background slideshow */}
-      {HERO_IMAGES.map((img, i) => (
+      {images.map((img, i) => (
         <div
           key={img.src}
           className={`absolute inset-0 transition-opacity duration-1000 ease-editorial ${i === active ? 'opacity-100' : 'opacity-0'}`}
@@ -126,7 +126,7 @@ export function Home1Hero({
 
         {/* Slide indicators */}
         <div className="mt-9 flex justify-center gap-2" role="tablist" aria-label="Εικόνες προορισμών">
-          {HERO_IMAGES.map((img, i) => (
+          {images.map((img, i) => (
             <button
               key={img.src}
               type="button"

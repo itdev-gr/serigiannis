@@ -1,7 +1,7 @@
 'use client';
 import { useRef, useState, useTransition } from 'react';
 import { ImageUp, TriangleAlert } from 'lucide-react';
-import { addTourImages } from '@/app/admin/(dashboard)/actions';
+import type { UploadResult } from '@/app/admin/(dashboard)/actions';
 import { UPLOAD_RULES, batchBySize, scaledDimensions, uploadRulesText, validateUploadFile } from '@/lib/upload';
 
 /** Συρρικνώνει την εικόνα στον browser. Επιστρέφει το αρχικό αρχείο αν
@@ -35,7 +35,20 @@ async function shrink(file: File): Promise<File> {
   }
 }
 
-export function ImageUploader({ tourId }: { tourId: string }) {
+/** Γενικός uploader εικόνων του admin: συρρικνώνει στον browser, χωρίζει σε
+ *  παρτίδες και στέλνει κάθε παρτίδα στο `upload` (server action). Ο γονιός
+ *  ανανεώνεται μόνος του μέσω revalidatePath μέσα στην action. */
+export function ImageUploader({
+  upload,
+  multiple = true,
+  idleLabel = 'Διαλέξτε φωτογραφίες',
+  rulesText = uploadRulesText(),
+}: {
+  upload: (formData: FormData) => Promise<UploadResult>;
+  multiple?: boolean;
+  idleLabel?: string;
+  rulesText?: string | null;
+}) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [status, setStatus] = useState<string | null>(null);
   const [errors, setErrors] = useState<{ name: string; message: string }[]>([]);
@@ -43,7 +56,7 @@ export function ImageUploader({ tourId }: { tourId: string }) {
 
   function onFiles(fileList: FileList | null) {
     if (!fileList || fileList.length === 0) return;
-    const chosen = Array.from(fileList);
+    const chosen = multiple ? Array.from(fileList) : Array.from(fileList).slice(0, 1);
     const rejected: { name: string; message: string }[] = [];
     const accepted: File[] = [];
     for (const file of chosen) {
@@ -72,7 +85,7 @@ export function ImageUploader({ tourId }: { tourId: string }) {
           );
           const fd = new FormData();
           for (const file of batches[i]) fd.append('files', file);
-          const res = await addTourImages(tourId, fd);
+          const res = await upload(fd);
           uploaded += res.uploaded;
           failed.push(...res.failed);
         }
@@ -104,12 +117,12 @@ export function ImageUploader({ tourId }: { tourId: string }) {
 
   return (
     <div className="grid gap-3">
-      <p className="text-[13px] text-muted">{uploadRulesText()}</p>
+      {rulesText && <p className="text-[13px] text-muted">{rulesText}</p>}
       <div className="flex flex-wrap items-center gap-4">
         <input
           ref={inputRef}
           type="file"
-          multiple
+          multiple={multiple}
           accept="image/jpeg,image/png,image/webp"
           disabled={pending}
           onChange={(e) => onFiles(e.target.files)}
@@ -117,7 +130,7 @@ export function ImageUploader({ tourId }: { tourId: string }) {
         />
         <span className="inline-flex items-center gap-2 text-[14px] text-muted">
           <ImageUp className="h-4 w-4" strokeWidth={1.75} />
-          {pending ? status : status ?? 'Διαλέξτε φωτογραφίες'}
+          {pending ? status : status ?? idleLabel}
         </span>
       </div>
       {errors.length > 0 && (

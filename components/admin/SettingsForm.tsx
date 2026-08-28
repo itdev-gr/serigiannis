@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import type { SettingsData } from '@/types/db';
 import { homeContent } from '@/components/home/content';
 import { stats as defaultStats, testimonials as defaultTestimonials } from '@/data/site';
@@ -8,7 +8,10 @@ import { resolvePoylman } from '@/components/home/resolve-content';
 import { Button } from '@/components/ui/Button';
 import { adminInput, adminLabel } from '@/components/admin/ui';
 
-const tabs = ['Επικοινωνία', 'Αρχική', 'Σελίδες', 'Νομικά'] as const;
+const tabs = ['Επικοινωνία', 'Αρχική', 'Σελίδες', 'Νομικά', 'Εικόνες'] as const;
+/** Η καρτέλα «Εικόνες» ζει ΕΚΤΟΣ της φόρμας: οι εικόνες αποθηκεύονται αμέσως
+ *  με δικές τους actions, όχι με το κουμπί «Αποθήκευση». */
+const IMAGES_TAB = 4;
 
 function Field({ label, name, defaultValue, placeholder, textarea }: {
   label: string; name: string; defaultValue?: string; placeholder?: string; textarea?: boolean;
@@ -28,9 +31,12 @@ function Field({ label, name, defaultValue, placeholder, textarea }: {
 export function SettingsForm({
   settings,
   action,
+  imagesSlot,
 }: {
   settings: SettingsData;
   action: (formData: FormData) => void | Promise<void>;
+  /** Περιεχόμενο της καρτέλας «Εικόνες» (HomeImagesManager), rendered εκτός φόρμας. */
+  imagesSlot?: ReactNode;
 }) {
   const [tab, setTab] = useState(0);
   const h = homeContent.hero;
@@ -82,7 +88,7 @@ export function SettingsForm({
     },
   };
   return (
-    <form action={action} className="grid max-w-2xl gap-8">
+    <div className="grid max-w-2xl gap-8">
       <div className="flex flex-wrap gap-2" role="tablist" aria-label="Ενότητες ρυθμίσεων">
         {tabs.map((label, i) => (
           <button
@@ -102,6 +108,7 @@ export function SettingsForm({
         ))}
       </div>
 
+      <form action={action} className={tab === IMAGES_TAB ? 'hidden' : 'grid gap-8'}>
       <div className={tab === 0 ? 'grid gap-8' : 'hidden'}>
         <fieldset className="grid gap-5">
           <legend className="mb-2 font-display text-2xl font-semibold text-primary">Επικοινωνία</legend>
@@ -319,6 +326,9 @@ export function SettingsForm({
       <div className="flex items-center gap-4">
         <Button type="submit">Αποθήκευση</Button>
       </div>
-    </form>
+      </form>
+
+      <div className={tab === IMAGES_TAB ? '' : 'hidden'}>{imagesSlot}</div>
+    </div>
   );
 }

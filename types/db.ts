@@ -209,6 +209,16 @@ export type SettingsData = {
   // Editable legal page bodies (plain text, paragraphs separated by a blank line).
   // If unset/empty, the hardcoded default sections render unchanged.
   legal?: { terms?: string; privacy?: string };
+  // Εικόνες αρχικής που ανέβασε ο admin (storage paths στο bucket tour-images,
+  // prefix site/home/). Κενό/απόν → οι προεπιλεγμένες εικόνες του repo.
+  homeImages?: HomeImages;
+};
+
+export type HomeImages = {
+  /** Slideshow του hero — η σειρά του πίνακα είναι η σειρά προβολής. */
+  hero?: { path: string }[];
+  /** Εξώφυλλο κάρτας ανά slug κατηγορίας στην ενότητα «Προορισμοί». */
+  categories?: Record<string, { path: string }>;
 };
 
 export type LeadType = 'contact' | 'quote' | 'booking';

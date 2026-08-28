@@ -1,7 +1,7 @@
 import type { TourImage } from '@/types/db';
 import { imageUrl } from '@/lib/images';
 import { ConfirmForm } from '@/components/admin/ConfirmForm';
-import { deleteTourImage, setCoverImage } from '@/app/admin/(dashboard)/actions';
+import { addTourImages, deleteTourImage, setCoverImage } from '@/app/admin/(dashboard)/actions';
 import { ImageUploader } from '@/components/admin/ImageUploader';
 
 export function GalleryManager({
@@ -54,7 +54,7 @@ export function GalleryManager({
         </div>
       )}
 
-      <ImageUploader tourId={tourId} />
+      <ImageUploader upload={addTourImages.bind(null, tourId)} />
     </div>
   );
 }
