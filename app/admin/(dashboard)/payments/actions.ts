@@ -28,6 +28,24 @@ export async function saveVivaTransactionContact(transactionId: string, formData
   redirect(back.startsWith('/admin/payments') ? back : '/admin/payments');
 }
 
+/** Σήμανση «Το είδα» σε συναλλαγή: ο admin τσεκάρει ό,τι έχει ελέγξει για να
+ *  μην το ξαναψάχνει. Γράφει μόνο το reviewed_at (RLS is_admin)· ο αυτόματος
+ *  συγχρονισμός δεν το αγγίζει. Χωρίς redirect — η σελίδα ανανεώνεται. */
+export async function setVivaTransactionReviewed(transactionId: string, reviewed: boolean): Promise<{ ok: boolean }> {
+  const sb = await createServerClient();
+  const { data, error } = await sb
+    .from('viva_transactions')
+    .update({ reviewed_at: reviewed ? new Date().toISOString() : null })
+    .eq('transaction_id', transactionId)
+    .select('transaction_id');
+  if (error || !data || data.length === 0) {
+    console.error('setVivaTransactionReviewed:', error?.message ?? 'update returned no rows (RLS denied?)');
+    return { ok: false };
+  }
+  revalidatePath('/admin/payments');
+  return { ok: true };
+}
+
 /** Χειροκίνητος συγχρονισμός των τελευταίων 7 ημερών από το κουμπί της
  *  σελίδας «Πληρωμές». Ο συγχρονισμός γράφει με service ρόλο, οπότε πρώτα
  *  ρητός έλεγχος ότι ο συνδεδεμένος χρήστης είναι admin — δεν αρκεί το RLS. */

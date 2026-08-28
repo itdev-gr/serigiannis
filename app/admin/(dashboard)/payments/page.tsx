@@ -2,11 +2,12 @@ import Link from 'next/link';
 import { Pencil, RefreshCw } from 'lucide-react';
 import { athensDateTimeLabel } from '@/lib/athens-time';
 import { getAdminVivaTransactions, type AdminVivaTransaction } from '@/lib/queries/viva-transactions';
-import { methodLabel, sourceLabel } from '@/lib/payments/viva-report';
+import { isRefund, methodLabel, sourceLabel } from '@/lib/payments/viva-report';
 import { formatCents } from '@/lib/booking';
 import { searchNormalize } from '@/lib/filters';
 import { AdminPageHeader, Pill, type PillTone } from '@/components/admin/ui';
 import { AdminSearch } from '@/components/admin/AdminSearch';
+import { ReviewedCheckbox } from '@/components/admin/ReviewedCheckbox';
 import { saveVivaTransactionContact, syncRecentVivaTransactions } from './actions';
 
 const CHANNEL_FILTERS: { key: string; label: string }[] = [
@@ -17,6 +18,30 @@ const CHANNEL_FILTERS: { key: string; label: string }[] = [
   { key: 'iris', label: 'IRIS' },
   { key: 'failed', label: 'Αποτυχημένες' },
 ];
+
+/** Φίλτρο «Το είδα»: όλες / μόνο ελεγμένες / μόνο μη ελεγμένες. */
+const REVIEW_FILTERS: { key: string; label: string }[] = [
+  { key: '', label: 'Όλες' },
+  { key: 'unchecked', label: 'Μη ελεγμένες' },
+  { key: 'checked', label: 'Ελεγμένες' },
+];
+
+function matchesReview(t: AdminVivaTransaction, r: string): boolean {
+  if (r === 'checked') return t.reviewed_at != null;
+  if (r === 'unchecked') return t.reviewed_at == null;
+  return true;
+}
+
+/** Χτίζει το URL της σελίδας με τα ενεργά φίλτρα/αναζήτηση (για links και
+ *  επιστροφή μετά από αποθήκευση), παραλείποντας τις κενές παραμέτρους. */
+function paymentsHref(params: { f?: string; r?: string; q?: string }): string {
+  const qs = new URLSearchParams();
+  if (params.f) qs.set('f', params.f);
+  if (params.r) qs.set('r', params.r);
+  if (params.q) qs.set('q', params.q);
+  const str = qs.toString();
+  return `/admin/payments${str ? `?${str}` : ''}`;
+}
 
 function channelOf(t: AdminVivaTransaction): string {
   const label = sourceLabel(t.source_code, t.terminal_id);
@@ -47,22 +72,24 @@ function cardIdentity(t: AdminVivaTransaction): string | null {
   return parts.join(' — ');
 }
 
-function statusPill(status: string) {
-  if (status === 'F') return <Pill tone="ok">Επιτυχής</Pill>;
-  if (status === 'E') return <Pill tone="danger">Αποτυχία</Pill>;
-  if (status === 'R') return <Pill tone="warn">Επιστροφή</Pill>;
-  if (status === 'A') return <Pill tone="info">Δέσμευση</Pill>;
-  return <Pill tone="muted">{status}</Pill>;
+function statusPill(t: AdminVivaTransaction) {
+  // Οι επιστροφές πρώτες: η Viva τις γράφει συχνά ως «F» με αρνητικό ποσό,
+  // οπότε χωρίς αυτό φαίνονταν «Επιτυχής» και μπερδεύονταν με εισπράξεις.
+  if (isRefund(t)) return <Pill tone="danger">Επιστροφή</Pill>;
+  if (t.status === 'F') return <Pill tone="ok">Επιτυχής</Pill>;
+  if (t.status === 'E') return <Pill tone="danger">Αποτυχία</Pill>;
+  if (t.status === 'A') return <Pill tone="info">Δέσμευση</Pill>;
+  return <Pill tone="muted">{t.status}</Pill>;
 }
 
 
 export default async function AdminPaymentsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ f?: string; q?: string }>;
+  searchParams: Promise<{ f?: string; r?: string; q?: string }>;
 }) {
-  const { f = '', q } = await searchParams;
-  let rows = (await getAdminVivaTransactions()).filter((t) => matchesFilter(t, f));
+  const { f = '', r = '', q } = await searchParams;
+  let rows = (await getAdminVivaTransactions()).filter((t) => matchesFilter(t, f) && matchesReview(t, r));
   if (q) {
     const needle = searchNormalize(q);
     rows = rows.filter((t) =>
@@ -72,7 +99,7 @@ export default async function AdminPaymentsPage({
     );
   }
 
-  const backHref = `/admin/payments${f ? `?f=${f}` : ''}${q ? `${f ? '&' : '?'}q=${encodeURIComponent(q)}` : ''}`;
+  const backHref = paymentsHref({ f, r, q });
 
   return (
     <div className="max-w-6xl">
@@ -85,7 +112,7 @@ export default async function AdminPaymentsPage({
         {CHANNEL_FILTERS.map((c) => (
           <Link
             key={c.key}
-            href={c.key ? `/admin/payments?f=${c.key}` : '/admin/payments'}
+            href={paymentsHref({ f: c.key, r })}
             className={`rounded-md border px-3 py-1.5 text-[13px] font-medium ${
               f === c.key ? 'border-primary bg-primary text-surface' : 'border-border bg-surface text-muted hover:text-primary'
             }`}
@@ -93,7 +120,19 @@ export default async function AdminPaymentsPage({
             {c.label}
           </Link>
         ))}
-        <AdminSearch action="/admin/payments" placeholder="Αναζήτηση ονόματος / email / ποσού…" defaultValue={q} hidden={{ f }} />
+        <span className="mx-1 hidden h-5 w-px bg-border sm:block" aria-hidden="true" />
+        {REVIEW_FILTERS.map((c) => (
+          <Link
+            key={`r-${c.key}`}
+            href={paymentsHref({ f, r: c.key })}
+            className={`rounded-md border px-3 py-1.5 text-[13px] font-medium ${
+              r === c.key ? 'border-olive bg-olive text-surface' : 'border-border bg-surface text-muted hover:text-primary'
+            }`}
+          >
+            {c.label}
+          </Link>
+        ))}
+        <AdminSearch action="/admin/payments" placeholder="Αναζήτηση ονόματος / email / ποσού…" defaultValue={q} hidden={{ f, r }} />
         <form action={syncRecentVivaTransactions}>
           <button
             type="submit"
@@ -112,8 +151,8 @@ export default async function AdminPaymentsPage({
       )}
 
       <div className="overflow-x-auto">
-        <div className="min-w-[860px] overflow-hidden rounded-lg border border-border bg-surface">
-          <div className="grid grid-cols-[7.5rem_5.5rem_7rem_7.5rem_1fr_7rem_6rem] items-center gap-3 border-b border-border bg-background/50 px-4 py-3 font-sans text-[12px] uppercase tracking-[0.1em] text-muted">
+        <div className="min-w-[960px] overflow-hidden rounded-lg border border-border bg-surface">
+          <div className="grid grid-cols-[7.5rem_5.5rem_7rem_7.5rem_1fr_7rem_6rem_6rem] items-center gap-3 border-b border-border bg-background/50 px-4 py-3 font-sans text-[12px] uppercase tracking-[0.1em] text-muted">
             <div>Ημ/νία</div>
             <div>Ποσό</div>
             <div>Μέθοδος</div>
@@ -121,12 +160,18 @@ export default async function AdminPaymentsPage({
             <div>Πελάτης / Περιγραφή</div>
             <div>Κατάσταση</div>
             <div className="text-right">Κράτηση</div>
+            <div className="text-right">Έλεγχος</div>
           </div>
-          {rows.map((t) => (
-            <div key={t.transaction_id} className="border-b border-border/60 last:border-0">
-              <div className="grid grid-cols-[7.5rem_5.5rem_7rem_7.5rem_1fr_7rem_6rem] items-center gap-3 px-4 pt-3">
+          {rows.map((t) => {
+            const refund = isRefund(t);
+            return (
+            <div
+              key={t.transaction_id}
+              className={`border-b border-border/60 last:border-0 ${refund ? 'border-l-4 border-l-cta bg-cta/5' : ''}`}
+            >
+              <div className="grid grid-cols-[7.5rem_5.5rem_7rem_7.5rem_1fr_7rem_6rem_6rem] items-center gap-3 px-4 pt-3">
                 <span className="font-mono text-[13px] text-body">{athensDateTimeLabel(t.occurred_at)}</span>
-                <span className="text-[14px] font-semibold text-body">{formatCents(t.amount_cents)}</span>
+                <span className={`text-[14px] font-semibold ${refund ? 'text-cta' : 'text-body'}`}>{formatCents(t.amount_cents)}</span>
                 <span className="flex flex-col gap-0.5">
                   <Pill tone={METHOD_TONE[t.payment_method] ?? 'muted'}>{methodLabel(t.payment_method)}</Pill>
                   {t.card_number && <span className="pl-1 font-mono text-[11px] text-muted">•{t.card_number.slice(-4)}</span>}
@@ -146,7 +191,7 @@ export default async function AdminPaymentsPage({
                     <span className="block truncate text-[12px] text-muted">Απόδειξη #{t.receipt_ref}</span>
                   )}
                 </span>
-                {statusPill(t.status)}
+                {statusPill(t)}
                 <span className="text-right">
                   {t.order_id ? (
                     <Link
@@ -158,6 +203,9 @@ export default async function AdminPaymentsPage({
                   ) : (
                     <span className="text-[13px] text-muted">—</span>
                   )}
+                </span>
+                <span className="flex justify-end">
+                  <ReviewedCheckbox transactionId={t.transaction_id} reviewed={t.reviewed_at != null} />
                 </span>
               </div>
               {/* Χειροκίνητα στοιχεία γραφείου — κυρίως για POS, όπου η Viva
@@ -200,10 +248,15 @@ export default async function AdminPaymentsPage({
                 </form>
               </details>
             </div>
-          ))}
+            );
+          })}
           {rows.length === 0 && (
             <p className="px-4 py-8 text-center text-[14px] text-muted">
-              Καμία συναλλαγή. Πατήστε «Συγχρονισμός» για ανανέωση από τη Viva.
+              {r === 'unchecked'
+                ? 'Όλες οι συναλλαγές έχουν ελεγχθεί.'
+                : r === 'checked'
+                  ? 'Δεν έχετε σημειώσει ακόμη καμία συναλλαγή ως ελεγμένη.'
+                  : 'Καμία συναλλαγή. Πατήστε «Συγχρονισμός» για ανανέωση από τη Viva.'}
             </p>
           )}
         </div>

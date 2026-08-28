@@ -22,6 +22,8 @@ export type AdminVivaTransaction = {
   office_name: string | null;
   office_email: string | null;
   office_phone: string | null;
+  /** «Το είδα» από τον admin (0039) — null = δεν έχει ελεγχθεί ακόμη. */
+  reviewed_at: string | null;
   occurred_at: string;
   order_family: 'tour' | 'ticket' | null;
   order_id: string | null;
@@ -34,7 +36,7 @@ export async function getAdminVivaTransactions(): Promise<AdminVivaTransaction[]
   const { data, error } = await sb
     .from('viva_transactions')
     .select(
-      'transaction_id, order_code, amount_cents, status, source_code, terminal_id, bank_id, card_number, card_type, issuing_bank, receipt_ref, payment_method, customer_trns, merchant_trns, full_name, email, office_name, office_email, office_phone, occurred_at, order_family, order_id'
+      'transaction_id, order_code, amount_cents, status, source_code, terminal_id, bank_id, card_number, card_type, issuing_bank, receipt_ref, payment_method, customer_trns, merchant_trns, full_name, email, office_name, office_email, office_phone, reviewed_at, occurred_at, order_family, order_id'
     )
     .order('occurred_at', { ascending: false })
     .limit(500);

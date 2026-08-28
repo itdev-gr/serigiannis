@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { derivePaymentMethod, methodLabel, normalizeVivaTransaction, sourceLabel } from '@/lib/payments/viva-report';
+import { derivePaymentMethod, isRefund, methodLabel, normalizeVivaTransaction, sourceLabel } from '@/lib/payments/viva-report';
 import { recentAthensDates } from '@/lib/viva-sync';
 
 describe('derivePaymentMethod', () => {
@@ -145,5 +145,18 @@ describe('recentAthensDates', () => {
   it('σέβεται την αλλαγή ημέρας στην Αθήνα (23:30 UTC = επόμενη μέρα ώρα Ελλάδας)', () => {
     const dates = recentAthensDates(2, new Date('2026-08-20T22:30:00Z'));
     expect(dates).toEqual(['2026-08-21', '2026-08-20']);
+  });
+});
+
+describe('isRefund', () => {
+  it('αρνητικό ποσό ή status R = επιστροφή', () => {
+    expect(isRefund({ amount_cents: -2000, status: 'F' })).toBe(true);
+    expect(isRefund({ amount_cents: 2000, status: 'R' })).toBe(true);
+  });
+
+  it('θετική επιτυχής/αποτυχημένη χρέωση δεν είναι επιστροφή', () => {
+    expect(isRefund({ amount_cents: 2000, status: 'F' })).toBe(false);
+    expect(isRefund({ amount_cents: 2000, status: 'E' })).toBe(false);
+    expect(isRefund({ amount_cents: 0, status: 'F' })).toBe(false);
   });
 });

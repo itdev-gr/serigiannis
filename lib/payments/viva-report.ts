@@ -77,6 +77,13 @@ export function methodLabel(method: string): string {
   return METHOD_LABEL[method] ?? method;
 }
 
+/** Επιστροφή χρημάτων: η Viva τη γράφει είτε ως ξεχωριστή συναλλαγή με
+ *  αρνητικό ποσό (StatusId F) είτε με status R. Στο admin χρωματίζεται
+ *  κόκκινη για να ξεχωρίζει από τις εισπράξεις. */
+export function isRefund(t: { amount_cents: number; status: string }): boolean {
+  return t.amount_cents < 0 || t.status === 'R';
+}
+
 /** Τελευταία 4 ψηφία κάρτας, από όποιο σχήμα υπάρχει («401779XXXXXX3357»). */
 function cardNumberOf(raw: Record<string, unknown>): string | null {
   const v2 = pick<string>(raw, 'cardNumber');
