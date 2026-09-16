@@ -15,6 +15,7 @@ export const revalidate = 300;
 export const metadata: Metadata = {
   title: 'Κρουαζιέρες από τον Πειραιά',
   description: 'Οργανωμένες κρουαζιέρες στον Σαρωνικό και τις Σποράδες, μια μέρα, πολλά νησιά, με γεύμα εν πλω.',
+  alternates: { canonical: '/kroyazieres' },
 };
 
 export default async function KroyazieresPage() {

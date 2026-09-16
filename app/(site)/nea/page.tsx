@@ -7,6 +7,7 @@ import { sortPostsForListing } from '@/lib/posts-sort';
 export const metadata: Metadata = {
   title: 'Νέα & Άρθρα',
   description: 'Ταξιδιωτικοί οδηγοί, νέα και προτάσεις από τη Sergiani Travel.',
+  alternates: { canonical: '/nea' },
 };
 
 export default async function NeaPage() {

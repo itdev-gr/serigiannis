@@ -11,8 +11,10 @@ import { resolvePageHero } from '@/components/home/resolve-content';
 export const revalidate = 300;
 
 export const metadata: Metadata = {
-  title: 'Εκδρομές από την Αθήνα',
-  description: 'Όλες οι οργανωμένες εκδρομές της Sergiani Travel, μονοήμερες, πολυήμερες, κρουαζιέρες, θαλάσσια μπάνια και πεζοπορίες από την Αθήνα.',
+  title: { absolute: 'Εκδρομές από Αθήνα με Πούλμαν, Μονοήμερες & Πολυήμερες | Sergiani Travel' },
+  description:
+    'Όλες οι οργανωμένες εκδρομές της Sergiani Travel από Αθήνα: μονοήμερες, πολυήμερες, κρουαζιέρες, θαλάσσια μπάνια, πεζοπορίες και ταξίδια εξωτερικού με πούλμαν.',
+  alternates: { canonical: '/ekdromes' },
 };
 
 export default async function EkdromesPage() {

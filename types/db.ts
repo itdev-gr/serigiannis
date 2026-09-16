@@ -103,6 +103,8 @@ export type Tour = {
   source_url: string | null;
   sort_order: number;
   published_at: string | null;
+  /** Προαιρετικό μόνο για τα seed δεδομένα· η βάση το δίνει πάντα. */
+  updated_at?: string | null;
   // Joined/derived (populated by the data layer):
   categories?: Category[];
   images?: TourImage[];

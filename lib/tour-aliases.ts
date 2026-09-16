@@ -1,3 +1,5 @@
+import { LEGACY_TOUR_ALIASES } from '@/lib/legacy-tour-aliases';
+
 /** Παλιές διευθύνσεις εκδρομών που άλλαξαν, ώστε οι ήδη μοιρασμένοι σύνδεσμοι
  *  να μη γίνουν 404.
  *
@@ -9,6 +11,10 @@
  *  Όταν αλλάζει ξανά slug δημοσιευμένης εκδρομής, πρόσθεσε γραμμή εδώ. Τα
  *  κλειδιά γράφονται ΑΠΟΚΩΔΙΚΟΠΟΙΗΜΕΝΑ (με πραγματικά κενά): το Next δίνει το
  *  `params.slug` ήδη αποκωδικοποιημένο.
+ *
+ *  Οι διευθύνσεις του παλιού WordPress site (εκατοντάδες, από το Search Console)
+ *  ζουν χωριστά στο legacy-tour-aliases.ts· εδώ μένουν μόνο όσες προέκυψαν από
+ *  δικές μας μετονομασίες. Σε σύγκρουση νικά η γραμμή αυτού του αρχείου.
  */
 const TOUR_ALIASES: Record<string, string> = {
   // Slug με κενά/κεφαλαία που καθαρίστηκαν (2026-08-06).
@@ -22,15 +28,36 @@ const TOUR_ALIASES: Record<string, string> = {
   'lixadonisia-kavos-sergiani-travel': 'ekdromi-sta-lixadonisia',
 };
 
-/** Το νέο slug για μια παλιά διεύθυνση, ή null όταν δεν είναι γνωστή παλιά μορφή.
- *  Η αναζήτηση αγνοεί πεζά/κεφαλαία και το «+» που βάζουν κάποιοι clients στη
- *  θέση του κενού, ώστε να πιάνονται όλες οι μορφές που κυκλοφορούν. */
+/** Όλοι οι γνωστοί παλιοί slug, με κλειδί σε πεζά ώστε η αναζήτηση να είναι
+ *  O(1) — ο πίνακας έχει πάνω από 200 γραμμές και τρέχει σε κάθε άγνωστο
+ *  /tour/<slug>. Οι δικές μας μετονομασίες γράφονται τελευταίες, οπότε
+ *  υπερισχύουν σε τυχόν διπλό κλειδί. */
+const ALL_ALIASES: ReadonlyMap<string, string> = new Map(
+  [...Object.entries(LEGACY_TOUR_ALIASES), ...Object.entries(TOUR_ALIASES)].map(([oldSlug, target]) => [
+    oldSlug.toLowerCase(),
+    target,
+  ])
+);
+
+/** Ο προορισμός για μια παλιά διεύθυνση εκδρομής, ή null όταν δεν είναι γνωστή
+ *  παλιά μορφή. Επιστρέφει είτε νέο slug εκδρομής είτε πλήρες path (ξεκινά με
+ *  «/») όταν η παλιά σελίδα αντιστοιχεί σε κατηγορία ή άρθρο· δες
+ *  `tourAliasHref` για τη μετατροπή σε διεύθυνση.
+ *
+ *  Η αναζήτηση αγνοεί πεζά/κεφαλαία, το «+» που βάζουν κάποιοι clients στη θέση
+ *  του κενού, και το τελικό «/» που είχαν όλες οι διευθύνσεις του παλιού site. */
 export function resolveTourAlias(slug: string): string | null {
-  const raw = String(slug ?? '');
+  const raw = String(slug ?? '').replace(/\/+$/, '');
   if (!raw) return null;
   const candidates = [raw, raw.replace(/\+/g, ' ')];
-  for (const [oldSlug, newSlug] of Object.entries(TOUR_ALIASES)) {
-    if (candidates.some((c) => c.toLowerCase() === oldSlug.toLowerCase())) return newSlug;
+  for (const c of candidates) {
+    const hit = ALL_ALIASES.get(c.toLowerCase());
+    if (hit) return hit;
   }
   return null;
+}
+
+/** Η διεύθυνση στην οποία ανακατευθύνει ένα αποτέλεσμα του `resolveTourAlias`. */
+export function tourAliasHref(target: string): string {
+  return target.startsWith('/') ? target : `/tour/${target}`;
 }

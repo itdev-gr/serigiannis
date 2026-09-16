@@ -40,6 +40,47 @@ export function tourItemListJsonLd(tours: { slug: string; title: string }[]) {
   };
 }
 
+/** Product structured data for a tour page.
+ *
+ *  Η Google δίνει «Product snippets» (τιμή, διαθεσιμότητα κάτω από τον τίτλο)
+ *  μόνο σε σελίδες με τύπο Product· το παλιό WooCommerce site τα είχε και
+ *  έπαιρνε από εκεί μεγάλο μέρος των clicks. Το Offer μπαίνει μόνο όταν
+ *  υπάρχει τιμή — Product χωρίς offers/review/rating απλώς δεν δίνει snippet,
+ *  δεν είναι σφάλμα. */
+export function productJsonLd(input: {
+  name: string;
+  description?: string;
+  url: string;
+  image?: string | null;
+  price?: number | null;
+  currency?: string;
+  inStock?: boolean;
+  category?: string | null;
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: input.name,
+    ...(input.description ? { description: input.description } : {}),
+    url: input.url,
+    ...(input.image ? { image: [input.image] } : {}),
+    ...(input.category ? { category: input.category } : {}),
+    brand: { '@type': 'Brand', name: 'Sergiani Travel' },
+    ...(input.price != null
+      ? {
+          offers: {
+            '@type': 'Offer',
+            price: input.price,
+            priceCurrency: input.currency ?? 'EUR',
+            availability: input.inStock === false ? 'https://schema.org/SoldOut' : 'https://schema.org/InStock',
+            url: input.url,
+            seller: { '@type': 'TravelAgency', name: 'Sergiani Travel', url: SITE_URL },
+          },
+        }
+      : {}),
+  };
+}
+
 /** Organization structured data for the site (TravelAgency). */
 export function orgJsonLd() {
   return {

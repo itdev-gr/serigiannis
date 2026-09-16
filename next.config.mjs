@@ -1,3 +1,5 @@
+import { legacyRedirects } from './lib/legacy-redirects.mjs';
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   allowedDevOrigins: ['192.168.0.99'],
@@ -16,6 +18,10 @@ const nextConfig = {
   // ο ιδιοκτήτης κατέληγε να δουλεύει το admin από εκεί αντί για το κανονικό
   // domain. Τα /api/* μένουν απ' έξω: τα Vercel crons και το Viva webhook
   // χτυπούν το deployment URL και δεν ακολουθούν redirects.
+  //
+  // Οι διευθύνσεις του παλιού WordPress site (κατηγορίες, άρθρα, taxonomies)
+  // ανακατευθύνονται μόνιμα στις νέες — δες lib/legacy-redirects.mjs. Οι παλιές
+  // εκδρομές /tour/<slug> λύνονται μέσα στη σελίδα εκδρομής (lib/tour-aliases.ts).
   async redirects() {
     return [
       {
@@ -24,6 +30,7 @@ const nextConfig = {
         destination: 'https://www.sergianitravel.gr/:path',
         permanent: true,
       },
+      ...legacyRedirects(),
     ];
   },
   images: {

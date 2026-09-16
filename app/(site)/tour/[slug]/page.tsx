@@ -19,10 +19,10 @@ import { bookableDepartures, headlinePrice, isBookable, tourRouteCta } from '@/l
 import { galleryImages } from '@/lib/gallery';
 import { coverImage, imageUrl } from '@/lib/images';
 import { telHref } from '@/lib/phone';
-import { SITE_URL, jsonLdHtml } from '@/lib/seo';
+import { SITE_URL, jsonLdHtml, productJsonLd } from '@/lib/seo';
 import { decodeSlugParam } from '@/lib/slug';
 import { stripHtmlMaybe } from '@/lib/text';
-import { resolveTourAlias } from '@/lib/tour-aliases';
+import { resolveTourAlias, tourAliasHref } from '@/lib/tour-aliases';
 import { tourFaqs } from '@/lib/tour-faq';
 
 export const revalidate = 3600;
@@ -54,10 +54,11 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
   const decoded = decodeSlugParam(slug);
   const tour = await getTourBySlug(decoded);
   if (!tour) {
-    // Παλιά διεύθυνση εκδρομής που άλλαξε: μόνιμη ανακατεύθυνση αντί για 404,
-    // ώστε οι ήδη μοιρασμένοι σύνδεσμοι να συνεχίσουν να δουλεύουν.
+    // Παλιά διεύθυνση εκδρομής που άλλαξε (δική μας μετονομασία ή slug του
+    // παλιού WordPress site): μόνιμη ανακατεύθυνση αντί για 404, ώστε οι ήδη
+    // μοιρασμένοι σύνδεσμοι και η θέση στη Google να συνεχίσουν να δουλεύουν.
     const alias = resolveTourAlias(decoded);
-    if (alias) permanentRedirect(`/tour/${alias}`);
+    if (alias) permanentRedirect(tourAliasHref(alias));
     notFound();
   }
 
@@ -192,6 +193,19 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
       : {}),
     provider: { '@type': 'TravelAgency', name: 'Sergiani Travel', url: SITE_URL },
   };
+  // Το παλιό site (WooCommerce) έβγαινε στη Google με «Product snippets» (τιμή
+  // και διαθεσιμότητα κάτω από τον τίτλο) και έπαιρνε από εκεί το 28% των
+  // clicks του. Το TouristTrip δεν δίνει τέτοιο rich result· το Product ναι.
+  const productLd = productJsonLd({
+    name: tour.title,
+    description: tour.short_description ?? stripHtmlMaybe(tour.summary) ?? undefined,
+    url: tourUrl,
+    image: coverUrl,
+    price: offerPrice,
+    currency: tour.currency,
+    inStock: bookable,
+    category: primaryCat?.name_el ?? null,
+  });
   const breadcrumbLd = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
@@ -217,6 +231,11 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdHtml(jsonLd) }} />
+      <script
+        type="application/ld+json"
+        data-testid="product-jsonld"
+        dangerouslySetInnerHTML={{ __html: jsonLdHtml(productLd) }}
+      />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdHtml(breadcrumbLd) }} />
       {faqLd && (
         <script
