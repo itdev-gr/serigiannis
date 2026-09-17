@@ -51,3 +51,40 @@ select
      select 1 from unnest(not_included) x
      where x ilike '%ΔΕΝ ΕΠΙΤΡΕΠΟΝΤΑΙ%' or x ilike '- Κατοικίδια%' or x ilike '- Κάπνισμα%' or x ilike '- Φαγητό%')) as still_workaround,
   (select count(*) from public.tours where cardinality(not_allowed) > 0) as tours_with_not_allowed;
+
+-- Δεύτερο πέρασμα (ίδια μέρα): σε 46 από τις 54 εκδρομές οι γραμμές της
+-- πατέντας ήταν ΧΩΡΙΣ παύλα («Κατοικίδια.», «Κάπνισμα στο Πούλμαν.», «Φαγητό -
+-- καφές στο Πούλμαν.», «Κάπνισμα στο όχημα»), οπότε το πρώτο πέρασμα έβγαλε
+-- μόνο την επικεφαλίδα. Μόνο για τις εκδρομές του backup (αυτές είχαν την
+-- επικεφαλίδα «ΔΕΝ ΕΠΙΤΡΕΠΟΝΤΑΙ»), ώστε να μην αγγίξουμε άλλες.
+with w as (
+  select t.id,
+    array(select x from unnest(t.not_included) x
+          where not (x ilike 'Κατοικίδια%' or x ilike 'Κάπνισμα%' or x ilike 'Φαγητό%')) as ni,
+    array_remove(array[
+      case when exists (select 1 from unnest(t.not_included) x where x ilike 'Κατοικίδια%') then 'Κατοικίδια' end,
+      case when exists (select 1 from unnest(t.not_included) x where x ilike 'Κάπνισμα%') then 'Κάπνισμα στο πούλμαν' end,
+      case when exists (select 1 from unnest(t.not_included) x where x ilike 'Φαγητό%') then 'Φαγητό - καφές στο πούλμαν' end
+    ]::text[], null) as na
+  from public.tours t
+  where t.id in (select id from public.tours_not_included_backup_20260917)
+    and exists (select 1 from unnest(t.not_included) x
+                where x ilike 'Κατοικίδια%' or x ilike 'Κάπνισμα%' or x ilike 'Φαγητό%')
+)
+update public.tours t
+set not_included = w.ni,
+    not_allowed = t.not_allowed || array(select v from unnest(w.na) v where not (v = any(t.not_allowed))),
+    updated_at = now()
+from w
+where w.id = t.id;
+
+-- Έτοιμα κείμενα της ίδιας μορφής (χωρίς παύλα) στο «Δεν περιλαμβάνονται».
+delete from public.tour_presets
+where kind = 'not_included'
+  and (label ilike 'Κατοικίδια%' or label ilike 'Κάπνισμα%' or label ilike 'Φαγητό%');
+
+select
+  (select count(*) from public.tours where cardinality(not_allowed) > 0) as tours_with_not_allowed,
+  (select count(*) from public.tours where exists (select 1 from unnest(not_included) x
+     where x ilike '%ΕΠΙΤΡΕΠΟΝΤΑΙ%' or x ilike '%Κατοικίδια%' or x ilike '%Κάπνισμα%' or x ilike 'Φαγητό%')) as leftovers_anywhere,
+  (select string_agg(label, ' | ' order by sort_order) from public.tour_presets where kind = 'not_included') as not_included_presets;
