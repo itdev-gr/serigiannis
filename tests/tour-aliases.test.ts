@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { resolveTourAlias, tourAliasHref } from '@/lib/tour-aliases';
-import { LEGACY_TOUR_ALIASES } from '@/lib/legacy-tour-aliases';
+import { LEGACY_TOUR_ALIASES } from '@/lib/legacy-tour-aliases.mjs';
 
 describe('resolveTourAlias', () => {
   it('στέλνει την παλιά διεύθυνση με κενά στη νέα', () => {

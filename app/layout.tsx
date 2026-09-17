@@ -10,6 +10,8 @@ export const metadata: Metadata = {
   },
   description:
     'Μονοήμερες και πολυήμερες εκδρομές από Αθήνα, κρουαζιέρες, θαλάσσια μπάνια και ενοικιάσεις πούλμαν. Sergiani Travel - ταξίδια με πάθος από το 1995!',
+  // Επαλήθευση ιδιοκτησίας για το Google Search Console (meta tag).
+  verification: { google: 'kmWXpc0LEAbnmzGwPa8_y8lE9Tv-QZiucJ7YamJSj_Y' },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -1,4 +1,4 @@
-import { legacyRedirects } from './lib/legacy-redirects.mjs';
+import { siteRedirects } from './lib/legacy-redirects.mjs';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -14,24 +14,16 @@ const nextConfig = {
   async rewrites() {
     return [{ source: '/wc-api/:path*', destination: '/api/payments/return' }];
   },
-  // Το serigiannis.vercel.app είναι alias του ίδιου deployment· χωρίς redirect
-  // ο ιδιοκτήτης κατέληγε να δουλεύει το admin από εκεί αντί για το κανονικό
-  // domain. Τα /api/* μένουν απ' έξω: τα Vercel crons και το Viva webhook
-  // χτυπούν το deployment URL και δεν ακολουθούν redirects.
-  //
-  // Οι διευθύνσεις του παλιού WordPress site (κατηγορίες, άρθρα, taxonomies)
-  // ανακατευθύνονται μόνιμα στις νέες — δες lib/legacy-redirects.mjs. Οι παλιές
-  // εκδρομές /tour/<slug> λύνονται μέσα στη σελίδα εκδρομής (lib/tour-aliases.ts).
+  // Το εσωτερικό redirect του Next για το τελικό «/» έτρεχε ΠΡΙΝ τους δικούς
+  // μας κανόνες και έβαζε ένα έξτρα βήμα σε κάθε παλιά διεύθυνση του WordPress
+  // site (όλες είχαν τελικό «/»). Το κόβουμε και το κάνουμε μόνοι μας, στη
+  // σωστή θέση — δες siteRedirects().
+  skipTrailingSlashRedirect: true,
+  // Όλα τα redirects (παλιές διευθύνσεις, τελικό «/», apex και vercel.app →
+  // www) ζουν στο lib/legacy-redirects.mjs ώστε να ελέγχονται με tests. Η
+  // σειρά τους είναι ό,τι κάνει κάθε παλιό URL να φτάνει με ΕΝΑ 308 στο τελικό.
   async redirects() {
-    return [
-      {
-        source: '/:path((?!api/).*)',
-        has: [{ type: 'host', value: 'serigiannis.vercel.app' }],
-        destination: 'https://www.sergianitravel.gr/:path',
-        permanent: true,
-      },
-      ...legacyRedirects(),
-    ];
+    return siteRedirects();
   },
   images: {
     remotePatterns: [

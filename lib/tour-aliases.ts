@@ -1,4 +1,4 @@
-import { LEGACY_TOUR_ALIASES } from '@/lib/legacy-tour-aliases';
+import { LEGACY_TOUR_ALIASES } from '@/lib/legacy-tour-aliases.mjs';
 
 /** Παλιές διευθύνσεις εκδρομών που άλλαξαν, ώστε οι ήδη μοιρασμένοι σύνδεσμοι
  *  να μη γίνουν 404.
@@ -13,7 +13,7 @@ import { LEGACY_TOUR_ALIASES } from '@/lib/legacy-tour-aliases';
  *  `params.slug` ήδη αποκωδικοποιημένο.
  *
  *  Οι διευθύνσεις του παλιού WordPress site (εκατοντάδες, από το Search Console)
- *  ζουν χωριστά στο legacy-tour-aliases.ts· εδώ μένουν μόνο όσες προέκυψαν από
+ *  ζουν χωριστά στο legacy-tour-aliases.mjs· εδώ μένουν μόνο όσες προέκυψαν από
  *  δικές μας μετονομασίες. Σε σύγκρουση νικά η γραμμή αυτού του αρχείου.
  */
 const TOUR_ALIASES: Record<string, string> = {
