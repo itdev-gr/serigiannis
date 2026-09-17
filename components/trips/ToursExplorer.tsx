@@ -1,5 +1,6 @@
 'use client';
-import { useMemo, useState, type ReactNode } from 'react';
+import { useMemo, type ReactNode } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ArrowDownUp, SearchX, X } from 'lucide-react';
 import type { Tour, Category } from '@/types/db';
 import { TourCard } from '@/components/trips/TourCard';
@@ -8,6 +9,7 @@ import { filterTours, sortTours, type SortKey } from '@/lib/filters';
 import { cn } from '@/lib/utils';
 
 const PAGE_SIZE = 9;
+const DEFAULT_SORT: SortKey = 'date';
 const SORTS: { key: SortKey; label: string }[] = [
   { key: 'popular', label: 'Δημοφιλή' },
   { key: 'price-asc', label: 'Τιμή (χαμηλή → υψηλή)' },
@@ -17,6 +19,38 @@ const SORTS: { key: SortKey; label: string }[] = [
 
 function plural(n: number): string {
   return n === 1 ? '1 εκδρομή' : `${n} εκδρομές`;
+}
+
+/** Η κατάσταση του καταλόγου όπως διαβάζεται από τη διεύθυνση. */
+export type ExplorerState = { category?: string; sort: SortKey; page: number };
+
+/** Διαβάζει κατηγορία/ταξινόμηση/σελίδα από τα query params, με προεπιλογές
+ *  για ό,τι λείπει ή είναι άκυρο. Καθαρή συνάρτηση, ώστε να ελέγχεται. */
+export function parseExplorerParams(
+  params: URLSearchParams | null,
+  categorySlugs: string[],
+  lockedCategory?: string
+): ExplorerState {
+  const cat = params?.get('category') ?? undefined;
+  const sortRaw = params?.get('sort') ?? '';
+  const pageRaw = Number.parseInt(params?.get('page') ?? '', 10);
+  return {
+    category: lockedCategory ?? (cat && categorySlugs.includes(cat) ? cat : undefined),
+    sort: SORTS.some((s) => s.key === sortRaw) ? (sortRaw as SortKey) : DEFAULT_SORT,
+    page: Number.isFinite(pageRaw) && pageRaw >= 1 ? pageRaw : 1,
+  };
+}
+
+/** Η διεύθυνση για μια κατάσταση: μόνο ό,τι διαφέρει από τις προεπιλογές
+ *  μπαίνει στο URL, ώστε η «καθαρή» διεύθυνση της σελίδας (και το canonical)
+ *  να μένει χωρίς params. */
+export function explorerHref(pathname: string, state: ExplorerState, lockedCategory?: string): string {
+  const q = new URLSearchParams();
+  if (!lockedCategory && state.category) q.set('category', state.category);
+  if (state.sort !== DEFAULT_SORT) q.set('sort', state.sort);
+  if (state.page > 1) q.set('page', String(state.page));
+  const qs = q.toString();
+  return qs ? `${pathname}?${qs}` : pathname;
 }
 
 function FilterChip({
@@ -54,9 +88,26 @@ export function ToursExplorer({
   categories: Category[];
   lockedCategory?: string;
 }) {
-  const [category, setCategory] = useState<string | undefined>(lockedCategory);
-  const [sort, setSort] = useState<SortKey>('date');
-  const [page, setPage] = useState(1);
+  // Η κατάσταση ζει στη διεύθυνση (?category=&sort=&page=), όχι σε state:
+  // έτσι το «πίσω» του browser γυρνά από τη σελίδα 4 στην 3 και η επιστροφή
+  // από μια εκδρομή βρίσκει τον κατάλογο εκεί που τον άφησε ο επισκέπτης.
+  // Πριν, με useState, το «πίσω» πήγαινε στην αρχική και ο κόσμος χανόταν.
+  const router = useRouter();
+  const pathname = usePathname();
+  const params = useSearchParams();
+  const slugs = useMemo(() => categories.map((c) => c.slug), [categories]);
+  const state = useMemo(
+    () => parseExplorerParams(params, slugs, lockedCategory),
+    [params, slugs, lockedCategory]
+  );
+  const { category, sort, page } = state;
+
+  const navigate = (next: Partial<ExplorerState>) => {
+    router.push(explorerHref(pathname, { ...state, ...next }, lockedCategory), { scroll: false });
+  };
+  const setCategory = (c: string | undefined) => navigate({ category: c, page: 1 });
+  const setSort = (s: SortKey) => navigate({ sort: s, page: 1 });
+  const setPage = (p: number) => navigate({ page: p });
 
   const filtered = useMemo(() => {
     const f = filterTours(tours, { category: lockedCategory ?? category });
@@ -71,23 +122,19 @@ export function ToursExplorer({
   // Μόνο όταν υπάρχει κάτι που ο επισκέπτης ΜΠΟΡΕΙ να καθαρίσει. Σε σελίδα
   // κατηγορίας η κατηγορία είναι κλειδωμένη, οπότε χωρίς αυτόν τον έλεγχο
   // εμφανιζόταν άδεια γραμμή «Ενεργά φίλτρα:» με μόνο το «Καθαρισμός όλων».
-  const hasFilters = (!lockedCategory && Boolean(category)) || sort !== 'date';
+  const hasFilters = (!lockedCategory && Boolean(category)) || sort !== DEFAULT_SORT;
   const categoryLabel = activeCategory
     ? categories.find((c) => c.slug === activeCategory)?.name_el ?? activeCategory
     : null;
 
-  // The pagination isn't a navigation (plain state update), so the browser keeps
-  // the scroll offset; jump back to the top instantly — html has scroll-behavior:smooth.
+  // Το router.push γίνεται με scroll:false ώστε να μην πηδά στην κορυφή με
+  // smooth scroll· ανεβαίνουμε ακαριαία εμείς — html has scroll-behavior:smooth.
   const goToPage = (p: number) => {
     setPage(p);
     window.scrollTo({ top: 0, behavior: 'instant' });
   };
 
-  const reset = () => {
-    setCategory(lockedCategory);
-    setSort('date');
-    setPage(1);
-  };
+  const reset = () => navigate({ category: lockedCategory, sort: DEFAULT_SORT, page: 1 });
 
   return (
     <div>
@@ -103,10 +150,7 @@ export function ToursExplorer({
               <span className="shrink-0 font-sans text-[13px] font-medium text-muted">Ταξινόμηση</span>
               <select
                 value={sort}
-                onChange={(e) => {
-                  setSort(e.target.value as SortKey);
-                  setPage(1);
-                }}
+                onChange={(e) => setSort(e.target.value as SortKey)}
                 aria-label="Ταξινόμηση εκδρομών"
                 className="h-11 min-w-0 flex-1 cursor-pointer rounded-xl border border-border bg-surface px-3 font-sans text-[14px] font-medium text-body shadow-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10 sm:min-w-[220px]"
               >
@@ -126,24 +170,11 @@ export function ToursExplorer({
                   Κατηγορία
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  <FilterChip
-                    active={!category}
-                    onClick={() => {
-                      setCategory(undefined);
-                      setPage(1);
-                    }}
-                  >
+                  <FilterChip active={!category} onClick={() => setCategory(undefined)}>
                     Όλες
                   </FilterChip>
                   {categories.map((c) => (
-                    <FilterChip
-                      key={c.slug}
-                      active={category === c.slug}
-                      onClick={() => {
-                        setCategory(c.slug);
-                        setPage(1);
-                      }}
-                    >
+                    <FilterChip key={c.slug} active={category === c.slug} onClick={() => setCategory(c.slug)}>
                       {c.name_el}
                     </FilterChip>
                   ))}
@@ -158,10 +189,7 @@ export function ToursExplorer({
                 {categoryLabel && !lockedCategory && (
                   <button
                     type="button"
-                    onClick={() => {
-                      setCategory(undefined);
-                      setPage(1);
-                    }}
+                    onClick={() => setCategory(undefined)}
                     className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5 font-sans text-[13px] font-medium text-primary transition hover:bg-primary/15"
                   >
                     {categoryLabel}

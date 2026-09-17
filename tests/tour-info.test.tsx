@@ -21,6 +21,7 @@ const tour = (o: Partial<Tour> = {}): Tour => ({
   highlights: [],
   included: [],
   not_included: [],
+  not_allowed: [],
   route_id: null,
   status: 'published',
   is_featured: false,
@@ -174,5 +175,27 @@ describe('TourInfo — σημεία επιβίβασης', () => {
     render(<TourInfo tour={tour({ meeting_point: 'Γραφείο' })} />);
     expect(screen.queryByRole('heading', { name: 'Σημεία επιβίβασης' })).not.toBeInTheDocument();
     expect(screen.queryAllByTestId('boarding-point')).toHaveLength(0);
+  });
+});
+
+describe('TourInfo — «Δεν επιτρέπονται»', () => {
+  it('δείχνει τη λίστα με τα δικά της στοιχεία, σε όλο το πλάτος κάτω από τις δύο στήλες', () => {
+    render(<TourInfo tour={tour({ included: ['Πούλμαν'], not_allowed: ['Κατοικίδια', 'Κάπνισμα στο πούλμαν'] })} />);
+    expect(screen.getByRole('heading', { name: 'Δεν επιτρέπονται' })).toBeInTheDocument();
+    expect(screen.getAllByTestId('tour-not-allowed').map((li) => li.textContent)).toEqual([
+      'Κατοικίδια',
+      'Κάπνισμα στο πούλμαν',
+    ]);
+  });
+
+  it('αρκεί μόνη της για να εμφανιστεί η ενότητα «Τι περιλαμβάνεται»', () => {
+    render(<TourInfo tour={tour({ not_allowed: ['Κατοικίδια'] })} />);
+    expect(screen.getByRole('heading', { name: 'Τι περιλαμβάνεται' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Περιλαμβάνονται' })).not.toBeInTheDocument();
+  });
+
+  it('κρύβεται όταν είναι άδεια ή έχει μόνο κενά', () => {
+    render(<TourInfo tour={tour({ included: ['Πούλμαν'], not_allowed: ['', '  '] })} />);
+    expect(screen.queryByRole('heading', { name: 'Δεν επιτρέπονται' })).not.toBeInTheDocument();
   });
 });

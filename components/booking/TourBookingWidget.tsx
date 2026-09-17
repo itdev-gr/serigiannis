@@ -14,6 +14,7 @@ import {
   itemsTotalCents,
 } from '@/lib/booking';
 import type { TourDeparture, TourPriceTier } from '@/types/db';
+import { SocialLinks, type SocialLinksInput } from '@/components/shared/SocialLinks';
 
 const ERROR_TEXT: Record<string, string> = {
   tour_not_found: 'Η εκδρομή δεν είναι διαθέσιμη για κράτηση.',
@@ -81,6 +82,7 @@ export function TourBookingWidget({
   tiers,
   departures,
   payOnline,
+  social,
 }: {
   tourId: string;
   tourSlug: string;
@@ -88,6 +90,8 @@ export function TourBookingWidget({
   departures: TourDeparture[];
   /** false when PAYMENT_PROVIDER=offline — the booking is registered, not charged. */
   payOnline: boolean;
+  /** Social του γραφείου για τη σειρά κάτω από το «Ζητήστε προσφορά». */
+  social?: SocialLinksInput;
 }) {
   const [departureId, setDepartureId] = useState(departures.length === 1 ? departures[0].id : '');
   const [qty, setQty] = useState<Record<string, number>>(() =>
@@ -210,6 +214,13 @@ export function TourBookingWidget({
           Ζητήστε προσφορά
         </Link>
       </p>
+      {/* Τα social εδώ, κάτω από το «Ζητήστε προσφορά» — ζήτημα του πελάτη (17/9/2026). */}
+      {social && (
+        <div className="mt-5 flex flex-col items-center gap-2.5 border-t border-border pt-5">
+          <span className="font-sans text-[12px] font-semibold uppercase tracking-[0.14em] text-muted">Ακολουθήστε μας</span>
+          <SocialLinks social={social} tone="light" />
+        </div>
+      )}
     </div>
   );
 }

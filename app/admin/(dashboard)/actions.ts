@@ -457,6 +457,7 @@ export async function upsertTour(formData: FormData) {
     highlights: parseBoardingPoints(String(formData.get('highlights') || '')),
     included: mergePresetLines(formData, 'included'),
     not_included: mergePresetLines(formData, 'not_included'),
+    not_allowed: mergePresetLines(formData, 'not_allowed'),
     route_id: (String(formData.get('route_id') || '').trim() || null) as string | null,
     seo_title: (String(formData.get('seo_title') || '').trim() || null) as string | null,
     seo_description: (String(formData.get('seo_description') || '').trim() || null) as string | null,
@@ -657,7 +658,7 @@ export async function deleteCategory(id: string) {
 
 // ── Έτοιμα κείμενα φόρμας εκδρομής (tour_presets) ─────────────────────────
 
-const PRESET_KINDS = ['meeting_point', 'included', 'not_included'];
+const PRESET_KINDS = ['meeting_point', 'included', 'not_included', 'not_allowed'];
 
 export async function upsertTourPreset(formData: FormData) {
   const sb = await createServerClient();

@@ -24,6 +24,7 @@ import { decodeSlugParam } from '@/lib/slug';
 import { stripHtmlMaybe } from '@/lib/text';
 import { resolveTourAlias, tourAliasHref } from '@/lib/tour-aliases';
 import { tourFaqs } from '@/lib/tour-faq';
+import { SocialLinks } from '@/components/shared/SocialLinks';
 
 export const revalidate = 3600;
 
@@ -168,6 +169,14 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
           <Phone className="h-4 w-4" strokeWidth={1.75} /> {phone}
         </a>
       )}
+      {/* Στις εκδρομές χωρίς κουτί online κράτησης τα social μπαίνουν εδώ, στο
+          ίδιο ύψος της δεξιάς στήλης όπου τα βλέπει ο επισκέπτης στις άλλες. */}
+      {!bookable && (
+        <div className="mt-5 flex flex-col items-center gap-2.5 border-t border-border pt-5">
+          <span className="font-sans text-[12px] font-semibold uppercase tracking-[0.14em] text-muted">Ακολουθήστε μας</span>
+          <SocialLinks social={settings.social} tone="light" />
+        </div>
+      )}
     </div>
   ) : null;
 
@@ -285,6 +294,7 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
                   tiers={tiers}
                   departures={departures}
                   payOnline={getPaymentProvider().id !== 'offline'}
+                  social={settings.social}
                 />
                 {routeCta && !routeCta.primary && (
                   <Link

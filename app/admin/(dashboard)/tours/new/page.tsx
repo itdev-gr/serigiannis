@@ -13,6 +13,7 @@ export default async function NewTourPage({ searchParams }: { searchParams: Prom
     meeting_points: presetsOfKind(allPresets, 'meeting_point').map((p) => p.label),
     included: presetsOfKind(allPresets, 'included').map((p) => p.label),
     not_included: presetsOfKind(allPresets, 'not_included').map((p) => p.label),
+    not_allowed: presetsOfKind(allPresets, 'not_allowed').map((p) => p.label),
   };
   return (
     <div>

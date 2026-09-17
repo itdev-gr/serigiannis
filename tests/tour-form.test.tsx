@@ -44,6 +44,7 @@ const tour = {
   highlights: [],
   included: [],
   not_included: [],
+  not_allowed: [],
   route_id: 'r-1',
   status: 'published',
   is_featured: false,
@@ -131,7 +132,24 @@ describe('TourForm — έτοιμα κείμενα (presets)', () => {
     meeting_points: ['Πλατεία Συντάγματος', 'Σταθμός ΗΣΑΠ Πειραιά'],
     included: ['Μεταφορά με πούλμαν', 'Αρχηγός εκδρομής'],
     not_included: ['Γεύματα'],
+    not_allowed: ['Κατοικίδια', 'Κάπνισμα στο πούλμαν'],
   };
+
+  it('δείχνει και τα «Δεν επιτρέπονται» ως checkboxes με τα δικά τους τσεκαρισμένα', () => {
+    const { container } = render(
+      <TourForm
+        tour={{ ...tour, not_allowed: ['Κάπνισμα στο πούλμαν', 'Ποδήλατα'] }}
+        categories={categories}
+        routes={routes}
+        presets={presets}
+        action={() => {}}
+      />,
+    );
+    const boxes = [...container.querySelectorAll('input[name="not_allowed_preset"]')] as HTMLInputElement[];
+    expect(boxes.map((b) => b.value)).toEqual(['Κατοικίδια', 'Κάπνισμα στο πούλμαν']);
+    expect(boxes.map((b) => b.checked)).toEqual([false, true]);
+    expect((container.querySelector('textarea[name="not_allowed"]') as HTMLTextAreaElement).value).toBe('Ποδήλατα');
+  });
 
   it('τσεκάρει όσα έχει ήδη η εκδρομή και στέλνει τα υπόλοιπα ως έξτρα', () => {
     const { container } = render(

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import { PageHeading } from '@/components/shared/PageHeading';
 import { ToursExplorer } from '@/components/trips/ToursExplorer';
 import { getTours } from '@/lib/queries/tours';
@@ -33,7 +34,10 @@ export default async function EkdromesPage() {
       />
       <section className="pb-16 pt-4 md:pb-24 md:pt-6">
         <div className="container">
-          <ToursExplorer tours={tours} categories={categories} />
+          {/* Το useSearchParams του καταλόγου θέλει Suspense στο static rendering. */}
+          <Suspense fallback={null}>
+            <ToursExplorer tours={tours} categories={categories} />
+          </Suspense>
         </div>
       </section>
     </>

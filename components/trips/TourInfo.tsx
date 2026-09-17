@@ -1,4 +1,4 @@
-import { Calendar, Check, Clock, MapPin, Tag, X } from 'lucide-react';
+import { Ban, Calendar, Check, Clock, MapPin, Tag, X } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { Tour } from '@/types/db';
 import { sanitizeArticleHtml } from '@/lib/sanitize-html';
@@ -35,6 +35,7 @@ export function TourInfo({ tour }: { tour: Tour }) {
   const highlights = clean(tour.highlights);
   const included = clean(tour.included);
   const notIncluded = clean(tour.not_included);
+  const notAllowed = clean(tour.not_allowed);
 
   if (
     !hasSummary &&
@@ -42,7 +43,8 @@ export function TourInfo({ tour }: { tour: Tour }) {
     points.length === 0 &&
     highlights.length === 0 &&
     included.length === 0 &&
-    notIncluded.length === 0
+    notIncluded.length === 0 &&
+    notAllowed.length === 0
   ) {
     return null;
   }
@@ -83,7 +85,7 @@ export function TourInfo({ tour }: { tour: Tour }) {
         </section>
       )}
 
-      {(included.length > 0 || notIncluded.length > 0) && (
+      {(included.length > 0 || notIncluded.length > 0 || notAllowed.length > 0) && (
         <section className="py-8 first:pt-0">
           <h2 className="text-xl font-bold text-primary">Τι περιλαμβάνεται</h2>
           <div className="mt-4 grid gap-x-9 gap-y-4 sm:grid-cols-2">
@@ -107,6 +109,21 @@ export function TourInfo({ tour }: { tour: Tour }) {
                   {notIncluded.map((item, i) => (
                     <li key={`${i}-${item}`} data-testid="tour-not-included" className="flex gap-2.5 text-[14.5px] text-muted">
                       <X className="mt-0.5 h-[18px] w-[18px] shrink-0 text-muted/50" strokeWidth={1.75} />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {notAllowed.length > 0 && (
+              // Κανόνες συμπεριφοράς, όχι κόστους: δική τους λίστα με ⊗ σε
+              // κόκκινο τόνο, σε όλο το πλάτος κάτω από τις δύο στήλες.
+              <div className="sm:col-span-2">
+                <h3 className="mb-2.5 font-sans text-[14px] font-bold text-body">Δεν επιτρέπονται</h3>
+                <ul className="grid gap-2 sm:grid-cols-2 sm:gap-x-9">
+                  {notAllowed.map((item, i) => (
+                    <li key={`${i}-${item}`} data-testid="tour-not-allowed" className="flex gap-2.5 text-[14.5px] text-body">
+                      <Ban className="mt-0.5 h-[18px] w-[18px] shrink-0 text-cta" strokeWidth={1.75} />
                       <span>{item}</span>
                     </li>
                   ))}

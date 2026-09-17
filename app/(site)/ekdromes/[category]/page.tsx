@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import { PageHeading } from '@/components/shared/PageHeading';
 import { ToursExplorer } from '@/components/trips/ToursExplorer';
@@ -61,7 +62,10 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
               ))}
             </div>
           )}
-          <ToursExplorer tours={tours} categories={categories} lockedCategory={cat.slug} />
+          {/* Το useSearchParams του καταλόγου θέλει Suspense στο static rendering. */}
+          <Suspense fallback={null}>
+            <ToursExplorer tours={tours} categories={categories} lockedCategory={cat.slug} />
+          </Suspense>
         </div>
       </section>
     </>

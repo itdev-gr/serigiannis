@@ -69,12 +69,15 @@ export function Home1Hero({
           />
         </div>
       ))}
-      <div className="absolute inset-0 bg-gradient-to-b from-deep-ink/70 via-deep-ink/45 to-deep-ink/90" />
+      {/* Ελαφρύ overlay: ο πελάτης ζήτησε να φαίνονται οι φωτογραφίες (17/9/2026).
+          Το κάτω μέρος μένει πιο σκούρο για τη φόρμα και τις κατηγορίες· ο
+          τίτλος παίρνει σκιά κειμένου για να διαβάζεται πάνω σε ανοιχτές εικόνες. */}
+      <div className="absolute inset-0 bg-gradient-to-b from-deep-ink/35 via-deep-ink/20 to-deep-ink/70" />
 
       <div className="container relative z-10 flex w-full flex-col items-center justify-center px-4 pb-12 pt-32 text-center text-surface sm:pb-16 sm:pt-36 md:min-h-0 md:py-20">
         <h1
           className={cn(
-            'mx-auto w-full max-w-6xl text-balance text-center font-display font-semibold tracking-tight text-white',
+            'mx-auto w-full max-w-6xl text-balance text-center font-display font-semibold tracking-tight text-white [text-shadow:0_2px_18px_rgba(0,0,0,0.55)]',
             c.titleEmph.trim() !== '' &&
               'lg:flex lg:w-fit lg:max-w-full lg:flex-row lg:flex-wrap lg:items-center lg:justify-center lg:gap-x-2.5 lg:whitespace-nowrap lg:text-[clamp(1.2rem,1.85vw,2.35rem)] xl:text-[clamp(1.35rem,2.1vw,2.65rem)]'
           )}
@@ -91,7 +94,7 @@ export function Home1Hero({
           )}
         </h1>
         {c.subtitle.trim() !== '' && (
-          <p className="mx-auto mt-6 max-w-2xl text-[19px] leading-relaxed text-white">{c.subtitle}</p>
+          <p className="mx-auto mt-6 max-w-2xl text-[19px] leading-relaxed text-white [text-shadow:0_1px_12px_rgba(0,0,0,0.6)]">{c.subtitle}</p>
         )}
 
         <form
