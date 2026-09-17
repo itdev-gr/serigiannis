@@ -77,6 +77,8 @@ describe('legacyRedirects', () => {
     const post = '/nea/taksidiotiko-grafeio-peristeri-athina-sergiani-travel-apo-to-1995';
     expect(firstMatch(rules, '/taksidiotiko-grafeio-peristeri-athina-sergiani-travel-apo-to-1995')?.destination).toBe(post);
     expect(firstMatch(rules, '/8929/taksidiotiko-grafeio-peristeri-athina-sergiani-travel-apo-to-1995')?.destination).toBe(post);
+    // Και όταν ο προορισμός είναι κατηγορία: πάλι ένα βήμα, όχι μέσω του root URL.
+    expect(firstMatch(rules, '/7050/sykia-korinthias')?.destination).toBe('/ekdromes/thalassia-mpania');
     // Άγνωστο id-άρθρο: πέφτει στο root URL (ίσως 404, αλλά όχι νεκρό id).
     expect(firstMatch(rules, '/9999/kati-allo')?.destination).toBe('/:slug');
   });
