@@ -151,6 +151,16 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
     </>
   ) : null;
 
+  // Τα social του γραφείου κάτω από το «Ζητήστε προσφορά» (ζήτημα πελάτη,
+  // 17/9/2026). Το κουτί online κράτησης τα δείχνει μόνο του (prop social)· οι
+  // δύο άλλες κάρτες της δεξιάς στήλης παίρνουν αυτό το block.
+  const followUs = settings.social ? (
+    <div className="mt-5 flex flex-col items-center gap-2.5 border-t border-border pt-5">
+      <span className="font-sans text-[12px] font-semibold uppercase tracking-[0.14em] text-muted">Ακολουθήστε μας</span>
+      <SocialLinks social={settings.social} tone="light" />
+    </div>
+  ) : null;
+
   const detailsCard = (tour.duration_label || tour.departure_note || tour.meeting_point || phone) ? (
     <div className="rounded-2xl border border-border bg-surface p-6 shadow-card">
       <ul className="space-y-4 text-[15px]">
@@ -169,14 +179,7 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
           <Phone className="h-4 w-4" strokeWidth={1.75} /> {phone}
         </a>
       )}
-      {/* Στις εκδρομές χωρίς κουτί online κράτησης τα social μπαίνουν εδώ, στο
-          ίδιο ύψος της δεξιάς στήλης όπου τα βλέπει ο επισκέπτης στις άλλες. */}
-      {!bookable && (
-        <div className="mt-5 flex flex-col items-center gap-2.5 border-t border-border pt-5">
-          <span className="font-sans text-[12px] font-semibold uppercase tracking-[0.14em] text-muted">Ακολουθήστε μας</span>
-          <SocialLinks social={settings.social} tone="light" />
-        </div>
-      )}
+      {!bookable && followUs}
     </div>
   ) : null;
 
@@ -364,6 +367,7 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
                   <Phone className="h-4 w-4" strokeWidth={1.75} /> {phone}
                 </a>
               )}
+              {followUs}
             </div>
             <div className="mt-6 scroll-mt-28 sm:scroll-mt-40" id="kratisi">
               <OnlineBookingForm
