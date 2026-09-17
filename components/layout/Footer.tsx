@@ -1,43 +1,12 @@
-import type { SVGProps, ComponentType } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { MapPin, Phone, Mail, Clock } from 'lucide-react';
 import { getSettings } from '@/lib/queries/settings';
 import { telHref } from '@/lib/phone';
-
-// Brand icons — lucide-react v1 removed brand marks, so we inline them.
-function Facebook(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
-      <path d="M22 12a10 10 0 1 0-11.56 9.88v-6.99H7.9V12h2.54V9.8c0-2.51 1.49-3.9 3.78-3.9 1.1 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56V12h2.77l-.44 2.89h-2.33v6.99A10 10 0 0 0 22 12Z" />
-    </svg>
-  );
-}
-function Instagram(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>
-      <rect x="3" y="3" width="18" height="18" rx="5" />
-      <circle cx="12" cy="12" r="4" />
-      <circle cx="17.5" cy="6.5" r="0.75" fill="currentColor" stroke="none" />
-    </svg>
-  );
-}
-function Youtube(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
-      <path d="M23.5 6.5a3 3 0 0 0-2.12-2.12C19.4 3.9 12 3.9 12 3.9s-7.4 0-9.38.48A3 3 0 0 0 .5 6.5 31.4 31.4 0 0 0 0 12a31.4 31.4 0 0 0 .5 5.5 3 3 0 0 0 2.12 2.12C4.6 20.1 12 20.1 12 20.1s7.4 0 9.38-.48a3 3 0 0 0 2.12-2.12A31.4 31.4 0 0 0 24 12a31.4 31.4 0 0 0-.5-5.5ZM9.6 15.6V8.4l6.4 3.6-6.4 3.6Z" />
-    </svg>
-  );
-}
+import { SocialLinks } from '@/components/shared/SocialLinks';
 
 export async function Footer() {
   const s = await getSettings();
-  const socials = [
-    s.social?.facebook && { href: s.social.facebook, label: 'Facebook', Icon: Facebook },
-    s.social?.instagram && { href: s.social.instagram, label: 'Instagram', Icon: Instagram },
-    s.social?.youtube && { href: s.social.youtube, label: 'YouTube', Icon: Youtube },
-  ].filter(Boolean) as { href: string; label: string; Icon: ComponentType<SVGProps<SVGSVGElement>> }[];
-
   return (
     <footer className="bg-deep-ink text-surface">
       <div className="container grid gap-12 py-20 md:grid-cols-2 lg:grid-cols-4">
@@ -48,13 +17,7 @@ export async function Footer() {
           <p className="text-[17px] leading-relaxed text-white">
             Ταξιδιωτικό γραφείο στο Περιστέρι από το 1995. Οργανώνουμε εκδρομές, κρουαζιέρες και μεταφορές σε όλη την Ελλάδα.
           </p>
-          <div className="mt-6 flex gap-3">
-            {socials.map(({ href, label, Icon }) => (
-              <a key={label} href={href} aria-label={label} target="_blank" rel="noopener" className="grid h-11 w-11 place-items-center rounded-full bg-surface/10 text-white transition-colors hover:bg-cta">
-                <Icon className="h-5 w-5" />
-              </a>
-            ))}
-          </div>
+          <SocialLinks social={s.social} tone="dark" className="mt-6" />
         </div>
 
         <div>

@@ -37,6 +37,7 @@ const tour = (o: Partial<Tour> = {}): Tour =>
     highlights: [],
     included: [],
     not_included: [],
+  not_allowed: [],
     route_id: null,
     status: 'published',
     is_featured: false,

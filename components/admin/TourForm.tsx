@@ -20,6 +20,7 @@ export type TourFormPresets = {
   meeting_points: string[];
   included: string[];
   not_included: string[];
+  not_allowed: string[];
 };
 
 /** Λίστα με έτοιμες γραμμές (checkboxes, καρτέλα «Έτοιμα κείμενα») συν
@@ -288,6 +289,14 @@ export function TourForm({
         presets={presets?.not_included ?? []}
         current={tour?.not_included ?? []}
         hint="Ό,τι πληρώνει ο ταξιδιώτης χωριστά. Βοηθά να μη γίνονται παρεξηγήσεις την ημέρα της εκδρομής."
+      />
+
+      <PresetPicker
+        label="Δεν επιτρέπονται"
+        name="not_allowed"
+        presets={presets?.not_allowed ?? []}
+        current={tour?.not_allowed ?? []}
+        hint="Τι δεν επιτρέπεται στην εκδρομή (κατοικίδια, κάπνισμα, φαγητό στο πούλμαν). Εμφανίζεται με ⊗ δίπλα στα «Δεν περιλαμβάνονται»."
       />
 
       <label className="block">

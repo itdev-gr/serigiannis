@@ -1,6 +1,6 @@
 import { isDbConfigured, createServerClient } from '@/lib/supabase/server';
 
-export type TourPresetKind = 'meeting_point' | 'included' | 'not_included';
+export type TourPresetKind = 'meeting_point' | 'included' | 'not_included' | 'not_allowed';
 
 export type TourPreset = {
   id: string;

@@ -38,6 +38,11 @@ const PRESET_SECTIONS: { kind: TourPresetKind; title: string; hint: string }[] =
     title: 'Δεν περιλαμβάνονται',
     hint: 'Έτοιμες γραμμές για το «Δεν περιλαμβάνονται» της σελίδας εκδρομής.',
   },
+  {
+    kind: 'not_allowed',
+    title: 'Δεν επιτρέπονται',
+    hint: 'Τι δεν επιτρέπεται στην εκδρομή (κατοικίδια, κάπνισμα, φαγητό στο πούλμαν) — τσεκάρετε ανά εκδρομή ποια ισχύουν.',
+  },
 ];
 
 const PRESET_ROW = 'grid grid-cols-[1fr_6rem_auto] items-center gap-3';

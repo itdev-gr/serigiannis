@@ -960,6 +960,7 @@ describe('TourCard', () => {
     highlights: [],
     included: [],
     not_included: [],
+  not_allowed: [],
     route_id: null,
     status: 'published',
     is_featured: false,
